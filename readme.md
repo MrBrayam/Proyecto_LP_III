@@ -1,0 +1,1 @@
+Este es el comienzo de una aplicacion web de un modelo de negocio basado en Servicio de bellezas
