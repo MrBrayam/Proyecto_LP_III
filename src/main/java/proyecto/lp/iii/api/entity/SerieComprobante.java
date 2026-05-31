@@ -20,7 +20,7 @@ public class SerieComprobante {
 
     @ManyToOne
     @JoinColumn(name = "tenant_id", nullable = false)
-    private Tenant tenant;
+    private Tenants tenant;
 
     @Enumerated(EnumType.STRING)
     private TipoComprobante tipoComprobante;

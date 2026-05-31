@@ -1,7 +1,7 @@
 package proyecto.lp.iii.api.repository;
 
 import proyecto.lp.iii.api.entity.OrdenCompra;
-import proyecto.lp.iii.api.entity.Tenant;
+import proyecto.lp.iii.api.entity.Tenants;
 import proyecto.lp.iii.api.entity.Proveedor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -9,7 +9,7 @@ import java.util.List;
 
 @Repository
 public interface OrdenCompraRepository extends JpaRepository<OrdenCompra, Integer> {
-    List<OrdenCompra> findByTenant(Tenant tenant);
-    List<OrdenCompra> findByTenantAndEstado(Tenant tenant, OrdenCompra.EstadoOrden estado);
+    List<OrdenCompra> findByTenant(Tenants tenant);
+    List<OrdenCompra> findByTenantAndEstado(Tenants tenant, OrdenCompra.EstadoOrden estado);
     List<OrdenCompra> findByProveedor(Proveedor proveedor);
 }

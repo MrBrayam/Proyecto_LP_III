@@ -21,7 +21,7 @@ public class Promocion {
 
     @ManyToOne
     @JoinColumn(name = "tenant_id", nullable = false)
-    private Tenant tenant;
+    private Tenants tenant;
 
     @Column(nullable = false, length = 255)
     private String nombre;

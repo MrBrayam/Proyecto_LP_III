@@ -20,7 +20,7 @@ public class RolPersonalizado {
 
     @ManyToOne
     @JoinColumn(name = "tenant_id", nullable = false)
-    private Tenant tenant;
+    private Tenants tenant;
 
     @Column(nullable = false, length = 100)
     private String nombre;

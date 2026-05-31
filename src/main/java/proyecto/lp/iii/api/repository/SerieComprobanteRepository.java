@@ -1,16 +1,16 @@
 package proyecto.lp.iii.api.repository;
 
 import proyecto.lp.iii.api.entity.SerieComprobante;
-import proyecto.lp.iii.api.entity.Tenant;
+import proyecto.lp.iii.api.entity.Tenants;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
 public interface SerieComprobanteRepository extends JpaRepository<SerieComprobante, Integer> {
-    List<SerieComprobante> findByTenant(Tenant tenant);
+    List<SerieComprobante> findByTenant(Tenants tenant);
     SerieComprobante findByTenantAndTipoComprobanteAndPuntoEmisionAndNumeroSerie(
-            Tenant tenant, 
+            Tenants tenant, 
             SerieComprobante.TipoComprobante tipo, 
             Integer puntoEmision, 
             String numeroSerie);

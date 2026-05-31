@@ -22,7 +22,7 @@ public class GastoRecurrente {
 
     @ManyToOne
     @JoinColumn(name = "tenant_id", nullable = false)
-    private Tenant tenant;
+    private Tenants tenant;
 
     @ManyToOne
     @JoinColumn(name = "sede_id")

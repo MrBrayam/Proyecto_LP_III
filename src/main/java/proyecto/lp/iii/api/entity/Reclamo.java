@@ -19,7 +19,7 @@ public class Reclamo {
 
     @ManyToOne
     @JoinColumn(name = "tenant_id", nullable = false)
-    private Tenant tenant;
+    private Tenants tenant;
 
     @ManyToOne
     @JoinColumn(name = "cliente_id", nullable = false)

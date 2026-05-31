@@ -1,3 +1,4 @@
+/* 
 package proyecto.lp.iii.api.security;
 
 import java.io.IOException;
@@ -45,3 +46,4 @@ public class JwtFilter extends GenericFilter{
     }
 
 }
+    */

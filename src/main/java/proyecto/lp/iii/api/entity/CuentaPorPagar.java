@@ -22,7 +22,7 @@ public class CuentaPorPagar {
 
     @ManyToOne
     @JoinColumn(name = "tenant_id", nullable = false)
-    private Tenant tenant;
+    private Tenants tenant;
 
     @ManyToOne
     @JoinColumn(name = "proveedor_id", nullable = false)

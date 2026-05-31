@@ -20,7 +20,7 @@ public class ConfiguracionTiendaOnline {
 
     @OneToOne
     @JoinColumn(name = "tenant_id", nullable = false)
-    private Tenant tenant;
+    private Tenants tenant;
 
     @Column(length = 255)
     private String tituloTienda;
