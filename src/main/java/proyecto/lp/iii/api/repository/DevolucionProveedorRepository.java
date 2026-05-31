@@ -11,5 +11,4 @@ import java.util.List;
 public interface DevolucionProveedorRepository extends JpaRepository<DevolucionProveedor, Integer> {
     List<DevolucionProveedor> findByTenant(Tenants tenant);
     List<DevolucionProveedor> findByProveedor(Proveedor proveedor);
-    List<DevolucionProveedor> findByEstado(DevolucionProveedor.EstadoDevolucion estado);
 }

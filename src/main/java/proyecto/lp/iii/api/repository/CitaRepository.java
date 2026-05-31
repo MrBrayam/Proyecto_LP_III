@@ -13,5 +13,4 @@ public interface CitaRepository extends JpaRepository<Cita, Integer> {
     List<Cita> findByTenant(Tenants tenant);
     List<Cita> findBySede(Sede sede);
     List<Cita> findByCliente(Cliente cliente);
-    List<Cita> findByEstado(Cita.EstadoCita estado);
 }

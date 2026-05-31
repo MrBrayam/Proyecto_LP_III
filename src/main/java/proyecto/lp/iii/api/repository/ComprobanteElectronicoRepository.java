@@ -9,5 +9,4 @@ import java.util.List;
 @Repository
 public interface ComprobanteElectronicoRepository extends JpaRepository<ComprobanteElectronico, Integer> {
     List<ComprobanteElectronico> findByTenant(Tenants tenant);
-    List<ComprobanteElectronico> findByEstadoSunat(ComprobanteElectronico.EstadoSunat estado);
 }

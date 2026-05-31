@@ -10,6 +10,5 @@ import java.util.List;
 @Repository
 public interface CuentaPorPagarRepository extends JpaRepository<CuentaPorPagar, Integer> {
     List<CuentaPorPagar> findByTenant(Tenants tenant);
-    List<CuentaPorPagar> findByTenantAndEstadoPago(Tenants tenant, CuentaPorPagar.EstadoPago estado);
     List<CuentaPorPagar> findByProveedor(Proveedor proveedor);
 }

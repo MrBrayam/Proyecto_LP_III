@@ -11,5 +11,4 @@ import java.util.List;
 public interface DevolucionVentaRepository extends JpaRepository<DevolucionVenta, Integer> {
     List<DevolucionVenta> findByTenant(Tenants tenant);
     List<DevolucionVenta> findByVenta(Venta venta);
-    List<DevolucionVenta> findByEstadoDevolucion(DevolucionVenta.EstadoDevolucion estado);
 }

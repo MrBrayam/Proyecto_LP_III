@@ -9,5 +9,4 @@ import java.util.List;
 @Repository
 public interface ComboPromocionalRepository extends JpaRepository<ComboPromocional, Integer> {
     List<ComboPromocional> findByTenant(Tenants tenant);
-    List<ComboPromocional> findByTenantAndEstado(Tenants tenant, ComboPromocional.EstadoCombo estado);
 }
