@@ -8,9 +8,9 @@ import proyecto.lp.iii.api.entity.CategoriaProducto;
 public interface ICategoriaProductoService {
     List<CategoriaProducto> buscarTodos();
 
-    void guardar(CategoriaProducto categoriaProducto);
+    void guardar(CategoriaProducto categoriaproducto);
 
-    void modificar(CategoriaProducto categoriaProducto);
+    void modificar(CategoriaProducto categoriaproducto);
 
     Optional<CategoriaProducto> buscarId(Integer id);
 

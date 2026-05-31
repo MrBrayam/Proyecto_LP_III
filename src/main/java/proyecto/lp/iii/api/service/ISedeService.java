@@ -6,8 +6,12 @@ import proyecto.lp.iii.api.entity.Sede;
 
 public interface ISedeService {
     List<Sede> buscarTodos();
-    void guardar(Sede entity);
-    void modificar(Sede entity);
+
+    void guardar(Sede sede);
+
+    void modificar(Sede sede);
+
     Optional<Sede> buscarId(Integer id);
+
     void eliminar(Integer id);
 }

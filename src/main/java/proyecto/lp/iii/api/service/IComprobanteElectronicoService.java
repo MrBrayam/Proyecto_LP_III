@@ -8,9 +8,9 @@ import proyecto.lp.iii.api.entity.ComprobanteElectronico;
 public interface IComprobanteElectronicoService {
     List<ComprobanteElectronico> buscarTodos();
 
-    void guardar(ComprobanteElectronico comprobanteElectronico);
+    void guardar(ComprobanteElectronico comprobanteelectronico);
 
-    void modificar(ComprobanteElectronico comprobanteElectronico);
+    void modificar(ComprobanteElectronico comprobanteelectronico);
 
     Optional<ComprobanteElectronico> buscarId(Integer id);
 

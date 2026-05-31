@@ -19,12 +19,12 @@ public class BrandingNegocioService implements IBrandingNegocioService {
         return repoBrandingNegocio.findAll();
     }
 
-    public void guardar(BrandingNegocio brandingNegocio) {
-        repoBrandingNegocio.save(brandingNegocio);
+    public void guardar(BrandingNegocio brandingnegocio) {
+        repoBrandingNegocio.save(brandingnegocio);
     }
 
-    public void modificar(BrandingNegocio brandingNegocio) {
-        repoBrandingNegocio.save(brandingNegocio);
+    public void modificar(BrandingNegocio brandingnegocio) {
+        repoBrandingNegocio.save(brandingnegocio);
     }
 
     public Optional<BrandingNegocio> buscarId(Integer id) {

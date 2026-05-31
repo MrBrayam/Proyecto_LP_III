@@ -19,12 +19,12 @@ public class ComprobanteElectronicoService implements IComprobanteElectronicoSer
         return repoComprobanteElectronico.findAll();
     }
 
-    public void guardar(ComprobanteElectronico comprobanteElectronico) {
-        repoComprobanteElectronico.save(comprobanteElectronico);
+    public void guardar(ComprobanteElectronico comprobanteelectronico) {
+        repoComprobanteElectronico.save(comprobanteelectronico);
     }
 
-    public void modificar(ComprobanteElectronico comprobanteElectronico) {
-        repoComprobanteElectronico.save(comprobanteElectronico);
+    public void modificar(ComprobanteElectronico comprobanteelectronico) {
+        repoComprobanteElectronico.save(comprobanteelectronico);
     }
 
     public Optional<ComprobanteElectronico> buscarId(Integer id) {

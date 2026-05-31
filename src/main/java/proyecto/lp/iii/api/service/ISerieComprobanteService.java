@@ -6,8 +6,12 @@ import proyecto.lp.iii.api.entity.SerieComprobante;
 
 public interface ISerieComprobanteService {
     List<SerieComprobante> buscarTodos();
-    void guardar(SerieComprobante entity);
-    void modificar(SerieComprobante entity);
+
+    void guardar(SerieComprobante seriecomprobante);
+
+    void modificar(SerieComprobante seriecomprobante);
+
     Optional<SerieComprobante> buscarId(Integer id);
+
     void eliminar(Integer id);
 }

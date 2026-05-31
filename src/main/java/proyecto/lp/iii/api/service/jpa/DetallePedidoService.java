@@ -19,12 +19,12 @@ public class DetallePedidoService implements IDetallePedidoService {
         return repoDetallePedido.findAll();
     }
 
-    public void guardar(DetallePedido detallePedido) {
-        repoDetallePedido.save(detallePedido);
+    public void guardar(DetallePedido detallepedido) {
+        repoDetallePedido.save(detallepedido);
     }
 
-    public void modificar(DetallePedido detallePedido) {
-        repoDetallePedido.save(detallePedido);
+    public void modificar(DetallePedido detallepedido) {
+        repoDetallePedido.save(detallepedido);
     }
 
     public Optional<DetallePedido> buscarId(Integer id) {

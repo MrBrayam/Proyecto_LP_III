@@ -20,12 +20,12 @@ public class UsuariosService implements IUsuariosService {
         return repoUsuarios.findAll();
     }
 
-    public void guardar(Usuarios curso){
-        repoUsuarios.save(curso);
+    public void guardar(Usuarios usuario){
+        repoUsuarios.save(usuario);
     }
 
-    public void modificar(Usuarios curso){
-        repoUsuarios.save(curso);
+    public void modificar(Usuarios usuario){
+        repoUsuarios.save(usuario);
     }
 
     public Optional<Usuarios> buscarId(Integer id){

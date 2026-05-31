@@ -19,12 +19,12 @@ public class CuentaPorPagarService implements ICuentaPorPagarService {
         return repoCuentaPorPagar.findAll();
     }
 
-    public void guardar(CuentaPorPagar cuentaPorPagar) {
-        repoCuentaPorPagar.save(cuentaPorPagar);
+    public void guardar(CuentaPorPagar cuentaporpagar) {
+        repoCuentaPorPagar.save(cuentaporpagar);
     }
 
-    public void modificar(CuentaPorPagar cuentaPorPagar) {
-        repoCuentaPorPagar.save(cuentaPorPagar);
+    public void modificar(CuentaPorPagar cuentaporpagar) {
+        repoCuentaPorPagar.save(cuentaporpagar);
     }
 
     public Optional<CuentaPorPagar> buscarId(Integer id) {

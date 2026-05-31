@@ -19,12 +19,12 @@ public class CategoriaProductoService implements ICategoriaProductoService {
         return repoCategoriaProducto.findAll();
     }
 
-    public void guardar(CategoriaProducto categoriaProducto) {
-        repoCategoriaProducto.save(categoriaProducto);
+    public void guardar(CategoriaProducto categoriaproducto) {
+        repoCategoriaProducto.save(categoriaproducto);
     }
 
-    public void modificar(CategoriaProducto categoriaProducto) {
-        repoCategoriaProducto.save(categoriaProducto);
+    public void modificar(CategoriaProducto categoriaproducto) {
+        repoCategoriaProducto.save(categoriaproducto);
     }
 
     public Optional<CategoriaProducto> buscarId(Integer id) {

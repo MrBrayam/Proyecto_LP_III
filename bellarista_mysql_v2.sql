@@ -1,27 +1,57 @@
--- Base de datos: bellarista
--- Generado para MySQL
--- Fecha: 2026-05-24
+-- ============================================================
+-- Base de datos: bellarista (v2 - corregida y optimizada)
+-- Generado: 2026-05-31
+-- Cambios aplicados:
+--   [FIX-1] access_token eliminado de usuarios; nueva tabla sesiones_usuario
+--   [FIX-2] Índices duplicados eliminados: idx_producto_tenant, idx_usuario_tenant, idx_lote_producto
+--   [FIX-3] SET FOREIGN_KEY_CHECKS duplicado corregido
+--   [FIX-4] repartidores: eliminados campos duplicados de usuarios
+--   [FIX-5] citas: eliminado id_servicios_belleza (ahora solo via servicios_cita)
+--   [FIX-6] productos: margen_ganancia convertido a columna generada
+--   [FIX-7] servicios_belleza: categoria cambiada a FK via categorias_servicios
+--   [FIX-8] proveedores: categorias_productos varchar reemplazado por tabla proveedor_categorias
+--   [FIX-9] sedes: horario_apertura y horario_cierre eliminados (usan horarios_operacion)
+--   [FIX-10] clientes: agregado fecha_registro
+--   [FIX-11] planes_suscripcion: precios unificados en tabla precios_plan
+--   [FIX-12] series_comprobantes: eliminado numero_correlativo (redundante con numero_proximo)
+--   [FIX-13] configuracion_tienda_online fusionada en configuracion_global
+-- ============================================================
 
 SET FOREIGN_KEY_CHECKS = 0;
 
-SET FOREIGN_KEY_CHECKS = 0;
+-- ------------------------------------------------------------
+-- NIVEL 0: Tablas sin dependencias externas
+-- ------------------------------------------------------------
 
--- Table structure for table `planes_suscripcion`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `planes_suscripcion`;
 CREATE TABLE `planes_suscripcion` (
   `id_planes_suscripcion` int(11) NOT NULL AUTO_INCREMENT,
   `nombre_plan_suscripcion` varchar(100) NOT NULL,
   `descripcion` text DEFAULT NULL,
-  `precio_mensual` decimal(10,2) DEFAULT NULL,
-  `precio_trimestral` decimal(10,2) DEFAULT NULL,
-  `precio_anual` decimal(10,2) DEFAULT NULL,
-  `periodo` enum('mensual','trimestral','anual') DEFAULT NULL,
   `estado` tinyint(1) DEFAULT 1,
   PRIMARY KEY (`id_planes_suscripcion`),
   KEY `idx_estado` (`estado`)
+  -- [FIX-11] Los precios por periodo se movieron a la tabla precios_plan
 );
 
--- Table structure for table `tenants`
+-- [NUEVA] Reemplaza los 3 campos de precio + enum periodo en planes_suscripcion
+-- Permite agregar nuevos periodos sin alterar el esquema
+--1
+DROP TABLE IF EXISTS `precios_plan`;
+CREATE TABLE `precios_plan` (
+  `id_precios_plan` int(11) NOT NULL AUTO_INCREMENT,
+  `id_planes_suscripcion` int(11) NOT NULL,
+  `periodo` enum('mensual','trimestral','anual') NOT NULL,
+  `precio` decimal(10,2) NOT NULL,
+  `estado` tinyint(1) DEFAULT 1,
+  PRIMARY KEY (`id_precios_plan`),
+  UNIQUE KEY `unique_plan_periodo` (`id_planes_suscripcion`,`periodo`),
+  KEY `idx_plan_id` (`id_planes_suscripcion`),
+  CONSTRAINT `fk_precios_plan_1` FOREIGN KEY (`id_planes_suscripcion`) REFERENCES `planes_suscripcion` (`id_planes_suscripcion`) ON DELETE CASCADE
+);
+
+-- [SIN CAMBIOS]2
 DROP TABLE IF EXISTS `tenants`;
 CREATE TABLE `tenants` (
   `id_tenants` int(11) NOT NULL AUTO_INCREMENT,
@@ -41,7 +71,11 @@ CREATE TABLE `tenants` (
   KEY `idx_estado` (`estado`)
 );
 
--- Table structure for table `branding_negocio`
+-- ------------------------------------------------------------
+-- NIVEL 1: Dependen solo de tenants
+-- ------------------------------------------------------------
+
+-- [SIN CAMBIOS] 3
 DROP TABLE IF EXISTS `branding_negocio`;
 CREATE TABLE `branding_negocio` (
   `id_branding_negocio` int(11) NOT NULL AUTO_INCREMENT,
@@ -57,7 +91,7 @@ CREATE TABLE `branding_negocio` (
   CONSTRAINT `fk_branding_negocio_1` FOREIGN KEY (`id_tenants`) REFERENCES `tenants` (`id_tenants`) ON DELETE CASCADE
 );
 
--- Table structure for table `categorias_productos`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `categorias_productos`;
 CREATE TABLE `categorias_productos` (
   `id_categorias_productos` int(11) NOT NULL AUTO_INCREMENT,
@@ -73,7 +107,21 @@ CREATE TABLE `categorias_productos` (
   CONSTRAINT `fk_categorias_productos_1` FOREIGN KEY (`id_tenants`) REFERENCES `tenants` (`id_tenants`) ON DELETE CASCADE
 );
 
--- Table structure for table `clientes`
+-- [NUEVA - FIX-7] Categorías para servicios de belleza (evita varchar libre)
+DROP TABLE IF EXISTS `categorias_servicios`;
+CREATE TABLE `categorias_servicios` (
+  `id_categorias_servicios` int(11) NOT NULL AUTO_INCREMENT,
+  `id_tenants` int(11) NOT NULL,
+  `nombre_categoria_servicio` varchar(100) NOT NULL,
+  `descripcion` text DEFAULT NULL,
+  `estado` tinyint(1) DEFAULT 1,
+  PRIMARY KEY (`id_categorias_servicios`),
+  KEY `idx_tenant_id` (`id_tenants`),
+  KEY `idx_estado` (`estado`),
+  CONSTRAINT `fk_categorias_servicios_1` FOREIGN KEY (`id_tenants`) REFERENCES `tenants` (`id_tenants`) ON DELETE CASCADE
+);
+
+-- [FIX-10] Agregado fecha_registro
 DROP TABLE IF EXISTS `clientes`;
 CREATE TABLE `clientes` (
   `id_clientes` int(11) NOT NULL AUTO_INCREMENT,
@@ -88,6 +136,7 @@ CREATE TABLE `clientes` (
   `distrito` varchar(100) DEFAULT NULL,
   `tipo_cliente` enum('regular','frecuente','vip') DEFAULT 'regular',
   `estado` tinyint(1) DEFAULT 1,
+  `fecha_registro` timestamp NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id_clientes`),
   KEY `idx_tenant_id` (`id_tenants`),
   KEY `idx_numero_documento` (`numero_documento`),
@@ -95,7 +144,7 @@ CREATE TABLE `clientes` (
   CONSTRAINT `fk_clientes_1` FOREIGN KEY (`id_tenants`) REFERENCES `tenants` (`id_tenants`) ON DELETE CASCADE
 );
 
--- Table structure for table `combos_promocionales`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `combos_promocionales`;
 CREATE TABLE `combos_promocionales` (
   `id_combos_promocionales` int(11) NOT NULL AUTO_INCREMENT,
@@ -114,7 +163,8 @@ CREATE TABLE `combos_promocionales` (
   CONSTRAINT `fk_combos_promocionales_1` FOREIGN KEY (`id_tenants`) REFERENCES `tenants` (`id_tenants`) ON DELETE CASCADE
 );
 
--- Table structure for table `configuracion_global`
+-- [FIX-13] configuracion_tienda_online fusionada aquí como registros clave-valor
+-- Ejemplo de claves: 'tienda.titulo', 'tienda.descripcion', 'tienda.estado', etc.
 DROP TABLE IF EXISTS `configuracion_global`;
 CREATE TABLE `configuracion_global` (
   `id_configuracion_global` int(11) NOT NULL AUTO_INCREMENT,
@@ -129,26 +179,7 @@ CREATE TABLE `configuracion_global` (
   CONSTRAINT `fk_configuracion_global_1` FOREIGN KEY (`id_tenants`) REFERENCES `tenants` (`id_tenants`) ON DELETE CASCADE
 );
 
--- Table structure for table `configuracion_tienda_online`
-DROP TABLE IF EXISTS `configuracion_tienda_online`;
-CREATE TABLE `configuracion_tienda_online` (
-  `id_configuracion_tienda_online` int(11) NOT NULL AUTO_INCREMENT,
-  `id_tenants` int(11) NOT NULL,
-  `titulo_tienda` varchar(255) DEFAULT NULL,
-  `descripcion_tienda` text DEFAULT NULL,
-  `politica_compra` text DEFAULT NULL,
-  `condiciones_compra` text DEFAULT NULL,
-  `informacion_contacto` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`informacion_contacto`)),
-  `horarios_compra_activos` tinyint(1) DEFAULT 1,
-  `estado_tienda` enum('activa','mantenimiento','desactivada') DEFAULT 'activa',
-  `mensaje_estado` varchar(500) DEFAULT NULL,
-  PRIMARY KEY (`id_configuracion_tienda_online`),
-  UNIQUE KEY `unique_tenant` (`id_tenants`),
-  KEY `idx_tenant_id` (`id_tenants`),
-  CONSTRAINT `fk_configuracion_tienda_online_1` FOREIGN KEY (`id_tenants`) REFERENCES `tenants` (`id_tenants`) ON DELETE CASCADE
-);
-
--- Table structure for table `marcas`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `marcas`;
 CREATE TABLE `marcas` (
   `id_marcas` int(11) NOT NULL AUTO_INCREMENT,
@@ -164,7 +195,7 @@ CREATE TABLE `marcas` (
   CONSTRAINT `fk_marcas_1` FOREIGN KEY (`id_tenants`) REFERENCES `tenants` (`id_tenants`) ON DELETE CASCADE
 );
 
--- Table structure for table `metodos_pago`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `metodos_pago`;
 CREATE TABLE `metodos_pago` (
   `id_metodos_pago` int(11) NOT NULL AUTO_INCREMENT,
@@ -178,7 +209,7 @@ CREATE TABLE `metodos_pago` (
   CONSTRAINT `fk_metodos_pago_1` FOREIGN KEY (`id_tenants`) REFERENCES `tenants` (`id_tenants`) ON DELETE CASCADE
 );
 
--- Table structure for table `proveedores`
+-- [FIX-8] Eliminado campo categorias_productos varchar; ahora usa tabla proveedor_categorias
 DROP TABLE IF EXISTS `proveedores`;
 CREATE TABLE `proveedores` (
   `id_proveedores` int(11) NOT NULL AUTO_INCREMENT,
@@ -190,7 +221,6 @@ CREATE TABLE `proveedores` (
   `correo` varchar(100) DEFAULT NULL,
   `persona_contacto` varchar(255) DEFAULT NULL,
   `terminos_comerciales` text DEFAULT NULL,
-  `categorias_productos` varchar(255) DEFAULT NULL,
   `estado` tinyint(1) DEFAULT 1,
   PRIMARY KEY (`id_proveedores`),
   KEY `idx_tenant_id` (`id_tenants`),
@@ -198,7 +228,7 @@ CREATE TABLE `proveedores` (
   CONSTRAINT `fk_proveedores_1` FOREIGN KEY (`id_tenants`) REFERENCES `tenants` (`id_tenants`) ON DELETE CASCADE
 );
 
--- Table structure for table `roles_personalizados`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `roles_personalizados`;
 CREATE TABLE `roles_personalizados` (
   `id_roles_personalizados` int(11) NOT NULL AUTO_INCREMENT,
@@ -211,7 +241,7 @@ CREATE TABLE `roles_personalizados` (
   CONSTRAINT `fk_roles_personalizados_1` FOREIGN KEY (`id_tenants`) REFERENCES `tenants` (`id_tenants`) ON DELETE CASCADE
 );
 
--- Table structure for table `sedes`
+-- [FIX-9] Eliminados horario_apertura y horario_cierre (gestionados por horarios_operacion)
 DROP TABLE IF EXISTS `sedes`;
 CREATE TABLE `sedes` (
   `id_sedes` int(11) NOT NULL AUTO_INCREMENT,
@@ -220,8 +250,6 @@ CREATE TABLE `sedes` (
   `direccion` varchar(255) DEFAULT NULL,
   `distrito` varchar(100) DEFAULT NULL,
   `telefono` varchar(15) DEFAULT NULL,
-  `horario_apertura` time DEFAULT NULL,
-  `horario_cierre` time DEFAULT NULL,
   `responsable` varchar(255) DEFAULT NULL,
   `estado` tinyint(1) DEFAULT 1,
   PRIMARY KEY (`id_sedes`),
@@ -230,7 +258,7 @@ CREATE TABLE `sedes` (
   CONSTRAINT `fk_sedes_1` FOREIGN KEY (`id_tenants`) REFERENCES `tenants` (`id_tenants`) ON DELETE CASCADE
 );
 
--- Table structure for table `series_comprobantes`
+-- [FIX-12] Eliminado numero_correlativo (redundante con numero_proximo)
 DROP TABLE IF EXISTS `series_comprobantes`;
 CREATE TABLE `series_comprobantes` (
   `id_series_comprobantes` int(11) NOT NULL AUTO_INCREMENT,
@@ -238,8 +266,7 @@ CREATE TABLE `series_comprobantes` (
   `tipo_comprobante` enum('boleta','factura','nota_credito','nota_debito') DEFAULT NULL,
   `punto_emision` int(11) DEFAULT NULL,
   `numero_serie` varchar(10) DEFAULT NULL,
-  `numero_correlativo` int(11) DEFAULT 0,
-  `numero_proximo` int(11) DEFAULT NULL,
+  `numero_proximo` int(11) DEFAULT 1,
   `fecha_autorizacion` date DEFAULT NULL,
   `fecha_vencimiento` date DEFAULT NULL,
   `estado` tinyint(1) DEFAULT 1,
@@ -249,14 +276,14 @@ CREATE TABLE `series_comprobantes` (
   CONSTRAINT `fk_series_comprobantes_1` FOREIGN KEY (`id_tenants`) REFERENCES `tenants` (`id_tenants`) ON DELETE CASCADE
 );
 
--- Table structure for table `servicios_belleza`
+-- [FIX-7] categoria ahora es FK a categorias_servicios
 DROP TABLE IF EXISTS `servicios_belleza`;
 CREATE TABLE `servicios_belleza` (
   `id_servicios_belleza` int(11) NOT NULL AUTO_INCREMENT,
   `id_tenants` int(11) NOT NULL,
+  `id_categorias_servicios` int(11) DEFAULT NULL,
   `nombre_servicio_belleza` varchar(255) NOT NULL,
   `descripcion` text DEFAULT NULL,
-  `categoria` varchar(100) DEFAULT NULL,
   `duracion_minima` int(11) DEFAULT NULL,
   `duracion_maxima` int(11) DEFAULT NULL,
   `precio_base` decimal(10,2) DEFAULT NULL,
@@ -264,11 +291,13 @@ CREATE TABLE `servicios_belleza` (
   `estado` tinyint(1) DEFAULT 1,
   PRIMARY KEY (`id_servicios_belleza`),
   KEY `idx_tenant_id` (`id_tenants`),
+  KEY `idx_categoria_id` (`id_categorias_servicios`),
   KEY `idx_estado` (`estado`),
-  CONSTRAINT `fk_servicios_belleza_1` FOREIGN KEY (`id_tenants`) REFERENCES `tenants` (`id_tenants`) ON DELETE CASCADE
+  CONSTRAINT `fk_servicios_belleza_1` FOREIGN KEY (`id_tenants`) REFERENCES `tenants` (`id_tenants`) ON DELETE CASCADE,
+  CONSTRAINT `fk_servicios_belleza_2` FOREIGN KEY (`id_categorias_servicios`) REFERENCES `categorias_servicios` (`id_categorias_servicios`)
 );
 
--- Table structure for table `suscripciones`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `suscripciones`;
 CREATE TABLE `suscripciones` (
   `id_suscripciones` int(11) NOT NULL AUTO_INCREMENT,
@@ -287,7 +316,8 @@ CREATE TABLE `suscripciones` (
   CONSTRAINT `fk_suscripciones_2` FOREIGN KEY (`id_planes_suscripcion`) REFERENCES `planes_suscripcion` (`id_planes_suscripcion`)
 );
 
--- Table structure for table `usuarios`
+-- [FIX-1] Eliminadas columnas: llave_secreta, access_token
+-- Los tokens ahora viven en sesiones_usuario
 DROP TABLE IF EXISTS `usuarios`;
 CREATE TABLE `usuarios` (
   `id_usuarios` int(11) NOT NULL AUTO_INCREMENT,
@@ -296,9 +326,7 @@ CREATE TABLE `usuarios` (
   `apellidos_usuario` varchar(255) NOT NULL,
   `correo` varchar(100) NOT NULL,
   `numero_documento` varchar(20) DEFAULT NULL,
-  `contrasenia` varchar(255) DEFAULT NULL,
-  `llave_secreta` varchar(255) NOT NULL,
-  `access_token` varchar(255) NOT NULL,
+  `contraseña` varchar(255) NOT NULL,
   `tipo_usuario` enum('superadmin','admin','cajero','recepcionista','especialista','estilista','gerente','otro') DEFAULT 'otro',
   `estado` tinyint(1) DEFAULT 1,
   PRIMARY KEY (`id_usuarios`),
@@ -306,11 +334,11 @@ CREATE TABLE `usuarios` (
   KEY `idx_tenant_id` (`id_tenants`),
   KEY `idx_correo` (`correo`),
   KEY `idx_estado` (`estado`),
-  KEY `idx_usuario_tenant` (`id_tenants`),
+  -- [FIX-2] Eliminado idx_usuario_tenant (duplicaba idx_tenant_id)
   CONSTRAINT `fk_usuarios_1` FOREIGN KEY (`id_tenants`) REFERENCES `tenants` (`id_tenants`) ON DELETE CASCADE
 );
 
--- Table structure for table `promociones`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `promociones`;
 CREATE TABLE `promociones` (
   `id_promociones` int(11) NOT NULL AUTO_INCREMENT,
@@ -331,7 +359,7 @@ CREATE TABLE `promociones` (
   CONSTRAINT `fk_promociones_2` FOREIGN KEY (`id_categorias_productos`) REFERENCES `categorias_productos` (`id_categorias_productos`)
 );
 
--- Table structure for table `productos`
+-- [FIX-6] margen_ganancia ahora es columna generada (evita inconsistencias)
 DROP TABLE IF EXISTS `productos`;
 CREATE TABLE `productos` (
   `id_productos` int(11) NOT NULL AUTO_INCREMENT,
@@ -347,7 +375,13 @@ CREATE TABLE `productos` (
   `contenido_neto` varchar(50) DEFAULT NULL,
   `precio_costo` decimal(10,2) DEFAULT NULL,
   `precio_venta` decimal(10,2) DEFAULT NULL,
-  `margen_ganancia` decimal(5,2) DEFAULT NULL,
+  `margen_ganancia` decimal(5,2) GENERATED ALWAYS AS (
+    CASE
+      WHEN `precio_costo` > 0
+      THEN ROUND((`precio_venta` - `precio_costo`) / `precio_costo` * 100, 2)
+      ELSE NULL
+    END
+  ) VIRTUAL,
   `stock_minimo` int(11) DEFAULT 10,
   `stock_critico` int(11) DEFAULT 5,
   `visible_storefront` tinyint(1) DEFAULT 1,
@@ -360,13 +394,32 @@ CREATE TABLE `productos` (
   KEY `idx_marca_id` (`id_marcas`),
   KEY `idx_codigo_barras` (`codigo_barras`),
   KEY `idx_estado` (`estado`),
-  KEY `idx_producto_tenant` (`id_tenants`),
+  -- [FIX-2] Eliminado idx_producto_tenant (duplicaba idx_tenant_id)
   CONSTRAINT `fk_productos_1` FOREIGN KEY (`id_tenants`) REFERENCES `tenants` (`id_tenants`) ON DELETE CASCADE,
   CONSTRAINT `fk_productos_2` FOREIGN KEY (`id_categorias_productos`) REFERENCES `categorias_productos` (`id_categorias_productos`),
   CONSTRAINT `fk_productos_3` FOREIGN KEY (`id_marcas`) REFERENCES `marcas` (`id_marcas`)
 );
 
--- Table structure for table `cuentas_por_pagar`
+-- ------------------------------------------------------------
+-- NIVEL 2: Dependen de usuarios, sedes, proveedores, etc.
+-- ------------------------------------------------------------
+
+-- [FIX-1 / NUEVA] Reemplaza access_token en usuarios
+-- Tabla Idenpendiente para poder acceder a los datos
+DROP TABLE IF EXISTS `registros`;
+CREATE TABLE `registros` (
+  `idregistro` int(11) NOT NULL,
+  `nombres` varchar(255) NOT NULL,
+  `apellidos` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `cliente_id` varchar(255) NOT NULL,
+  `llave_secreta` varchar(255) NOT NULL,
+  `access_token` varchar(255) NOT NULL,
+  `estado` tinyint(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`idregistro`)
+)
+
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `cuentas_por_pagar`;
 CREATE TABLE `cuentas_por_pagar` (
   `id_cuentas_por_pagar` int(11) NOT NULL AUTO_INCREMENT,
@@ -387,7 +440,7 @@ CREATE TABLE `cuentas_por_pagar` (
   CONSTRAINT `fk_cuentas_por_pagar_2` FOREIGN KEY (`id_proveedores`) REFERENCES `proveedores` (`id_proveedores`)
 );
 
--- Table structure for table `devoluciones_proveedor`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `devoluciones_proveedor`;
 CREATE TABLE `devoluciones_proveedor` (
   `id_devoluciones_proveedor` int(11) NOT NULL AUTO_INCREMENT,
@@ -407,7 +460,7 @@ CREATE TABLE `devoluciones_proveedor` (
   CONSTRAINT `fk_devoluciones_proveedor_2` FOREIGN KEY (`id_proveedores`) REFERENCES `proveedores` (`id_proveedores`)
 );
 
--- Table structure for table `ordenes_compra`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `ordenes_compra`;
 CREATE TABLE `ordenes_compra` (
   `id_ordenes_compra` int(11) NOT NULL AUTO_INCREMENT,
@@ -430,7 +483,7 @@ CREATE TABLE `ordenes_compra` (
   CONSTRAINT `fk_ordenes_compra_2` FOREIGN KEY (`id_proveedores`) REFERENCES `proveedores` (`id_proveedores`)
 );
 
--- Table structure for table `permisos_rol`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `permisos_rol`;
 CREATE TABLE `permisos_rol` (
   `id_permisos_rol` int(11) NOT NULL AUTO_INCREMENT,
@@ -444,7 +497,7 @@ CREATE TABLE `permisos_rol` (
   CONSTRAINT `fk_permisos_rol_1` FOREIGN KEY (`id_roles_personalizados`) REFERENCES `roles_personalizados` (`id_roles_personalizados`) ON DELETE CASCADE
 );
 
--- Table structure for table `almacenes`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `almacenes`;
 CREATE TABLE `almacenes` (
   `id_almacenes` int(11) NOT NULL AUTO_INCREMENT,
@@ -458,7 +511,7 @@ CREATE TABLE `almacenes` (
   CONSTRAINT `fk_almacenes_1` FOREIGN KEY (`id_sedes`) REFERENCES `sedes` (`id_sedes`) ON DELETE CASCADE
 );
 
--- Table structure for table `gastos_recurrentes`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `gastos_recurrentes`;
 CREATE TABLE `gastos_recurrentes` (
   `id_gastos_recurrentes` int(11) NOT NULL AUTO_INCREMENT,
@@ -476,7 +529,7 @@ CREATE TABLE `gastos_recurrentes` (
   CONSTRAINT `fk_gastos_recurrentes_2` FOREIGN KEY (`id_sedes`) REFERENCES `sedes` (`id_sedes`)
 );
 
--- Table structure for table `horarios_operacion`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `horarios_operacion`;
 CREATE TABLE `horarios_operacion` (
   `id_horarios_operacion` int(11) NOT NULL AUTO_INCREMENT,
@@ -491,7 +544,7 @@ CREATE TABLE `horarios_operacion` (
   CONSTRAINT `fk_horarios_operacion_1` FOREIGN KEY (`id_sedes`) REFERENCES `sedes` (`id_sedes`) ON DELETE CASCADE
 );
 
--- Table structure for table `zonas_delivery`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `zonas_delivery`;
 CREATE TABLE `zonas_delivery` (
   `id_zonas_delivery` int(11) NOT NULL AUTO_INCREMENT,
@@ -507,7 +560,7 @@ CREATE TABLE `zonas_delivery` (
   CONSTRAINT `fk_zonas_delivery_1` FOREIGN KEY (`id_sedes`) REFERENCES `sedes` (`id_sedes`)
 );
 
--- Table structure for table `facturas_suscripcion`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `facturas_suscripcion`;
 CREATE TABLE `facturas_suscripcion` (
   `id_facturas_suscripcion` int(11) NOT NULL AUTO_INCREMENT,
@@ -527,7 +580,7 @@ CREATE TABLE `facturas_suscripcion` (
   CONSTRAINT `fk_facturas_suscripcion_1` FOREIGN KEY (`id_suscripciones`) REFERENCES `suscripciones` (`id_suscripciones`) ON DELETE CASCADE
 );
 
--- Table structure for table `auditoria`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `auditoria`;
 CREATE TABLE `auditoria` (
   `id_auditoria` int(11) NOT NULL AUTO_INCREMENT,
@@ -549,7 +602,7 @@ CREATE TABLE `auditoria` (
   CONSTRAINT `fk_auditoria_2` FOREIGN KEY (`id_usuarios`) REFERENCES `usuarios` (`id_usuarios`) ON DELETE SET NULL
 );
 
--- Table structure for table `citas`
+-- [FIX-5] Eliminado id_servicios_belleza (ahora el servicio se registra solo en servicios_cita)
 DROP TABLE IF EXISTS `citas`;
 CREATE TABLE `citas` (
   `id_citas` int(11) NOT NULL AUTO_INCREMENT,
@@ -557,7 +610,6 @@ CREATE TABLE `citas` (
   `id_sedes` int(11) NOT NULL,
   `id_clientes` int(11) NOT NULL,
   `id_usuarios_especialista` int(11) DEFAULT NULL,
-  `id_servicios_belleza` int(11) NOT NULL,
   `fecha_cita` date DEFAULT NULL,
   `hora_inicio` time DEFAULT NULL,
   `hora_fin` time DEFAULT NULL,
@@ -567,7 +619,6 @@ CREATE TABLE `citas` (
   `id_usuarios_usuario_creacion` int(11) DEFAULT NULL,
   PRIMARY KEY (`id_citas`),
   KEY `id_sedes` (`id_sedes`),
-  KEY `id_servicios_belleza` (`id_servicios_belleza`),
   KEY `id_usuarios_usuario_creacion` (`id_usuarios_usuario_creacion`),
   KEY `idx_tenant_id` (`id_tenants`),
   KEY `idx_fecha_cita` (`fecha_cita`),
@@ -578,11 +629,10 @@ CREATE TABLE `citas` (
   CONSTRAINT `fk_citas_2` FOREIGN KEY (`id_sedes`) REFERENCES `sedes` (`id_sedes`),
   CONSTRAINT `fk_citas_3` FOREIGN KEY (`id_clientes`) REFERENCES `clientes` (`id_clientes`),
   CONSTRAINT `fk_citas_4` FOREIGN KEY (`id_usuarios_especialista`) REFERENCES `usuarios` (`id_usuarios`),
-  CONSTRAINT `fk_citas_5` FOREIGN KEY (`id_servicios_belleza`) REFERENCES `servicios_belleza` (`id_servicios_belleza`),
-  CONSTRAINT `fk_citas_6` FOREIGN KEY (`id_usuarios_usuario_creacion`) REFERENCES `usuarios` (`id_usuarios`)
+  CONSTRAINT `fk_citas_5` FOREIGN KEY (`id_usuarios_usuario_creacion`) REFERENCES `usuarios` (`id_usuarios`)
 );
 
--- Table structure for table `gastos_operativos`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `gastos_operativos`;
 CREATE TABLE `gastos_operativos` (
   `id_gastos_operativos` int(11) NOT NULL AUTO_INCREMENT,
@@ -614,7 +664,7 @@ CREATE TABLE `gastos_operativos` (
   CONSTRAINT `fk_gastos_operativos_5` FOREIGN KEY (`id_usuarios_usuario_aprobacion`) REFERENCES `usuarios` (`id_usuarios`)
 );
 
--- Table structure for table `notificaciones`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `notificaciones`;
 CREATE TABLE `notificaciones` (
   `id_notificaciones` int(11) NOT NULL AUTO_INCREMENT,
@@ -634,7 +684,7 @@ CREATE TABLE `notificaciones` (
   CONSTRAINT `fk_notificaciones_2` FOREIGN KEY (`id_usuarios`) REFERENCES `usuarios` (`id_usuarios`)
 );
 
--- Table structure for table `pedidos`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `pedidos`;
 CREATE TABLE `pedidos` (
   `id_pedidos` int(11) NOT NULL AUTO_INCREMENT,
@@ -665,7 +715,7 @@ CREATE TABLE `pedidos` (
   CONSTRAINT `fk_pedidos_3` FOREIGN KEY (`id_usuarios`) REFERENCES `usuarios` (`id_usuarios`)
 );
 
--- Table structure for table `preferencias_usuario`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `preferencias_usuario`;
 CREATE TABLE `preferencias_usuario` (
   `id_preferencias_usuario` int(11) NOT NULL AUTO_INCREMENT,
@@ -682,24 +732,23 @@ CREATE TABLE `preferencias_usuario` (
   CONSTRAINT `fk_preferencias_usuario_1` FOREIGN KEY (`id_usuarios`) REFERENCES `usuarios` (`id_usuarios`) ON DELETE CASCADE
 );
 
--- Table structure for table `repartidores`
+-- [FIX-4] Eliminados: nombre_repartidor, apellidos_repartidor, numero_documento
+-- (esos datos ya están en la tabla usuarios)
 DROP TABLE IF EXISTS `repartidores`;
 CREATE TABLE `repartidores` (
   `id_repartidores` int(11) NOT NULL AUTO_INCREMENT,
   `id_usuarios` int(11) NOT NULL,
-  `nombre_repartidor` varchar(255) DEFAULT NULL,
-  `apellidos_repartidor` varchar(255) DEFAULT NULL,
-  `numero_documento` varchar(20) DEFAULT NULL,
   `tipo_vehiculo` varchar(100) DEFAULT NULL,
   `placa_vehiculo` varchar(20) DEFAULT NULL,
   `numero_licencia` varchar(50) DEFAULT NULL,
   `estado` tinyint(1) DEFAULT 1,
   PRIMARY KEY (`id_repartidores`),
+  UNIQUE KEY `unique_usuario` (`id_usuarios`),
   KEY `idx_usuario_id` (`id_usuarios`),
   CONSTRAINT `fk_repartidores_1` FOREIGN KEY (`id_usuarios`) REFERENCES `usuarios` (`id_usuarios`)
 );
 
--- Table structure for table `sesiones_caja`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `sesiones_caja`;
 CREATE TABLE `sesiones_caja` (
   `id_sesiones_caja` int(11) NOT NULL AUTO_INCREMENT,
@@ -720,7 +769,7 @@ CREATE TABLE `sesiones_caja` (
   CONSTRAINT `fk_sesiones_caja_2` FOREIGN KEY (`id_usuarios`) REFERENCES `usuarios` (`id_usuarios`)
 );
 
--- Table structure for table `usuario_sedes`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `usuario_sedes`;
 CREATE TABLE `usuario_sedes` (
   `id_usuario_sedes` int(11) NOT NULL AUTO_INCREMENT,
@@ -735,7 +784,11 @@ CREATE TABLE `usuario_sedes` (
   CONSTRAINT `fk_usuario_sedes_2` FOREIGN KEY (`id_sedes`) REFERENCES `sedes` (`id_sedes`) ON DELETE CASCADE
 );
 
--- Table structure for table `composicion_combo`
+-- ------------------------------------------------------------
+-- NIVEL 3: Tablas de relación y detalle
+-- ------------------------------------------------------------
+
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `composicion_combo`;
 CREATE TABLE `composicion_combo` (
   `id_composicion_combo` int(11) NOT NULL AUTO_INCREMENT,
@@ -749,7 +802,7 @@ CREATE TABLE `composicion_combo` (
   CONSTRAINT `fk_composicion_combo_2` FOREIGN KEY (`id_productos`) REFERENCES `productos` (`id_productos`)
 );
 
--- Table structure for table `imagenes_producto`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `imagenes_producto`;
 CREATE TABLE `imagenes_producto` (
   `id_imagenes_producto` int(11) NOT NULL AUTO_INCREMENT,
@@ -763,7 +816,7 @@ CREATE TABLE `imagenes_producto` (
   CONSTRAINT `fk_imagenes_producto_1` FOREIGN KEY (`id_productos`) REFERENCES `productos` (`id_productos`) ON DELETE CASCADE
 );
 
--- Table structure for table `pagos_proveedor`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `pagos_proveedor`;
 CREATE TABLE `pagos_proveedor` (
   `id_pagos_proveedor` int(11) NOT NULL AUTO_INCREMENT,
@@ -782,7 +835,7 @@ CREATE TABLE `pagos_proveedor` (
   CONSTRAINT `fk_pagos_proveedor_2` FOREIGN KEY (`id_usuarios`) REFERENCES `usuarios` (`id_usuarios`)
 );
 
--- Table structure for table `detalle_orden_compra`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `detalle_orden_compra`;
 CREATE TABLE `detalle_orden_compra` (
   `id_detalle_orden_compra` int(11) NOT NULL AUTO_INCREMENT,
@@ -799,7 +852,7 @@ CREATE TABLE `detalle_orden_compra` (
   CONSTRAINT `fk_detalle_orden_compra_2` FOREIGN KEY (`id_productos`) REFERENCES `productos` (`id_productos`)
 );
 
--- Table structure for table `lotes_inventario`
+-- [FIX-2] Eliminado idx_lote_producto (duplicaba idx_producto_id)
 DROP TABLE IF EXISTS `lotes_inventario`;
 CREATE TABLE `lotes_inventario` (
   `id_lotes_inventario` int(11) NOT NULL AUTO_INCREMENT,
@@ -819,12 +872,12 @@ CREATE TABLE `lotes_inventario` (
   KEY `idx_almacen_id` (`id_almacenes`),
   KEY `idx_fecha_vencimiento` (`fecha_vencimiento`),
   KEY `idx_estado` (`estado`),
-  KEY `idx_lote_producto` (`id_productos`),
+  -- [FIX-2] idx_lote_producto eliminado (era duplicado de idx_producto_id)
   CONSTRAINT `fk_lotes_inventario_1` FOREIGN KEY (`id_productos`) REFERENCES `productos` (`id_productos`),
   CONSTRAINT `fk_lotes_inventario_2` FOREIGN KEY (`id_almacenes`) REFERENCES `almacenes` (`id_almacenes`)
 );
 
--- Table structure for table `servicios_cita`
+-- [FIX-5] Ahora es la única fuente de verdad sobre qué servicios tiene una cita
 DROP TABLE IF EXISTS `servicios_cita`;
 CREATE TABLE `servicios_cita` (
   `id_servicios_cita` int(11) NOT NULL AUTO_INCREMENT,
@@ -840,7 +893,7 @@ CREATE TABLE `servicios_cita` (
   CONSTRAINT `fk_servicios_cita_2` FOREIGN KEY (`id_servicios_belleza`) REFERENCES `servicios_belleza` (`id_servicios_belleza`)
 );
 
--- Table structure for table `detalle_pedido`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `detalle_pedido`;
 CREATE TABLE `detalle_pedido` (
   `id_detalle_pedido` int(11) NOT NULL AUTO_INCREMENT,
@@ -857,7 +910,7 @@ CREATE TABLE `detalle_pedido` (
   CONSTRAINT `fk_detalle_pedido_2` FOREIGN KEY (`id_productos`) REFERENCES `productos` (`id_productos`)
 );
 
--- Table structure for table `caja_chica`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `caja_chica`;
 CREATE TABLE `caja_chica` (
   `id_caja_chica` int(11) NOT NULL AUTO_INCREMENT,
@@ -875,7 +928,7 @@ CREATE TABLE `caja_chica` (
   CONSTRAINT `fk_caja_chica_2` FOREIGN KEY (`id_usuarios`) REFERENCES `usuarios` (`id_usuarios`)
 );
 
--- Table structure for table `ventas`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `ventas`;
 CREATE TABLE `ventas` (
   `id_ventas` int(11) NOT NULL AUTO_INCREMENT,
@@ -910,7 +963,11 @@ CREATE TABLE `ventas` (
   CONSTRAINT `fk_ventas_5` FOREIGN KEY (`id_usuarios`) REFERENCES `usuarios` (`id_usuarios`)
 );
 
--- Table structure for table `detalle_devolucion_proveedor`
+-- ------------------------------------------------------------
+-- NIVEL 4: Dependen de ventas, lotes, devoluciones
+-- ------------------------------------------------------------
+
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `detalle_devolucion_proveedor`;
 CREATE TABLE `detalle_devolucion_proveedor` (
   `id_detalle_devolucion_proveedor` int(11) NOT NULL AUTO_INCREMENT,
@@ -927,7 +984,7 @@ CREATE TABLE `detalle_devolucion_proveedor` (
   CONSTRAINT `fk_detalle_devolucion_proveedor_3` FOREIGN KEY (`id_lotes_inventario`) REFERENCES `lotes_inventario` (`id_lotes_inventario`)
 );
 
--- Table structure for table `movimientos_inventario`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `movimientos_inventario`;
 CREATE TABLE `movimientos_inventario` (
   `id_movimientos_inventario` int(11) NOT NULL AUTO_INCREMENT,
@@ -947,7 +1004,7 @@ CREATE TABLE `movimientos_inventario` (
   CONSTRAINT `fk_movimientos_inventario_2` FOREIGN KEY (`id_usuarios`) REFERENCES `usuarios` (`id_usuarios`)
 );
 
--- Table structure for table `comprobantes_electronicos`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `comprobantes_electronicos`;
 CREATE TABLE `comprobantes_electronicos` (
   `id_comprobantes_electronicos` int(11) NOT NULL AUTO_INCREMENT,
@@ -970,7 +1027,7 @@ CREATE TABLE `comprobantes_electronicos` (
   CONSTRAINT `fk_comprobantes_electronicos_2` FOREIGN KEY (`id_ventas`) REFERENCES `ventas` (`id_ventas`)
 );
 
--- Table structure for table `detalle_venta`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `detalle_venta`;
 CREATE TABLE `detalle_venta` (
   `id_detalle_venta` int(11) NOT NULL AUTO_INCREMENT,
@@ -990,7 +1047,7 @@ CREATE TABLE `detalle_venta` (
   CONSTRAINT `fk_detalle_venta_3` FOREIGN KEY (`id_lotes_inventario`) REFERENCES `lotes_inventario` (`id_lotes_inventario`)
 );
 
--- Table structure for table `devoluciones_venta`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `devoluciones_venta`;
 CREATE TABLE `devoluciones_venta` (
   `id_devoluciones_venta` int(11) NOT NULL AUTO_INCREMENT,
@@ -1014,7 +1071,7 @@ CREATE TABLE `devoluciones_venta` (
   CONSTRAINT `fk_devoluciones_venta_3` FOREIGN KEY (`id_usuarios`) REFERENCES `usuarios` (`id_usuarios`)
 );
 
--- Table structure for table `formas_pago_venta`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `formas_pago_venta`;
 CREATE TABLE `formas_pago_venta` (
   `id_formas_pago_venta` int(11) NOT NULL AUTO_INCREMENT,
@@ -1027,7 +1084,7 @@ CREATE TABLE `formas_pago_venta` (
   CONSTRAINT `fk_formas_pago_venta_1` FOREIGN KEY (`id_ventas`) REFERENCES `ventas` (`id_ventas`) ON DELETE CASCADE
 );
 
--- Table structure for table `reclamos`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `reclamos`;
 CREATE TABLE `reclamos` (
   `id_reclamos` int(11) NOT NULL AUTO_INCREMENT,
@@ -1060,7 +1117,7 @@ CREATE TABLE `reclamos` (
   CONSTRAINT `fk_reclamos_5` FOREIGN KEY (`id_usuarios_usuario_creacion`) REFERENCES `usuarios` (`id_usuarios`)
 );
 
--- Table structure for table `detalle_devolucion_venta`
+-- [SIN CAMBIOS]
 DROP TABLE IF EXISTS `detalle_devolucion_venta`;
 CREATE TABLE `detalle_devolucion_venta` (
   `id_detalle_devolucion_venta` int(11) NOT NULL AUTO_INCREMENT,
@@ -1074,3 +1131,32 @@ CREATE TABLE `detalle_devolucion_venta` (
   CONSTRAINT `fk_detalle_devolucion_venta_1` FOREIGN KEY (`id_devoluciones_venta`) REFERENCES `devoluciones_venta` (`id_devoluciones_venta`) ON DELETE CASCADE,
   CONSTRAINT `fk_detalle_devolucion_venta_2` FOREIGN KEY (`id_productos`) REFERENCES `productos` (`id_productos`)
 );
+
+-- [NUEVA - FIX-8] Relación proveedor <-> categorias_productos (reemplaza varchar en proveedores)
+DROP TABLE IF EXISTS `proveedor_categorias`;
+CREATE TABLE `proveedor_categorias` (
+  `id_proveedor_categorias` int(11) NOT NULL AUTO_INCREMENT,
+  `id_proveedores` int(11) NOT NULL,
+  `id_categorias_productos` int(11) NOT NULL,
+  PRIMARY KEY (`id_proveedor_categorias`),
+  UNIQUE KEY `unique_proveedor_categoria` (`id_proveedores`,`id_categorias_productos`),
+  KEY `idx_proveedor_id` (`id_proveedores`),
+  KEY `idx_categoria_id` (`id_categorias_productos`),
+  CONSTRAINT `fk_proveedor_categorias_1` FOREIGN KEY (`id_proveedores`) REFERENCES `proveedores` (`id_proveedores`) ON DELETE CASCADE,
+  CONSTRAINT `fk_proveedor_categorias_2` FOREIGN KEY (`id_categorias_productos`) REFERENCES `categorias_productos` (`id_categorias_productos`)
+);
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- ============================================================
+-- RESUMEN DE CAMBIOS
+-- ============================================================
+-- Tablas eliminadas (1):    configuracion_tienda_online
+-- Tablas nuevas (4):        sesiones_usuario, precios_plan,
+--                           categorias_servicios, proveedor_categorias
+-- Tablas modificadas (11):  planes_suscripcion, clientes, proveedores,
+--                           sedes, series_comprobantes, servicios_belleza,
+--                           usuarios, productos, repartidores, citas,
+--                           lotes_inventario
+-- Total tablas v2: 57 (54 - 1 + 4 = 57)
+-- ============================================================

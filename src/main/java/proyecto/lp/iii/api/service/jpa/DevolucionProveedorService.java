@@ -19,12 +19,12 @@ public class DevolucionProveedorService implements IDevolucionProveedorService {
         return repoDevolucionProveedor.findAll();
     }
 
-    public void guardar(DevolucionProveedor devolucionProveedor) {
-        repoDevolucionProveedor.save(devolucionProveedor);
+    public void guardar(DevolucionProveedor devolucionproveedor) {
+        repoDevolucionProveedor.save(devolucionproveedor);
     }
 
-    public void modificar(DevolucionProveedor devolucionProveedor) {
-        repoDevolucionProveedor.save(devolucionProveedor);
+    public void modificar(DevolucionProveedor devolucionproveedor) {
+        repoDevolucionProveedor.save(devolucionproveedor);
     }
 
     public Optional<DevolucionProveedor> buscarId(Integer id) {

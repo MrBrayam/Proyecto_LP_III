@@ -19,12 +19,12 @@ public class CajaChicaService implements ICajaChicaService {
         return repoCajaChica.findAll();
     }
 
-    public void guardar(CajaChica cajaChica) {
-        repoCajaChica.save(cajaChica);
+    public void guardar(CajaChica cajachica) {
+        repoCajaChica.save(cajachica);
     }
 
-    public void modificar(CajaChica cajaChica) {
-        repoCajaChica.save(cajaChica);
+    public void modificar(CajaChica cajachica) {
+        repoCajaChica.save(cajachica);
     }
 
     public Optional<CajaChica> buscarId(Integer id) {

@@ -8,9 +8,9 @@ import proyecto.lp.iii.api.entity.CuentaPorPagar;
 public interface ICuentaPorPagarService {
     List<CuentaPorPagar> buscarTodos();
 
-    void guardar(CuentaPorPagar cuentaPorPagar);
+    void guardar(CuentaPorPagar cuentaporpagar);
 
-    void modificar(CuentaPorPagar cuentaPorPagar);
+    void modificar(CuentaPorPagar cuentaporpagar);
 
     Optional<CuentaPorPagar> buscarId(Integer id);
 

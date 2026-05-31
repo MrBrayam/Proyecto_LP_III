@@ -19,12 +19,12 @@ public class ConfiguracionGlobalService implements IConfiguracionGlobalService {
         return repoConfiguracionGlobal.findAll();
     }
 
-    public void guardar(ConfiguracionGlobal configuracionGlobal) {
-        repoConfiguracionGlobal.save(configuracionGlobal);
+    public void guardar(ConfiguracionGlobal configuracionglobal) {
+        repoConfiguracionGlobal.save(configuracionglobal);
     }
 
-    public void modificar(ConfiguracionGlobal configuracionGlobal) {
-        repoConfiguracionGlobal.save(configuracionGlobal);
+    public void modificar(ConfiguracionGlobal configuracionglobal) {
+        repoConfiguracionGlobal.save(configuracionglobal);
     }
 
     public Optional<ConfiguracionGlobal> buscarId(Integer id) {

@@ -8,9 +8,9 @@ import proyecto.lp.iii.api.entity.ConfiguracionTiendaOnline;
 public interface IConfiguracionTiendaOnlineService {
     List<ConfiguracionTiendaOnline> buscarTodos();
 
-    void guardar(ConfiguracionTiendaOnline configuracionTiendaOnline);
+    void guardar(ConfiguracionTiendaOnline configuraciontiendaOnline);
 
-    void modificar(ConfiguracionTiendaOnline configuracionTiendaOnline);
+    void modificar(ConfiguracionTiendaOnline configuraciontiendaOnline);
 
     Optional<ConfiguracionTiendaOnline> buscarId(Integer id);
 

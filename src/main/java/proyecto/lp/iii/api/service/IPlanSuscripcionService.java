@@ -6,8 +6,12 @@ import proyecto.lp.iii.api.entity.PlanSuscripcion;
 
 public interface IPlanSuscripcionService {
     List<PlanSuscripcion> buscarTodos();
-    void guardar(PlanSuscripcion entity);
-    void modificar(PlanSuscripcion entity);
+
+    void guardar(PlanSuscripcion planSuscripcion);
+
+    void modificar(PlanSuscripcion planSuscripcion);
+
     Optional<PlanSuscripcion> buscarId(Integer id);
+
     void eliminar(Integer id);
 }

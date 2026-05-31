@@ -19,12 +19,12 @@ public class ComboPromocionalService implements IComboPromocionalService {
         return repoComboPromocional.findAll();
     }
 
-    public void guardar(ComboPromocional comboPromocional) {
-        repoComboPromocional.save(comboPromocional);
+    public void guardar(ComboPromocional combopromocional) {
+        repoComboPromocional.save(combopromocional);
     }
 
-    public void modificar(ComboPromocional comboPromocional) {
-        repoComboPromocional.save(comboPromocional);
+    public void modificar(ComboPromocional combopromocional) {
+        repoComboPromocional.save(combopromocional);
     }
 
     public Optional<ComboPromocional> buscarId(Integer id) {

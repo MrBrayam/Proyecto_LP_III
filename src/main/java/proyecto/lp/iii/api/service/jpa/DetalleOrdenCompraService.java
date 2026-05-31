@@ -19,12 +19,12 @@ public class DetalleOrdenCompraService implements IDetalleOrdenCompraService {
         return repoDetalleOrdenCompra.findAll();
     }
 
-    public void guardar(DetalleOrdenCompra detalleOrdenCompra) {
-        repoDetalleOrdenCompra.save(detalleOrdenCompra);
+    public void guardar(DetalleOrdenCompra detalleordencompra) {
+        repoDetalleOrdenCompra.save(detalleordencompra);
     }
 
-    public void modificar(DetalleOrdenCompra detalleOrdenCompra) {
-        repoDetalleOrdenCompra.save(detalleOrdenCompra);
+    public void modificar(DetalleOrdenCompra detalleordencompra) {
+        repoDetalleOrdenCompra.save(detalleordencompra);
     }
 
     public Optional<DetalleOrdenCompra> buscarId(Integer id) {

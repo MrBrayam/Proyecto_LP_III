@@ -19,12 +19,12 @@ public class ComposicionComboService implements IComposicionComboService {
         return repoComposicionCombo.findAll();
     }
 
-    public void guardar(ComposicionCombo composicionCombo) {
-        repoComposicionCombo.save(composicionCombo);
+    public void guardar(ComposicionCombo composicioncombo) {
+        repoComposicionCombo.save(composicioncombo);
     }
 
-    public void modificar(ComposicionCombo composicionCombo) {
-        repoComposicionCombo.save(composicionCombo);
+    public void modificar(ComposicionCombo composicioncombo) {
+        repoComposicionCombo.save(composicioncombo);
     }
 
     public Optional<ComposicionCombo> buscarId(Integer id) {

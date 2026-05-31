@@ -19,12 +19,12 @@ public class DevolucionVentaService implements IDevolucionVentaService {
         return repoDevolucionVenta.findAll();
     }
 
-    public void guardar(DevolucionVenta devolucionVenta) {
-        repoDevolucionVenta.save(devolucionVenta);
+    public void guardar(DevolucionVenta devolucionventa) {
+        repoDevolucionVenta.save(devolucionventa);
     }
 
-    public void modificar(DevolucionVenta devolucionVenta) {
-        repoDevolucionVenta.save(devolucionVenta);
+    public void modificar(DevolucionVenta devolucionventa) {
+        repoDevolucionVenta.save(devolucionventa);
     }
 
     public Optional<DevolucionVenta> buscarId(Integer id) {

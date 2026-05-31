@@ -19,12 +19,12 @@ public class ConfiguracionTiendaOnlineService implements IConfiguracionTiendaOnl
         return repoConfiguracionTiendaOnline.findAll();
     }
 
-    public void guardar(ConfiguracionTiendaOnline configuracionTiendaOnline) {
-        repoConfiguracionTiendaOnline.save(configuracionTiendaOnline);
+    public void guardar(ConfiguracionTiendaOnline configuraciontiendaonline) {
+        repoConfiguracionTiendaOnline.save(configuraciontiendaonline);
     }
 
-    public void modificar(ConfiguracionTiendaOnline configuracionTiendaOnline) {
-        repoConfiguracionTiendaOnline.save(configuracionTiendaOnline);
+    public void modificar(ConfiguracionTiendaOnline configuraciontiendaonline) {
+        repoConfiguracionTiendaOnline.save(configuraciontiendaonline);
     }
 
     public Optional<ConfiguracionTiendaOnline> buscarId(Integer id) {

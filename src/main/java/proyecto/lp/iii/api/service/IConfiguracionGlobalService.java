@@ -8,9 +8,9 @@ import proyecto.lp.iii.api.entity.ConfiguracionGlobal;
 public interface IConfiguracionGlobalService {
     List<ConfiguracionGlobal> buscarTodos();
 
-    void guardar(ConfiguracionGlobal configuracionGlobal);
+    void guardar(ConfiguracionGlobal configuracionglobal);
 
-    void modificar(ConfiguracionGlobal configuracionGlobal);
+    void modificar(ConfiguracionGlobal configuracionglobal);
 
     Optional<ConfiguracionGlobal> buscarId(Integer id);
 

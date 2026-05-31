@@ -19,12 +19,12 @@ public class DetalleDevolucionVentaService implements IDetalleDevolucionVentaSer
         return repoDetalleDevolucionVenta.findAll();
     }
 
-    public void guardar(DetalleDevolucionVenta detalleDevolucionVenta) {
-        repoDetalleDevolucionVenta.save(detalleDevolucionVenta);
+    public void guardar(DetalleDevolucionVenta detalledevolucionventa) {
+        repoDetalleDevolucionVenta.save(detalledevolucionventa);
     }
 
-    public void modificar(DetalleDevolucionVenta detalleDevolucionVenta) {
-        repoDetalleDevolucionVenta.save(detalleDevolucionVenta);
+    public void modificar(DetalleDevolucionVenta detalledevolucionventa) {
+        repoDetalleDevolucionVenta.save(detalledevolucionventa);
     }
 
     public Optional<DetalleDevolucionVenta> buscarId(Integer id) {

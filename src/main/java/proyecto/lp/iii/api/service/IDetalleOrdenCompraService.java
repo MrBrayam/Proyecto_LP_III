@@ -8,9 +8,9 @@ import proyecto.lp.iii.api.entity.DetalleOrdenCompra;
 public interface IDetalleOrdenCompraService {
     List<DetalleOrdenCompra> buscarTodos();
 
-    void guardar(DetalleOrdenCompra detalleOrdenCompra);
+    void guardar(DetalleOrdenCompra detalleordenCompra);
 
-    void modificar(DetalleOrdenCompra detalleOrdenCompra);
+    void modificar(DetalleOrdenCompra detalleordenCompra);
 
     Optional<DetalleOrdenCompra> buscarId(Integer id);
 

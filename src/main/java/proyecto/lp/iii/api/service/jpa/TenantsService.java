@@ -20,12 +20,12 @@ public class TenantsService implements ITenantsService {
         return repoTenants.findAll();
     }
 
-    public void guardar(Tenants curso){
-        repoTenants.save(curso);
+    public void guardar(Tenants tenant){
+        repoTenants.save(tenant);
     }
 
-    public void modificar(Tenants curso){
-        repoTenants.save(curso);
+    public void modificar(Tenants tenant){
+        repoTenants.save(tenant);
     }
 
     public Optional<Tenants> buscarId(Integer id){

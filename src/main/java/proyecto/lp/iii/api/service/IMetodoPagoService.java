@@ -6,8 +6,12 @@ import proyecto.lp.iii.api.entity.MetodoPago;
 
 public interface IMetodoPagoService {
     List<MetodoPago> buscarTodos();
-    void guardar(MetodoPago entity);
-    void modificar(MetodoPago entity);
+
+    void guardar(MetodoPago metodopago);
+
+    void modificar(MetodoPago metodopago);
+
     Optional<MetodoPago> buscarId(Integer id);
+
     void eliminar(Integer id);
 }

@@ -6,8 +6,12 @@ import proyecto.lp.iii.api.entity.Marca;
 
 public interface IMarcaService {
     List<Marca> buscarTodos();
-    void guardar(Marca entity);
-    void modificar(Marca entity);
+
+    void guardar(Marca marca);
+
+    void modificar(Marca marca);
+
     Optional<Marca> buscarId(Integer id);
+
     void eliminar(Integer id);
 }

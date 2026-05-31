@@ -6,8 +6,12 @@ import proyecto.lp.iii.api.entity.Proveedor;
 
 public interface IProveedorService {
     List<Proveedor> buscarTodos();
-    void guardar(Proveedor entity);
-    void modificar(Proveedor entity);
+
+    void guardar(Proveedor proveedor);
+
+    void modificar(Proveedor proveedor);
+
     Optional<Proveedor> buscarId(Integer id);
+
     void eliminar(Integer id);
 }

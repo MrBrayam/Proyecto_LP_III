@@ -8,9 +8,9 @@ import proyecto.lp.iii.api.entity.ComposicionCombo;
 public interface IComposicionComboService {
     List<ComposicionCombo> buscarTodos();
 
-    void guardar(ComposicionCombo composicionCombo);
+    void guardar(ComposicionCombo composicioncombo);
 
-    void modificar(ComposicionCombo composicionCombo);
+    void modificar(ComposicionCombo composicioncombo);
 
     Optional<ComposicionCombo> buscarId(Integer id);
 

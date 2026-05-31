@@ -8,9 +8,9 @@ import proyecto.lp.iii.api.entity.DetalleDevolucionProveedor;
 public interface IDetalleDevolucionProveedorService {
     List<DetalleDevolucionProveedor> buscarTodos();
 
-    void guardar(DetalleDevolucionProveedor detalleDevolucionProveedor);
+    void guardar(DetalleDevolucionProveedor detalledevolucionproveedor);
 
-    void modificar(DetalleDevolucionProveedor detalleDevolucionProveedor);
+    void modificar(DetalleDevolucionProveedor detalledevolucionproveedor);
 
     Optional<DetalleDevolucionProveedor> buscarId(Integer id);
 
