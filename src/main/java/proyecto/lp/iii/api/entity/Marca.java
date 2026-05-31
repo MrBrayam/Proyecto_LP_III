@@ -1,46 +1,103 @@
 package proyecto.lp.iii.api.entity;
 
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import java.time.LocalDateTime;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "marcas")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@SQLDelete(sql = "UPDATE marcas SET estado=0 WHERE id_marcas=?")
+@SQLRestriction("estado=1")
+@JsonPropertyOrder({
+        "id_marcas",
+        "id_tenants",
+        "nombre_marca",
+        "pais_origen",
+        "logo_url",
+        "descripcion",
+        "estado"
+})
 public class Marca {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Integer id_marcas;
 
-    @ManyToOne
-    @JoinColumn(name = "tenant_id", nullable = false)
-    private Tenants tenant;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_tenants", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private Tenants id_tenants;
 
-    @Column(nullable = false, length = 100)
-    private String nombre;
-
-    @Column(length = 100)
-    private String paisOrigen;
-
-    @Column(length = 255)
-    private String logoUrl;
+    private String nombre_marca;
+    private String pais_origen;
+    private String logo_url;
 
     @Column(columnDefinition = "TEXT")
     private String descripcion;
 
-    @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "ENUM('activo', 'inactivo') DEFAULT 'activo'")
-    private EstadoMarca estado = EstadoMarca.ACTIVO;
+    private Integer estado = 1;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime fechaCreacion = LocalDateTime.now();
+    public Integer getId_marcas() {
+        return id_marcas;
+    }
 
-    public enum EstadoMarca {
-        ACTIVO, INACTIVO
+    public void setId_marcas(Integer id_marcas) {
+        this.id_marcas = id_marcas;
+    }
+
+    public Tenants getId_tenants() {
+        return id_tenants;
+    }
+
+    public void setId_tenants(Tenants id_tenants) {
+        this.id_tenants = id_tenants;
+    }
+
+    public String getNombre_marca() {
+        return nombre_marca;
+    }
+
+    public void setNombre_marca(String nombre_marca) {
+        this.nombre_marca = nombre_marca;
+    }
+
+    public String getPais_origen() {
+        return pais_origen;
+    }
+
+    public void setPais_origen(String pais_origen) {
+        this.pais_origen = pais_origen;
+    }
+
+    public String getLogo_url() {
+        return logo_url;
+    }
+
+    public void setLogo_url(String logo_url) {
+        this.logo_url = logo_url;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public Integer getEstado() {
+        return estado;
+    }
+
+    public void setEstado(Integer estado) {
+        this.estado = estado;
+    }
+
+    @Override
+    public String toString() {
+        return "Marca [id_marcas=" + id_marcas + ", id_tenants=" + id_tenants + ", nombre_marca=" + nombre_marca
+                + ", pais_origen=" + pais_origen + ", logo_url=" + logo_url + ", descripcion=" + descripcion
+                + ", estado=" + estado + "]";
     }
 }

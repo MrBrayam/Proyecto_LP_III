@@ -1,38 +1,77 @@
 package proyecto.lp.iii.api.entity;
 
-
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 @Entity
 @Table(name = "formas_pago_venta")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@JsonPropertyOrder({
+        "id_formas_pago_venta",
+        "id_ventas",
+        "tipo_pago",
+        "monto",
+        "referencia_transaccion"
+})
 public class FormaPagoVenta {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Integer id_formas_pago_venta;
 
-    @ManyToOne
-    @JoinColumn(name = "venta_id", nullable = false)
-    private Venta venta;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_ventas", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private Venta id_ventas;
 
-    @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "ENUM('efectivo', 'tarjeta_credito', 'tarjeta_debito', 'transferencia', 'billetera_digital', 'credito_tienda') DEFAULT 'efectivo'")
-    private TipoPago tipoPago = TipoPago.EFECTIVO;
-
-    @Column(precision = 10, scale = 2)
+    private String tipo_pago;
     private BigDecimal monto;
+    private String referencia_transaccion;
 
-    @Column(length = 100)
-    private String referenciaTransaccion;
+    public Integer getId_formas_pago_venta() {
+        return id_formas_pago_venta;
+    }
 
-    public enum TipoPago {
-        EFECTIVO, TARJETA_CREDITO, TARJETA_DEBITO, TRANSFERENCIA, BILLETERA_DIGITAL, CREDITO_TIENDA
+    public void setId_formas_pago_venta(Integer id_formas_pago_venta) {
+        this.id_formas_pago_venta = id_formas_pago_venta;
+    }
+
+    public Venta getId_ventas() {
+        return id_ventas;
+    }
+
+    public void setId_ventas(Venta id_ventas) {
+        this.id_ventas = id_ventas;
+    }
+
+    public String getTipo_pago() {
+        return tipo_pago;
+    }
+
+    public void setTipo_pago(String tipo_pago) {
+        this.tipo_pago = tipo_pago;
+    }
+
+    public BigDecimal getMonto() {
+        return monto;
+    }
+
+    public void setMonto(BigDecimal monto) {
+        this.monto = monto;
+    }
+
+    public String getReferencia_transaccion() {
+        return referencia_transaccion;
+    }
+
+    public void setReferencia_transaccion(String referencia_transaccion) {
+        this.referencia_transaccion = referencia_transaccion;
+    }
+
+    @Override
+    public String toString() {
+        return "FormaPagoVenta [id_formas_pago_venta=" + id_formas_pago_venta + ", id_ventas=" + id_ventas
+                + ", tipo_pago=" + tipo_pago + ", monto=" + monto + ", referencia_transaccion=" + referencia_transaccion
+                + "]";
     }
 }

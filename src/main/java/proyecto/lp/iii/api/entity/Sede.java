@@ -1,72 +1,130 @@
 package proyecto.lp.iii.api.entity;
 
-
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import java.time.LocalTime;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "sedes")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@org.hibernate.annotations.SQLDelete(sql = "UPDATE sedes SET estado=0 WHERE id_sedes=?")
+@org.hibernate.annotations.SQLRestriction("estado=1")
+@JsonPropertyOrder({
+        "id_sedes",
+        "id_tenants",
+        "nombre_sede",
+        "direccion",
+        "distrito",
+        "telefono",
+        "horario_apertura",
+        "horario_cierre",
+        "responsable",
+        "estado"
+})
 public class Sede {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Integer id_sedes;
 
-    @ManyToOne
-    @JoinColumn(name = "tenant_id", nullable = false)
-    private Tenants tenant;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_tenants", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private Tenants id_tenants;
 
-    @Column(nullable = false, length = 255)
-    private String nombre;
-
-    @Column(length = 255)
+    private String nombre_sede;
     private String direccion;
-
-    @Column(length = 100)
     private String distrito;
-
-    @Column(length = 15)
     private String telefono;
-
-    @Column
-    private LocalTime horarioApertura;
-
-    @Column
-    private LocalTime horarioCierre;
-
-    @Column(length = 255)
+    private LocalTime horario_apertura;
+    private LocalTime horario_cierre;
     private String responsable;
+    private Integer estado = 1;
 
-    @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "ENUM('activa', 'suspendida', 'desactivada') DEFAULT 'activa'")
-    private EstadoSede estado = EstadoSede.ACTIVA;
-
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime fechaCreacion = LocalDateTime.now();
-
-    @Column(nullable = false)
-    private LocalDateTime fechaActualizacion = LocalDateTime.now();
-
-    @OneToMany(mappedBy = "sede", cascade = CascadeType.ALL)
-    private List<Almacen> almacenes;
-
-    @OneToMany(mappedBy = "sede", cascade = CascadeType.ALL)
-    private List<HorarioOperacion> horariosOperacion;
-
-    @PreUpdate
-    public void preUpdate() {
-        this.fechaActualizacion = LocalDateTime.now();
+    public Integer getId_sedes() {
+        return id_sedes;
     }
 
-    public enum EstadoSede {
-        ACTIVA, SUSPENDIDA, DESACTIVADA
+    public void setId_sedes(Integer id_sedes) {
+        this.id_sedes = id_sedes;
+    }
+
+    public Tenants getId_tenants() {
+        return id_tenants;
+    }
+
+    public void setId_tenants(Tenants id_tenants) {
+        this.id_tenants = id_tenants;
+    }
+
+    public String getNombre_sede() {
+        return nombre_sede;
+    }
+
+    public void setNombre_sede(String nombre_sede) {
+        this.nombre_sede = nombre_sede;
+    }
+
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
+    }
+
+    public String getDistrito() {
+        return distrito;
+    }
+
+    public void setDistrito(String distrito) {
+        this.distrito = distrito;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+
+    public LocalTime getHorario_apertura() {
+        return horario_apertura;
+    }
+
+    public void setHorario_apertura(LocalTime horario_apertura) {
+        this.horario_apertura = horario_apertura;
+    }
+
+    public LocalTime getHorario_cierre() {
+        return horario_cierre;
+    }
+
+    public void setHorario_cierre(LocalTime horario_cierre) {
+        this.horario_cierre = horario_cierre;
+    }
+
+    public String getResponsable() {
+        return responsable;
+    }
+
+    public void setResponsable(String responsable) {
+        this.responsable = responsable;
+    }
+
+    public Integer getEstado() {
+        return estado;
+    }
+
+    public void setEstado(Integer estado) {
+        this.estado = estado;
+    }
+
+    @Override
+    public String toString() {
+        return "Sede [id_sedes=" + id_sedes + ", id_tenants=" + id_tenants + ", nombre_sede=" + nombre_sede
+                + ", direccion=" + direccion + ", distrito=" + distrito + ", telefono=" + telefono
+                + ", horario_apertura=" + horario_apertura + ", horario_cierre=" + horario_cierre
+                + ", responsable=" + responsable + ", estado=" + estado + "]";
     }
 }

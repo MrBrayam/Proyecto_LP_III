@@ -1,47 +1,110 @@
 package proyecto.lp.iii.api.entity;
 
-
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 @Entity
 @Table(name = "zonas_delivery")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@org.hibernate.annotations.SQLDelete(sql = "UPDATE zonas_delivery SET estado=0 WHERE id_zonas_delivery=?")
+@org.hibernate.annotations.SQLRestriction("estado=1")
+@JsonPropertyOrder({
+        "id_zonas_delivery",
+        "id_sedes",
+        "nombre_zona",
+        "distritos",
+        "costo_fijo",
+        "monto_minimo_compra",
+        "tiempo_estimado_minutos",
+        "estado"
+})
 public class ZonaDelivery {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Integer id_zonas_delivery;
 
-    @ManyToOne
-    @JoinColumn(name = "sede_id", nullable = false)
-    private Sede sede;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_sedes", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private Sede id_sedes;
 
-    @Column(length = 100)
-    private String nombre;
-
-    @Column(length = 500)
+    private String nombre_zona;
     private String distritos;
+    private BigDecimal costo_fijo;
+    private BigDecimal monto_minimo_compra;
+    private Integer tiempo_estimado_minutos;
+    private Integer estado = 1;
 
-    @Column(precision = 10, scale = 2)
-    private BigDecimal costoFijo;
+    public Integer getId_zonas_delivery() {
+        return id_zonas_delivery;
+    }
 
-    @Column(precision = 10, scale = 2)
-    private BigDecimal montoMinimoCompra;
+    public void setId_zonas_delivery(Integer id_zonas_delivery) {
+        this.id_zonas_delivery = id_zonas_delivery;
+    }
 
-    @Column
-    private Integer tiempoEstimadoMinutos;
+    public Sede getId_sedes() {
+        return id_sedes;
+    }
 
-    @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "ENUM('activo', 'inactivo') DEFAULT 'activo'")
-    private EstadoZona estado = EstadoZona.ACTIVO;
+    public void setId_sedes(Sede id_sedes) {
+        this.id_sedes = id_sedes;
+    }
 
-    public enum EstadoZona {
-        ACTIVO, INACTIVO
+    public String getNombre_zona() {
+        return nombre_zona;
+    }
+
+    public void setNombre_zona(String nombre_zona) {
+        this.nombre_zona = nombre_zona;
+    }
+
+    public String getDistritos() {
+        return distritos;
+    }
+
+    public void setDistritos(String distritos) {
+        this.distritos = distritos;
+    }
+
+    public BigDecimal getCosto_fijo() {
+        return costo_fijo;
+    }
+
+    public void setCosto_fijo(BigDecimal costo_fijo) {
+        this.costo_fijo = costo_fijo;
+    }
+
+    public BigDecimal getMonto_minimo_compra() {
+        return monto_minimo_compra;
+    }
+
+    public void setMonto_minimo_compra(BigDecimal monto_minimo_compra) {
+        this.monto_minimo_compra = monto_minimo_compra;
+    }
+
+    public Integer getTiempo_estimado_minutos() {
+        return tiempo_estimado_minutos;
+    }
+
+    public void setTiempo_estimado_minutos(Integer tiempo_estimado_minutos) {
+        this.tiempo_estimado_minutos = tiempo_estimado_minutos;
+    }
+
+    public Integer getEstado() {
+        return estado;
+    }
+
+    public void setEstado(Integer estado) {
+        this.estado = estado;
+    }
+
+    @Override
+    public String toString() {
+        return "ZonaDelivery [id_zonas_delivery=" + id_zonas_delivery + ", id_sedes=" + id_sedes + ", nombre_zona="
+                + nombre_zona + ", distritos=" + distritos + ", costo_fijo=" + costo_fijo + ", monto_minimo_compra="
+                + monto_minimo_compra + ", tiempo_estimado_minutos=" + tiempo_estimado_minutos + ", estado=" + estado
+                + "]";
     }
 }
