@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface RepartidorRepository extends JpaRepository<Repartidor, Integer> {
     Repartidor findByUsuario(Usuarios usuario);
-    List<Repartidor> findByEstado(Repartidor.EstadoRepartidor estado);
+
 }

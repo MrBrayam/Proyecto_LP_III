@@ -9,9 +9,10 @@ import java.util.List;
 @Repository
 public interface SerieComprobanteRepository extends JpaRepository<SerieComprobante, Integer> {
     List<SerieComprobante> findByTenant(Tenants tenant);
+
     SerieComprobante findByTenantAndTipoComprobanteAndPuntoEmisionAndNumeroSerie(
-            Tenants tenant, 
-            SerieComprobante.TipoComprobante tipo, 
-            Integer puntoEmision, 
+            Tenants tenant,
+
+            Integer puntoEmision,
             String numeroSerie);
 }

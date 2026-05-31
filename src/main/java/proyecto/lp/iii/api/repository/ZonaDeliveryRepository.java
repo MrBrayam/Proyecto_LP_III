@@ -9,5 +9,4 @@ import java.util.List;
 @Repository
 public interface ZonaDeliveryRepository extends JpaRepository<ZonaDelivery, Integer> {
     List<ZonaDelivery> findBySede(Sede sede);
-    List<ZonaDelivery> findBySedeAndEstado(Sede sede, ZonaDelivery.EstadoZona estado);
 }

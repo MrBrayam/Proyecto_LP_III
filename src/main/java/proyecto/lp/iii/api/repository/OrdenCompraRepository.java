@@ -10,6 +10,6 @@ import java.util.List;
 @Repository
 public interface OrdenCompraRepository extends JpaRepository<OrdenCompra, Integer> {
     List<OrdenCompra> findByTenant(Tenants tenant);
-    List<OrdenCompra> findByTenantAndEstado(Tenants tenant, OrdenCompra.EstadoOrden estado);
+
     List<OrdenCompra> findByProveedor(Proveedor proveedor);
 }

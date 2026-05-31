@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface PromocionRepository extends JpaRepository<Promocion, Integer> {
     List<Promocion> findByTenant(Tenants tenant);
-    List<Promocion> findByTenantAndEstado(Tenants tenant, Promocion.EstadoPromocion estado);
+
 }

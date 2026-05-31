@@ -9,5 +9,4 @@ import java.util.List;
 @Repository
 public interface MetodoPagoRepository extends JpaRepository<MetodoPago, Integer> {
     List<MetodoPago> findByTenant(Tenants tenant);
-    List<MetodoPago> findByTenantAndEstado(Tenants tenant, MetodoPago.EstadoMetodo estado);
 }

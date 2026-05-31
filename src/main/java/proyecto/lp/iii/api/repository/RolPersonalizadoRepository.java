@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface RolPersonalizadoRepository extends JpaRepository<RolPersonalizado, Integer> {
     List<RolPersonalizado> findByTenant(Tenants tenant);
-    List<RolPersonalizado> findByTenantAndEstado(Tenants tenant, RolPersonalizado.EstadoRol estado);
+
 }

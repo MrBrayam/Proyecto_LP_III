@@ -7,6 +7,5 @@ import java.util.List;
 
 @Repository
 public interface PlanSuscripcionRepository extends JpaRepository<PlanSuscripcion, Integer> {
-    List<PlanSuscripcion> findByEstado(PlanSuscripcion.EstadoPlan estado);
     List<PlanSuscripcion> findByNombreContainingIgnoreCase(String nombre);
 }

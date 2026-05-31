@@ -9,5 +9,4 @@ import java.util.List;
 @Repository
 public interface GastoOperativoRepository extends JpaRepository<GastoOperativo, Integer> {
     List<GastoOperativo> findByTenant(Tenants tenant);
-    List<GastoOperativo> findByTenantAndEstado(Tenants tenant, GastoOperativo.EstadoGasto estado);
 }

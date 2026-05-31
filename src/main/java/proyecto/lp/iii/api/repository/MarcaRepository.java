@@ -9,5 +9,4 @@ import java.util.List;
 @Repository
 public interface MarcaRepository extends JpaRepository<Marca, Integer> {
     List<Marca> findByTenant(Tenants tenant);
-    List<Marca> findByTenantAndEstado(Tenants tenant, Marca.EstadoMarca estado);
 }

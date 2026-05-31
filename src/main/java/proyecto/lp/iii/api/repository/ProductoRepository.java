@@ -11,8 +11,10 @@ import java.util.Optional;
 @Repository
 public interface ProductoRepository extends JpaRepository<Producto, Integer> {
     List<Producto> findByTenant(Tenants tenant);
-    List<Producto> findByTenantAndEstado(Tenants tenant, Producto.EstadoProducto estado);
+
     List<Producto> findByCategoria(CategoriaProducto categoria);
+
     Optional<Producto> findByCodigoBarras(String codigoBarras);
+
     List<Producto> findByNombreContainingIgnoreCase(String nombre);
 }

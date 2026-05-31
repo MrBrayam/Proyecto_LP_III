@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface SedeRepository extends JpaRepository<Sede, Integer> {
     List<Sede> findByTenant(Tenants tenant);
-    List<Sede> findByTenantAndEstado(Tenants tenant, Sede.EstadoSede estado);
+
 }

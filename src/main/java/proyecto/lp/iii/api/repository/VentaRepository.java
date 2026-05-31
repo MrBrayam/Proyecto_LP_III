@@ -11,7 +11,8 @@ import java.util.List;
 @Repository
 public interface VentaRepository extends JpaRepository<Venta, Integer> {
     List<Venta> findByTenant(Tenants tenant);
-    List<Venta> findByTenantAndEstado(Tenants tenant, Venta.EstadoVenta estado);
+
     List<Venta> findBySede(Sede sede);
+
     List<Venta> findByCliente(Cliente cliente);
 }

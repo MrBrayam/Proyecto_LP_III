@@ -10,6 +10,7 @@ import java.util.List;
 @Repository
 public interface SesionCajaRepository extends JpaRepository<SesionCaja, Integer> {
     List<SesionCaja> findBySede(Sede sede);
+
     List<SesionCaja> findByUsuario(Usuarios usuario);
-    List<SesionCaja> findByEstado(SesionCaja.EstadoSesion estado);
+
 }

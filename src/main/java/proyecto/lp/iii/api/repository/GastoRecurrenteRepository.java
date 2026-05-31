@@ -9,5 +9,4 @@ import java.util.List;
 @Repository
 public interface GastoRecurrenteRepository extends JpaRepository<GastoRecurrente, Integer> {
     List<GastoRecurrente> findByTenant(Tenants tenant);
-    List<GastoRecurrente> findByTenantAndEstado(Tenants tenant, GastoRecurrente.EstadoRecurrente estado);
 }

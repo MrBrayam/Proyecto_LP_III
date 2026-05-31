@@ -9,5 +9,4 @@ import java.util.List;
 @Repository
 public interface HorarioOperacionRepository extends JpaRepository<HorarioOperacion, Integer> {
     List<HorarioOperacion> findBySede(Sede sede);
-    List<HorarioOperacion> findBySedeAndDiaSemana(Sede sede, HorarioOperacion.DiaSemana diaSemana);
 }

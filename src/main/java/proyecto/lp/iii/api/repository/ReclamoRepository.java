@@ -10,6 +10,7 @@ import java.util.List;
 @Repository
 public interface ReclamoRepository extends JpaRepository<Reclamo, Integer> {
     List<Reclamo> findByTenant(Tenants tenant);
+
     List<Reclamo> findByCliente(Cliente cliente);
-    List<Reclamo> findByEstado(Reclamo.EstadoReclamo estado);
+
 }

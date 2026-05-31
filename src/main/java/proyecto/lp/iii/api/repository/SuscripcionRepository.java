@@ -9,6 +9,4 @@ import java.util.List;
 @Repository
 public interface SuscripcionRepository extends JpaRepository<Suscripcion, Integer> {
     List<Suscripcion> findByTenant(Tenants tenant);
-    List<Suscripcion> findByEstado(Suscripcion.EstadoSuscripcion estado);
-    List<Suscripcion> findByTenantAndEstado(Tenants tenant, Suscripcion.EstadoSuscripcion estado);
 }

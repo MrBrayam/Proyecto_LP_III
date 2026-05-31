@@ -9,5 +9,4 @@ import java.util.List;
 @Repository
 public interface PermisoRolRepository extends JpaRepository<PermisoRol, Integer> {
     List<PermisoRol> findByRol(RolPersonalizado rol);
-    List<PermisoRol> findByRolAndEstado(RolPersonalizado rol, PermisoRol.EstadoPermiso estado);
 }

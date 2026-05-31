@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface LoteInventarioRepository extends JpaRepository<LoteInventario, Integer> {
     List<LoteInventario> findByProducto(Producto producto);
+
     List<LoteInventario> findByAlmacen(Almacen almacen);
-    List<LoteInventario> findByProductoAndEstado(Producto producto, LoteInventario.EstadoLote estado);
-    List<LoteInventario> findByEstado(LoteInventario.EstadoLote estado);
+
 }
