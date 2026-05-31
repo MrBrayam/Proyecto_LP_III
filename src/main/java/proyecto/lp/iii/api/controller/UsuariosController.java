@@ -44,7 +44,7 @@ public class UsuariosController {
         return serviceUsuarios.buscarId(id);
     }
     
-    @DeleteMapping("/u  suarios/{id}")
+    @DeleteMapping("/usuarios/{id}")
     public String elminar(@PathVariable Integer id){
         serviceUsuarios.eliminar(id);
         return "Registro Eliminado";
