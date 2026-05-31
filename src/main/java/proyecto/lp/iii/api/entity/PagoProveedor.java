@@ -39,7 +39,7 @@ public class PagoProveedor {
 
     @ManyToOne
     @JoinColumn(name = "usuario_responsable_id")
-    private Usuario usuarioResponsable;
+    private Usuarios usuarioResponsable;
 
     @Column(columnDefinition = "TEXT")
     private String observaciones;

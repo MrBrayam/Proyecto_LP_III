@@ -25,7 +25,7 @@ public class SesionCaja {
 
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
-    private Usuario usuario;
+    private Usuarios usuario;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime fechaApertura = LocalDateTime.now();

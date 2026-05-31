@@ -18,7 +18,7 @@ public class UsuarioSede {
 
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
-    private Usuario usuario;
+    private Usuarios usuario;
 
     @ManyToOne
     @JoinColumn(name = "sede_id", nullable = false)

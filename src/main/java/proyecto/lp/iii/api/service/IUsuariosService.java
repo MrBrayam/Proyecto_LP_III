@@ -3,16 +3,16 @@ package proyecto.lp.iii.api.service;
 import java.util.List;
 import java.util.Optional;
 
-import proyecto.lp.iii.api.entity.Usuario;
+import proyecto.lp.iii.api.entity.Usuarios;
 
 public interface IUsuariosService {
-    List<Usuario> buscarTodos();
+    List<Usuarios> buscarTodos();
 
-    void guardar(Usuario usuario);
+    void guardar(Usuarios usuario);
 
-    void modificar(Usuario usuario);
+    void modificar(Usuarios usuario);
 
-    Optional<Usuario> buscarId(Integer id);
+    Optional<Usuarios> buscarId(Integer id);
 
     void eliminar(Integer id);
     

@@ -10,7 +10,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS `planes_suscripcion`;
 CREATE TABLE `planes_suscripcion` (
   `id_planes_suscripcion` int(11) NOT NULL AUTO_INCREMENT,
-  `nombre` varchar(100) NOT NULL,
+  `nombre_plan_suscripcion` varchar(100) NOT NULL,
   `descripcion` text DEFAULT NULL,
   `precio_mensual` decimal(10,2) DEFAULT NULL,
   `precio_trimestral` decimal(10,2) DEFAULT NULL,
@@ -62,7 +62,7 @@ DROP TABLE IF EXISTS `categorias_productos`;
 CREATE TABLE `categorias_productos` (
   `id_categorias_productos` int(11) NOT NULL AUTO_INCREMENT,
   `id_tenants` int(11) NOT NULL,
-  `nombre` varchar(100) NOT NULL,
+  `nombre_categoria_producto` varchar(100) NOT NULL,
   `descripcion` text DEFAULT NULL,
   `imagen_url` varchar(255) DEFAULT NULL,
   `orden` int(11) DEFAULT NULL,
@@ -78,7 +78,8 @@ DROP TABLE IF EXISTS `clientes`;
 CREATE TABLE `clientes` (
   `id_clientes` int(11) NOT NULL AUTO_INCREMENT,
   `id_tenants` int(11) NOT NULL,
-  `nombre_completo` varchar(255) NOT NULL,
+  `nombre_cliente` varchar(255) NOT NULL,
+  `apellidos_clientes` varchar(255) NOT NULL,
   `tipo_documento` enum('DNI','RUC','Pasaporte') DEFAULT 'DNI',
   `numero_documento` varchar(20) DEFAULT NULL,
   `telefono` varchar(15) DEFAULT NULL,
@@ -87,7 +88,6 @@ CREATE TABLE `clientes` (
   `distrito` varchar(100) DEFAULT NULL,
   `tipo_cliente` enum('regular','frecuente','vip') DEFAULT 'regular',
   `estado` tinyint(1) DEFAULT 1,
-  `fecha_registro` timestamp NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id_clientes`),
   KEY `idx_tenant_id` (`id_tenants`),
   KEY `idx_numero_documento` (`numero_documento`),
@@ -100,7 +100,7 @@ DROP TABLE IF EXISTS `combos_promocionales`;
 CREATE TABLE `combos_promocionales` (
   `id_combos_promocionales` int(11) NOT NULL AUTO_INCREMENT,
   `id_tenants` int(11) NOT NULL,
-  `nombre` varchar(255) NOT NULL,
+  `nombre_promocion` varchar(255) NOT NULL,
   `descripcion` text DEFAULT NULL,
   `precio_combo` decimal(10,2) DEFAULT NULL,
   `precio_original` decimal(10,2) DEFAULT NULL,
@@ -153,7 +153,7 @@ DROP TABLE IF EXISTS `marcas`;
 CREATE TABLE `marcas` (
   `id_marcas` int(11) NOT NULL AUTO_INCREMENT,
   `id_tenants` int(11) NOT NULL,
-  `nombre` varchar(100) NOT NULL,
+  `nombre_marca` varchar(100) NOT NULL,
   `pais_origen` varchar(100) DEFAULT NULL,
   `logo_url` varchar(255) DEFAULT NULL,
   `descripcion` text DEFAULT NULL,
@@ -169,7 +169,7 @@ DROP TABLE IF EXISTS `metodos_pago`;
 CREATE TABLE `metodos_pago` (
   `id_metodos_pago` int(11) NOT NULL AUTO_INCREMENT,
   `id_tenants` int(11) NOT NULL,
-  `nombre` varchar(100) NOT NULL,
+  `nombre_metodo_de_pago` varchar(100) NOT NULL,
   `tipo` enum('efectivo','tarjeta_credito','tarjeta_debito','transferencia','billetera_digital','otro') DEFAULT NULL,
   `descripcion` text DEFAULT NULL,
   `estado` tinyint(1) DEFAULT 1,
@@ -203,7 +203,7 @@ DROP TABLE IF EXISTS `roles_personalizados`;
 CREATE TABLE `roles_personalizados` (
   `id_roles_personalizados` int(11) NOT NULL AUTO_INCREMENT,
   `id_tenants` int(11) NOT NULL,
-  `nombre` varchar(100) NOT NULL,
+  `nombre_rol_personalizado` varchar(100) NOT NULL,
   `descripcion` text DEFAULT NULL,
   `estado` tinyint(1) DEFAULT 1,
   PRIMARY KEY (`id_roles_personalizados`),
@@ -216,7 +216,7 @@ DROP TABLE IF EXISTS `sedes`;
 CREATE TABLE `sedes` (
   `id_sedes` int(11) NOT NULL AUTO_INCREMENT,
   `id_tenants` int(11) NOT NULL,
-  `nombre` varchar(255) NOT NULL,
+  `nombre_sede` varchar(255) NOT NULL,
   `direccion` varchar(255) DEFAULT NULL,
   `distrito` varchar(100) DEFAULT NULL,
   `telefono` varchar(15) DEFAULT NULL,
@@ -254,7 +254,7 @@ DROP TABLE IF EXISTS `servicios_belleza`;
 CREATE TABLE `servicios_belleza` (
   `id_servicios_belleza` int(11) NOT NULL AUTO_INCREMENT,
   `id_tenants` int(11) NOT NULL,
-  `nombre` varchar(255) NOT NULL,
+  `nombre_servicio_belleza` varchar(255) NOT NULL,
   `descripcion` text DEFAULT NULL,
   `categoria` varchar(100) DEFAULT NULL,
   `duracion_minima` int(11) DEFAULT NULL,
@@ -292,13 +292,13 @@ DROP TABLE IF EXISTS `usuarios`;
 CREATE TABLE `usuarios` (
   `id_usuarios` int(11) NOT NULL AUTO_INCREMENT,
   `id_tenants` int(11) NOT NULL,
-  `nombre_completo` varchar(255) NOT NULL,
+  `nombre_usuario` varchar(255) NOT NULL,
+  `apellidos_usuario` varchar(255) NOT NULL,
   `correo` varchar(100) NOT NULL,
   `numero_documento` varchar(20) DEFAULT NULL,
-  `contrasena_hash` varchar(255) DEFAULT NULL,
+  `contrasenia` varchar(255) DEFAULT NULL,
   `tipo_usuario` enum('superadmin','admin','cajero','recepcionista','especialista','estilista','gerente','otro') DEFAULT 'otro',
   `estado` tinyint(1) DEFAULT 1,
-  `fecha_ultimo_acceso` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id_usuarios`),
   UNIQUE KEY `unique_correo_tenant` (`id_tenants`,`correo`),
   KEY `idx_tenant_id` (`id_tenants`),
@@ -313,7 +313,7 @@ DROP TABLE IF EXISTS `promociones`;
 CREATE TABLE `promociones` (
   `id_promociones` int(11) NOT NULL AUTO_INCREMENT,
   `id_tenants` int(11) NOT NULL,
-  `nombre` varchar(255) NOT NULL,
+  `nombre_promocion` varchar(255) NOT NULL,
   `tipo_descuento` enum('fijo','porcentual','2x1','3x2','escalonado','regalo') DEFAULT NULL,
   `valor_descuento` decimal(10,2) DEFAULT NULL,
   `compra_minima` decimal(10,2) DEFAULT NULL,
@@ -338,7 +338,7 @@ CREATE TABLE `productos` (
   `id_marcas` int(11) DEFAULT NULL,
   `codigo_interno` varchar(50) DEFAULT NULL,
   `codigo_barras` varchar(100) DEFAULT NULL,
-  `nombre` varchar(255) NOT NULL,
+  `nombre_producto` varchar(255) NOT NULL,
   `descripcion` text DEFAULT NULL,
   `tipo_producto` varchar(100) DEFAULT NULL,
   `presentacion` varchar(100) DEFAULT NULL,
@@ -375,7 +375,7 @@ CREATE TABLE `cuentas_por_pagar` (
   `monto` decimal(10,2) DEFAULT NULL,
   `fecha_documento` date DEFAULT NULL,
   `fecha_vencimiento` date DEFAULT NULL,
-  `estado_pago` enum('pendiente','parcial','pagada') DEFAULT 'pendiente',
+  `estado_pago` enum('pendiente','pagada') DEFAULT 'pendiente',
   PRIMARY KEY (`id_cuentas_por_pagar`),
   KEY `id_proveedores` (`id_proveedores`),
   KEY `idx_tenant_id` (`id_tenants`),
@@ -447,7 +447,7 @@ DROP TABLE IF EXISTS `almacenes`;
 CREATE TABLE `almacenes` (
   `id_almacenes` int(11) NOT NULL AUTO_INCREMENT,
   `id_sedes` int(11) NOT NULL,
-  `nombre` varchar(100) NOT NULL,
+  `nombre_almacen` varchar(100) NOT NULL,
   `ubicacion` varchar(255) DEFAULT NULL,
   `capacidad` int(11) DEFAULT NULL,
   `estado` tinyint(1) DEFAULT 1,
@@ -494,7 +494,7 @@ DROP TABLE IF EXISTS `zonas_delivery`;
 CREATE TABLE `zonas_delivery` (
   `id_zonas_delivery` int(11) NOT NULL AUTO_INCREMENT,
   `id_sedes` int(11) NOT NULL,
-  `nombre` varchar(100) DEFAULT NULL,
+  `nombre_zona` varchar(100) DEFAULT NULL,
   `distritos` varchar(500) DEFAULT NULL,
   `costo_fijo` decimal(10,2) DEFAULT NULL,
   `monto_minimo_compra` decimal(10,2) DEFAULT NULL,
@@ -685,14 +685,13 @@ DROP TABLE IF EXISTS `repartidores`;
 CREATE TABLE `repartidores` (
   `id_repartidores` int(11) NOT NULL AUTO_INCREMENT,
   `id_usuarios` int(11) NOT NULL,
-  `nombres` varchar(255) DEFAULT NULL,
-  `apellidos` varchar(255) DEFAULT NULL,
+  `nombre_repartidor` varchar(255) DEFAULT NULL,
+  `apellidos_repartidor` varchar(255) DEFAULT NULL,
   `numero_documento` varchar(20) DEFAULT NULL,
   `tipo_vehiculo` varchar(100) DEFAULT NULL,
   `placa_vehiculo` varchar(20) DEFAULT NULL,
   `numero_licencia` varchar(50) DEFAULT NULL,
   `estado` tinyint(1) DEFAULT 1,
-  `fecha_registro` timestamp NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id_repartidores`),
   KEY `idx_usuario_id` (`id_usuarios`),
   CONSTRAINT `fk_repartidores_1` FOREIGN KEY (`id_usuarios`) REFERENCES `usuarios` (`id_usuarios`)

@@ -60,7 +60,7 @@ public class Pedido {
 
     @ManyToOne
     @JoinColumn(name = "repartidor_id")
-    private Usuario repartidor;
+    private Usuarios repartidor;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime fechaPedido = LocalDateTime.now();

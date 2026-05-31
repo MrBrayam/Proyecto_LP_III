@@ -23,7 +23,7 @@ public class Notificacion {
 
     @ManyToOne
     @JoinColumn(name = "usuario_id")
-    private Usuario usuario;
+    private Usuarios usuario;
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "ENUM('stock_bajo', 'producto_vencer', 'cita_pendiente', 'cancelacion', 'acceso_sospechoso', 'pago_vencido', 'otro') DEFAULT 'otro'")

@@ -9,8 +9,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import proyecto.lp.iii.api.entity.Usuario;
-import proyecto.lp.iii.api.repository.UsuarioRepository;
+import proyecto.lp.iii.api.entity.Usuarios;
+import proyecto.lp.iii.api.repository.UsuariosRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.GenericFilter;
 import jakarta.servlet.ServletException;
@@ -21,7 +21,7 @@ import jakarta.servlet.http.HttpServletRequest;
 @Component
 public class JwtFilter extends GenericFilter{
     @Autowired
-    private  UsuarioRepository usuariosRepository;
+    private  UsuariosRepository usuariosRepository;
     @Override
     public void doFilter(ServletRequest req, ServletResponse res,
             FilterChain chain) throws IOException, ServletException{
@@ -30,7 +30,7 @@ public class JwtFilter extends GenericFilter{
         if(header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
             
-            Optional<Usuario> match = usuariosRepository.findAll().stream()
+            Optional<Usuarios> match = usuariosRepository.findAll().stream()
                 .filter(r -> token.equals(r.getAccess_token()))
                 .findFirst();
 

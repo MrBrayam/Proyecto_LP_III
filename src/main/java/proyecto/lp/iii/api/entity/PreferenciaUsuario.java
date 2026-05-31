@@ -19,7 +19,7 @@ public class PreferenciaUsuario {
 
     @OneToOne
     @JoinColumn(name = "usuario_id", nullable = false)
-    private Usuario usuario;
+    private Usuarios usuario;
 
     @Column(length = 10)
     private String idioma = "es";

@@ -20,7 +20,7 @@ public class Repartidor {
 
     @OneToOne
     @JoinColumn(name = "usuario_id", nullable = false)
-    private Usuario usuario;
+    private Usuarios usuario;
 
     @Column(length = 255)
     private String nombres;

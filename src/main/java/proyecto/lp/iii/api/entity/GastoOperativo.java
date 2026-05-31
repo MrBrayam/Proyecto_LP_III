@@ -57,11 +57,11 @@ public class GastoOperativo {
 
     @ManyToOne
     @JoinColumn(name = "usuario_creacion_id")
-    private Usuario usuarioCreacion;
+    private Usuarios usuarioCreacion;
 
     @ManyToOne
     @JoinColumn(name = "usuario_aprobacion_id")
-    private Usuario usuarioAprobacion;
+    private Usuarios usuarioAprobacion;
 
     @Column
     private LocalDate fechaGasto;

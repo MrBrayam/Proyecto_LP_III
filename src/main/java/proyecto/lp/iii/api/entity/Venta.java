@@ -68,7 +68,7 @@ public class Venta {
 
     @ManyToOne
     @JoinColumn(name = "usuario_id")
-    private Usuario usuario;
+    private Usuarios usuario;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime fechaVenta = LocalDateTime.now();

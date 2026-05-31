@@ -30,7 +30,7 @@ public class MovimientoInventario {
 
     @ManyToOne
     @JoinColumn(name = "usuario_id")
-    private Usuario usuario;
+    private Usuarios usuario;
 
     @Column(length = 255)
     private String motivo;

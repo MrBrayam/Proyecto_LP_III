@@ -33,7 +33,7 @@ public class Cita {
 
     @ManyToOne
     @JoinColumn(name = "especialista_id")
-    private Usuario especialista;
+    private Usuarios especialista;
 
     @ManyToOne
     @JoinColumn(name = "servicio_id", nullable = false)
@@ -60,7 +60,7 @@ public class Cita {
 
     @ManyToOne
     @JoinColumn(name = "usuario_creacion_id")
-    private Usuario usuarioCreacion;
+    private Usuarios usuarioCreacion;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();

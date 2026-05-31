@@ -48,7 +48,7 @@ public class Reclamo {
 
     @ManyToOne
     @JoinColumn(name = "responsable_id")
-    private Usuario responsable;
+    private Usuarios responsable;
 
     @Column
     private Integer slaHoras;
@@ -61,7 +61,7 @@ public class Reclamo {
 
     @ManyToOne
     @JoinColumn(name = "usuario_creacion_id")
-    private Usuario usuarioCreacion;
+    private Usuarios usuarioCreacion;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();

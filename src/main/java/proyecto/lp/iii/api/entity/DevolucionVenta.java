@@ -46,7 +46,7 @@ public class DevolucionVenta {
 
     @ManyToOne
     @JoinColumn(name = "usuario_responsable_id")
-    private Usuario usuarioResponsable;
+    private Usuarios usuarioResponsable;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime fechaDevolucion = LocalDateTime.now();
