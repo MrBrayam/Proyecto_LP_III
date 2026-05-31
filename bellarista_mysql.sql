@@ -297,6 +297,8 @@ CREATE TABLE `usuarios` (
   `correo` varchar(100) NOT NULL,
   `numero_documento` varchar(20) DEFAULT NULL,
   `contrasenia` varchar(255) DEFAULT NULL,
+  `llave_secreta` varchar(255) NOT NULL,
+  `access_token` varchar(255) NOT NULL,
   `tipo_usuario` enum('superadmin','admin','cajero','recepcionista','especialista','estilista','gerente','otro') DEFAULT 'otro',
   `estado` tinyint(1) DEFAULT 1,
   PRIMARY KEY (`id_usuarios`),
