@@ -5,11 +5,13 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "gastos_operativos")
-@org.hibernate.annotations.SQLDelete(sql = "UPDATE gastos_operativos SET estado=0 WHERE id_gastos_operativos=?")
-@org.hibernate.annotations.SQLRestriction("estado=1")
+@SQLDelete(sql = "UPDATE gastos_operativos SET estado=0 WHERE id_gastos_operativos=?")
+@SQLRestriction("estado=1")
 @JsonPropertyOrder({
         "id_gastos_operativos",
         "id_tenants",
@@ -33,12 +35,12 @@ public class GastoOperativo {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tenants", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Tenants id_tenants;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_sedes")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Sede id_sedes;
 
     private String concepto;
@@ -50,7 +52,7 @@ public class GastoOperativo {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_proveedores")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Proveedor id_proveedores;
 
     private String comprobante_numero;
@@ -59,12 +61,12 @@ public class GastoOperativo {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuarios_usuario_creacion")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Usuarios id_usuarios_usuario_creacion;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuarios_usuario_aprobacion")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Usuarios id_usuarios_usuario_aprobacion;
 
     private LocalDate fecha_gasto;

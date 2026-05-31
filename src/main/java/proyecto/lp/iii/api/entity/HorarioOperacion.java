@@ -5,10 +5,13 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
 import java.time.LocalTime;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 @Entity
 @Table(name = "horarios_operacion")
-@org.hibernate.annotations.SQLDelete(sql = "UPDATE horarios_operacion SET estado=0 WHERE id_horarios_operacion=?")
-@org.hibernate.annotations.SQLRestriction("estado=1")
+@SQLDelete(sql = "UPDATE horarios_operacion SET estado=0 WHERE id_horarios_operacion=?")
+@SQLRestriction("estado=1")
 @JsonPropertyOrder({
         "id_horarios_operacion",
         "id_sedes",
@@ -24,7 +27,7 @@ public class HorarioOperacion {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_sedes", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Sede id_sedes;
 
     private String dia_semana;

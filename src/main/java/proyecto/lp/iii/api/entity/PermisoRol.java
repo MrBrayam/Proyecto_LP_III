@@ -1,13 +1,16 @@
 package proyecto.lp.iii.api.entity;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "permisos_rol")
-@org.hibernate.annotations.SQLDelete(sql = "UPDATE permisos_rol SET estado=0 WHERE id_permisos_rol=?")
-@org.hibernate.annotations.SQLRestriction("estado=1")
+@SQLDelete(sql = "UPDATE permisos_rol SET estado=0 WHERE id_permisos_rol=?")
+@SQLRestriction("estado=1")
 @JsonPropertyOrder({
         "id_permisos_rol",
         "id_roles_personalizados",
@@ -23,7 +26,7 @@ public class PermisoRol {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_roles_personalizados", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private RolPersonalizado id_roles_personalizados;
 
     private String modulo;

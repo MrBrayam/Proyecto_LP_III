@@ -6,10 +6,13 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 @Entity
 @Table(name = "ventas")
-@org.hibernate.annotations.SQLDelete(sql = "UPDATE ventas SET estado=0 WHERE id_ventas=?")
-@org.hibernate.annotations.SQLRestriction("estado=1")
+@SQLDelete(sql = "UPDATE ventas SET estado=0 WHERE id_ventas=?")
+@SQLRestriction("estado=1")
 @JsonPropertyOrder({
         "id_ventas",
         "id_tenants",
@@ -35,22 +38,22 @@ public class Venta {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tenants", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Tenants id_tenants;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_sedes", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Sede id_sedes;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_sesiones_caja", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private SesionCaja id_sesiones_caja;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_clientes")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Cliente id_clientes;
 
     private String numero_ticket;
@@ -65,7 +68,7 @@ public class Venta {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuarios")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Usuarios id_usuarios;
 
     private LocalDateTime fecha_venta = LocalDateTime.now();

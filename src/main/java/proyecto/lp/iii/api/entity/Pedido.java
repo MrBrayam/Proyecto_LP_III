@@ -6,10 +6,13 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 @Entity
 @Table(name = "pedidos")
-@org.hibernate.annotations.SQLDelete(sql = "UPDATE pedidos SET estado=0 WHERE id_pedidos=?")
-@org.hibernate.annotations.SQLRestriction("estado=1")
+@SQLDelete(sql = "UPDATE pedidos SET estado=0 WHERE id_pedidos=?")
+@SQLRestriction("estado=1")
 @JsonPropertyOrder({
         "id_pedidos",
         "id_tenants",
@@ -35,12 +38,12 @@ public class Pedido {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tenants", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Tenants id_tenants;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_clientes", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Cliente id_clientes;
 
     private String numero_pedido;
@@ -54,12 +57,12 @@ public class Pedido {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_zonas_delivery")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private ZonaDelivery id_zonas_delivery;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuarios")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Usuarios id_usuarios;
 
     private LocalDateTime fecha_pedido = LocalDateTime.now();

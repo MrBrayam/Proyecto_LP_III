@@ -5,10 +5,13 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
 import java.time.LocalTime;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 @Entity
 @Table(name = "sedes")
-@org.hibernate.annotations.SQLDelete(sql = "UPDATE sedes SET estado=0 WHERE id_sedes=?")
-@org.hibernate.annotations.SQLRestriction("estado=1")
+@SQLDelete(sql = "UPDATE sedes SET estado=0 WHERE id_sedes=?")
+@SQLRestriction("estado=1")
 @JsonPropertyOrder({
         "id_sedes",
         "id_tenants",
@@ -28,7 +31,7 @@ public class Sede {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tenants", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Tenants id_tenants;
 
     private String nombre_sede;

@@ -5,10 +5,13 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 @Entity
 @Table(name = "productos")
-@org.hibernate.annotations.SQLDelete(sql = "UPDATE productos SET estado=0 WHERE id_productos=?")
-@org.hibernate.annotations.SQLRestriction("estado=1")
+@SQLDelete(sql = "UPDATE productos SET estado=0 WHERE id_productos=?")
+@SQLRestriction("estado=1")
 @JsonPropertyOrder({
         "id_productos",
         "id_tenants",
@@ -37,17 +40,17 @@ public class Producto {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tenants", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Tenants id_tenants;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_categorias_productos", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private CategoriaProducto id_categorias_productos;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_marcas")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Marca id_marcas;
 
     private String codigo_interno;

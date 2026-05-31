@@ -6,10 +6,13 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 @Entity
 @Table(name = "promociones")
-@org.hibernate.annotations.SQLDelete(sql = "UPDATE promociones SET estado=0 WHERE id_promociones=?")
-@org.hibernate.annotations.SQLRestriction("estado=1")
+@SQLDelete(sql = "UPDATE promociones SET estado=0 WHERE id_promociones=?")
+@SQLRestriction("estado=1")
 @JsonPropertyOrder({
         "id_promociones",
         "id_tenants",
@@ -29,7 +32,7 @@ public class Promocion {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tenants", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Tenants id_tenants;
 
     private String nombre_promocion;
@@ -41,7 +44,7 @@ public class Promocion {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_categorias_productos")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private CategoriaProducto id_categorias_productos;
 
     private Integer estado = 1;

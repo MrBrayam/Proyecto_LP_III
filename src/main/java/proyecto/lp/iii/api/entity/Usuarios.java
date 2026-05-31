@@ -1,5 +1,8 @@
 package proyecto.lp.iii.api.entity;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -7,8 +10,8 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "usuarios")
-@org.hibernate.annotations.SQLDelete(sql = "UPDATE usuarios SET estado=0 WHERE id_usuarios=?")
-@org.hibernate.annotations.SQLRestriction("estado=1")
+@SQLDelete(sql = "UPDATE usuarios SET estado=0 WHERE id_usuarios=?")
+@SQLRestriction("estado=1")
 @JsonPropertyOrder({
         "id_usuarios",
         "id_tenants",
@@ -29,7 +32,7 @@ public class Usuarios {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tenants", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Tenants id_tenants;
 
     private String nombre_usuario;

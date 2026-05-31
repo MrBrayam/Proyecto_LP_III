@@ -5,10 +5,13 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+
 @Entity
 @Table(name = "reclamos")
-@org.hibernate.annotations.SQLDelete(sql = "UPDATE reclamos SET estado=0 WHERE id_reclamos=?")
-@org.hibernate.annotations.SQLRestriction("estado=1")
+@SQLDelete(sql = "UPDATE reclamos SET estado=0 WHERE id_reclamos=?")
+@SQLRestriction("estado=1")
 @JsonPropertyOrder({
         "id_reclamos",
         "id_tenants",
@@ -33,17 +36,17 @@ public class Reclamo {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tenants", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Tenants id_tenants;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_clientes", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Cliente id_clientes;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_ventas")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Venta id_ventas;
 
     private String numero_reclamo;
@@ -57,7 +60,7 @@ public class Reclamo {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuarios_responsable")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Usuarios id_usuarios_responsable;
 
     private Integer sla_horas;
@@ -68,7 +71,7 @@ public class Reclamo {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuarios_usuario_creacion")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Usuarios id_usuarios_usuario_creacion;
 
     private LocalDateTime fecha_cierre;
