@@ -17,7 +17,7 @@ import proyecto.lp.iii.api.entity.Usuarios;
 import proyecto.lp.iii.api.service.IUsuariosService;
 
 @RestController
-@RequestMapping("/api/usuarios")
+@RequestMapping("/api")
 public class UsuariosController {
         @Autowired
     private IUsuariosService serviceUsuarios;

@@ -1,109 +1,51 @@
-integrar esto.
+## Plan: Align Project to Tenants Architecture (No Renaming)
+Usar como guia la base de datos llamada bellarista_mysql.sql. para no haya equivocacion en los datos
 
+Align all controllers, services, repositories, and entities to match the Tenants/TenantController structure, without renaming classes. Keep snake_case field names and use soft delete for entities with estado.
 
-DROP TABLE IF EXISTS `usuarios`;
-CREATE TABLE `usuarios` (
-  `id_usuarios` int(11) NOT NULL AUTO_INCREMENT,
-  `id_tenants` int(11) NOT NULL,
-  `nombre_completo` varchar(255) NOT NULL,
-  `correo` varchar(100) NOT NULL,
-  `numero_documento` varchar(20) DEFAULT NULL,
-  `contrasena_hash` varchar(255) DEFAULT NULL,
-  `tipo_usuario` enum('superadmin','admin','cajero','recepcionista','especialista','estilista','gerente','otro') DEFAULT 'otro',
-  `estado` tinyint(1) DEFAULT 1,
-  PRIMARY KEY (`id_usuarios`),
-  UNIQUE KEY `unique_correo_tenant` (`id_tenants`,`correo`),
-  KEY `idx_tenant_id` (`id_tenants`),
-  KEY `idx_correo` (`correo`),
-  KEY `idx_estado` (`estado`),
-  KEY `idx_usuario_tenant` (`id_tenants`),
-  CONSTRAINT `fk_usuarios_1` FOREIGN KEY (`id_tenants`) REFERENCES `tenants` (`id_tenants`) ON DELETE CASCADE
-);
+Steps
+1. Inventory current layers: list controllers, services (interfaces + implementations), repositories, and entities; categorize missing vs present patterns.
+2. Define canonical templates from marked files:
+   - Controller: TenantController
+   - Service interface: ITenantsService
+   - Service implementation: TenantsService
+   - Repository: TenantsRepository
+   - Entity: Tenants (manual getters/setters, @SQLDelete/@SQLRestriction, @JsonPropertyOrder, snake_case fields)
+3. Standardize entity relationships:
+   - Replace any @ManyToOne fields that point to Integer IDs with entity references (Tenants) and @JoinColumn name mapping.
+   - Ensure all entities with estado use @SQLDelete + @SQLRestriction (estado=1) and default estado=1.
+4. Apply entity template across all entities:
+   - Keep snake_case field names to match DB columns.
+   - Add @Column for length/nullability where needed.
+   - Add @JsonIgnoreProperties for lazy relations.
+   - Ensure @JsonPropertyOrder lists all fields in order.
+5. Apply controller template across all controllers:
+   - CRUD endpoints using /api/{entity} and methods buscarTodos/guardar/modificar/buscarId/eliminar.
+6. Apply service template across all services:
+   - Add missing I{Entity}Service and {Entity}Service in /service/jpa/.
+7. Apply repository template across all repositories:
+   - Add missing JpaRepository interfaces for entities without them.
+8. Update wiring and fix compile errors:
+   - Ensure controller/service types match entity names (no renaming).
+9. Validate:
+   - Run the app; fix any remaining JPA mapping errors and endpoint wiring issues.
 
-pero siguiendoe esta estrucutura
+Relevant files
+- src/main/java/proyecto/lp/iii/api/controller/TenantController.java
+- src/main/java/proyecto/lp/iii/api/service/ITenantsService.java
+- src/main/java/proyecto/lp/iii/api/service/jpa/TenantsService.java
+- src/main/java/proyecto/lp/iii/api/repository/TenantsRepository.java
+- src/main/java/proyecto/lp/iii/api/entity/Tenants.java
+- src/main/java/proyecto/lp/iii/api/entity/Usuarios.java
 
-@Entity
-@Table(name = "cursos")
-@SQLDelete(sql ="UPDATE cursos SET estado=0 WHERE idcurso=?")
-@SQLRestriction("estado=1")
-@JsonPropertyOrder({"idcurso","descripcion",
-"estado","id_tipo","id_categoria",
-"id_naturaleza"})
+Verification
+1. Start the app and ensure JPA initializes without entity mapping errors.
+2. Test a representative CRUD endpoint (e.g., GET /api/tenants).
+3. Run a full CRUD flow on one entity to confirm wiring.
 
-public class Cursos {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+Decisions
+- No renaming of entities or classes.
+- Architecture standard follows the Tenants/TenantController/Service/Repository structure.
+- Soft delete enabled for entities with estado using @SQLDelete/@SQLRestriction.
+- Tenant relations use @ManyToOne to the Tenants entity.
 
-    private Integer idcurso;
-    private String descripcion;
-    private Integer estado = 1;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_tipo")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private Integer id_tipo;
-
-     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_categoria")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private Integer id_categoria;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_naturaleza")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private Integer id_naturaleza;
-
-    public Integer getIdcurso() {
-        return idcurso;
-    }
-
-    public void setIdcurso(Integer idcurso) {
-        this.idcurso = idcurso;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
-
-    public Integer getEstado() {
-        return estado;
-    }
-
-    public void setEstado(Integer estado) {
-        this.estado = estado;
-    }
-
-    public Integer getId_tipo() {
-        return id_tipo;
-    }
-
-    public void setId_tipo(Integer id_tipo) {
-        this.id_tipo = id_tipo;
-    }
-
-    public Integer getId_categoria() {
-        return id_categoria;
-    }
-
-    public void setId_categoria(Integer id_categoria) {
-        this.id_categoria = id_categoria;
-    }
-
-    public Integer getId_naturaleza() {
-        return id_naturaleza;
-    }
-
-    public void setId_naturaleza(Integer id_naturaleza) {
-        this.id_naturaleza = id_naturaleza;
-    }
-
-    @Override
-    public String toString() {
-        return "Cursos [idcurso=" + idcurso + ", descripcion=" + descripcion + ", estado=" + estado + ", id_tipo="
-                + id_tipo + ", id_categoria=" + id_categoria + ", id_naturaleza=" + id_naturaleza + "]";
-    }
-}

@@ -9,5 +9,4 @@ import java.util.List;
 @Repository
 public interface CategoriaProductoRepository extends JpaRepository<CategoriaProducto, Integer> {
     List<CategoriaProducto> findByTenant(Tenants tenant);
-    List<CategoriaProducto> findByTenantAndEstado(Tenants tenant, CategoriaProducto.EstadoCategoria estado);
 }

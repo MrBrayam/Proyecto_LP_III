@@ -1,36 +1,58 @@
 package proyecto.lp.iii.api.entity;
 
-
-
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "clientes")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@SQLDelete(sql = "UPDATE clientes SET estado=0 WHERE id_clientes=?")
+@SQLRestriction("estado=1")
+@JsonPropertyOrder({
+        "id_clientes",
+        "id_tenants",
+        "nombre_cliente",
+        "apellidos_clientes",
+        "tipo_documento",
+        "numero_documento",
+        "telefono",
+        "correo",
+        "direccion",
+        "distrito",
+        "tipo_cliente",
+        "estado"
+})
 public class Cliente {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Integer id_clientes;
 
-    @ManyToOne
-    @JoinColumn(name = "tenant_id", nullable = false)
-    private Tenants tenant;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_tenants", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private Tenants id_tenants;
 
-    @Column(nullable = false, length = 255)
-    private String nombreCompleto;
+    @Column(name = "nombre_cliente", nullable = false, length = 255)
+    private String nombre_cliente;
 
-    @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "ENUM('DNI', 'RUC', 'Pasaporte') DEFAULT 'DNI'")
-    private TipoDocumento tipoDocumento = TipoDocumento.DNI;
+    @Column(name = "apellidos_clientes", nullable = false, length = 255)
+    private String apellidos_clientes;
 
-    @Column(length = 20)
-    private String numeroDocumento;
+    @Column(name = "tipo_documento")
+    private String tipo_documento;
+
+    @Column(name = "numero_documento", length = 20)
+    private String numero_documento;
 
     @Column(length = 15)
     private String telefono;
@@ -44,26 +66,114 @@ public class Cliente {
     @Column(length = 100)
     private String distrito;
 
-    @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "ENUM('regular', 'frecuente', 'vip') DEFAULT 'regular'")
-    private TipoCliente tipoCliente = TipoCliente.REGULAR;
+    @Column(name = "tipo_cliente")
+    private String tipo_cliente;
 
-    @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "ENUM('activo', 'inactivo') DEFAULT 'activo'")
-    private EstadoCliente estado = EstadoCliente.ACTIVO;
+    @Column
+    private Integer estado = 1;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime fechaRegistro = LocalDateTime.now();
-
-    public enum TipoDocumento {
-        DNI, RUC, PASAPORTE
+    public Integer getId_clientes() {
+        return id_clientes;
     }
 
-    public enum TipoCliente {
-        REGULAR, FRECUENTE, VIP
+    public void setId_clientes(Integer id_clientes) {
+        this.id_clientes = id_clientes;
     }
 
-    public enum EstadoCliente {
-        ACTIVO, INACTIVO
+    public Tenants getId_tenants() {
+        return id_tenants;
+    }
+
+    public void setId_tenants(Tenants id_tenants) {
+        this.id_tenants = id_tenants;
+    }
+
+    public String getNombre_cliente() {
+        return nombre_cliente;
+    }
+
+    public void setNombre_cliente(String nombre_cliente) {
+        this.nombre_cliente = nombre_cliente;
+    }
+
+    public String getApellidos_clientes() {
+        return apellidos_clientes;
+    }
+
+    public void setApellidos_clientes(String apellidos_clientes) {
+        this.apellidos_clientes = apellidos_clientes;
+    }
+
+    public String getTipo_documento() {
+        return tipo_documento;
+    }
+
+    public void setTipo_documento(String tipo_documento) {
+        this.tipo_documento = tipo_documento;
+    }
+
+    public String getNumero_documento() {
+        return numero_documento;
+    }
+
+    public void setNumero_documento(String numero_documento) {
+        this.numero_documento = numero_documento;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+
+    public String getCorreo() {
+        return correo;
+    }
+
+    public void setCorreo(String correo) {
+        this.correo = correo;
+    }
+
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
+    }
+
+    public String getDistrito() {
+        return distrito;
+    }
+
+    public void setDistrito(String distrito) {
+        this.distrito = distrito;
+    }
+
+    public String getTipo_cliente() {
+        return tipo_cliente;
+    }
+
+    public void setTipo_cliente(String tipo_cliente) {
+        this.tipo_cliente = tipo_cliente;
+    }
+
+    public Integer getEstado() {
+        return estado;
+    }
+
+    public void setEstado(Integer estado) {
+        this.estado = estado;
+    }
+
+    @Override
+    public String toString() {
+        return "Cliente [id_clientes=" + id_clientes + ", id_tenants=" + id_tenants + ", nombre_cliente="
+                + nombre_cliente + ", apellidos_clientes=" + apellidos_clientes + ", tipo_documento="
+                + tipo_documento + ", numero_documento=" + numero_documento + ", telefono=" + telefono
+                + ", correo=" + correo + ", direccion=" + direccion + ", distrito=" + distrito
+                + ", tipo_cliente=" + tipo_cliente + ", estado=" + estado + "]";
     }
 }

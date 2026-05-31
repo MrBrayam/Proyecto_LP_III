@@ -9,5 +9,4 @@ import java.util.List;
 @Repository
 public interface AlmacenRepository extends JpaRepository<Almacen, Integer> {
     List<Almacen> findBySede(Sede sede);
-    List<Almacen> findBySedeAndEstado(Sede sede, Almacen.EstadoAlmacen estado);
 }

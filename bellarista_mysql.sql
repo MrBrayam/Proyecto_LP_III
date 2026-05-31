@@ -1074,5 +1074,3 @@ CREATE TABLE `detalle_devolucion_venta` (
   CONSTRAINT `fk_detalle_devolucion_venta_1` FOREIGN KEY (`id_devoluciones_venta`) REFERENCES `devoluciones_venta` (`id_devoluciones_venta`) ON DELETE CASCADE,
   CONSTRAINT `fk_detalle_devolucion_venta_2` FOREIGN KEY (`id_productos`) REFERENCES `productos` (`id_productos`)
 );
-
-SET FOREIGN_KEY_CHECKS = 1;
