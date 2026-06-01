@@ -18,7 +18,9 @@ public interface ProductoRepository extends JpaRepository<Producto, Integer> {
     @Query("SELECT p FROM Producto p WHERE p.id_categorias_productos = :categoria")
     List<Producto> findByCategoria(@Param("categoria") CategoriaProducto categoria);
 
-    Optional<Producto> findByCodigoBarras(String codigoBarras);
+    @Query("SELECT p FROM Producto p WHERE p.codigo_barras = :codigoBarras")
+    Optional<Producto> findByCodigoBarras(@Param("codigoBarras") String codigoBarras);
 
-    List<Producto> findByNombreContainingIgnoreCase(String nombre);
+    @Query("SELECT p FROM Producto p WHERE LOWER(p.nombre_producto) LIKE LOWER(CONCAT('%', :nombre, '%'))")
+    List<Producto> findByNombreContaining(@Param("nombre") String nombre);
 }

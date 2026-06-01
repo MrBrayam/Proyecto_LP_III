@@ -17,6 +17,7 @@ public interface AuditoriaRepository extends JpaRepository<Auditoria, Integer> {
     @Query("SELECT a FROM Auditoria a WHERE a.id_tenants = :tenant AND a.id_usuarios = :usuario")
     List<Auditoria> findByTenantAndUsuario(@Param("tenant") Tenants tenant, @Param("usuario") Usuarios usuario);
 
-    List<Auditoria> findByAccion(String accion);
+    @Query("SELECT a FROM Auditoria a WHERE a.accion = :accion")
+    List<Auditoria> findByAccion(@Param("accion") String accion);
 }
 

@@ -14,5 +14,6 @@ public interface OrdenCompraRepository extends JpaRepository<OrdenCompra, Intege
     @Query("SELECT o FROM OrdenCompra o WHERE o.id_tenants = :tenant")
     List<OrdenCompra> findByTenant(@Param("tenant") Tenants tenant);
 
-    List<OrdenCompra> findByProveedor(Proveedor proveedor);
+    @Query("SELECT o FROM OrdenCompra o WHERE o.id_proveedores = :proveedor")
+    List<OrdenCompra> findByProveedor(@Param("proveedor") Proveedor proveedor);
 }

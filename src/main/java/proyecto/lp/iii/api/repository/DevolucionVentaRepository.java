@@ -13,5 +13,6 @@ import java.util.List;
 public interface DevolucionVentaRepository extends JpaRepository<DevolucionVenta, Integer> {
     @Query("SELECT d FROM DevolucionVenta d WHERE d.id_tenants = :tenant")
     List<DevolucionVenta> findByTenant(@Param("tenant") Tenants tenant);
-    List<DevolucionVenta> findByVenta(Venta venta);
+    @Query("SELECT d FROM DevolucionVenta d WHERE d.id_ventas = :venta")
+    List<DevolucionVenta> findByVenta(@Param("venta") Venta venta);
 }
