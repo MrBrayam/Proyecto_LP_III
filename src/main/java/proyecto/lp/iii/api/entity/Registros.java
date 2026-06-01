@@ -1,18 +1,26 @@
 package proyecto.lp.iii.api.entity;
 
 import jakarta.persistence.*;
+
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @Entity
 @Table(name = "registros")
 @SQLDelete(sql = "UPDATE registros SET estado=0 WHERE idregistro=?")
 @SQLRestriction("estado=1")
-public class Registro {
+@JsonPropertyOrder({"idregistro", "nombres", "apellidos", "email", "cliente_id", "llave_secreta", "access_token", "estado"})
+public class Registros {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idregistro;
-
     private String nombres;
     private String apellidos;
     private String email;
@@ -58,6 +66,17 @@ public class Registro {
     }
 
     public void setCliente_id(String cliente_id) {
+        String datos = nombres + apellidos + email;
+        MessageDigest md = null;
+        try {
+            md = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        md.update(datos.getBytes());
+        byte[] digest = md.digest();
+        String result = new BigInteger(1,digest).toString(16).toLowerCase();
+        cliente_id = result;
         this.cliente_id = cliente_id;
     }
 
@@ -66,7 +85,8 @@ public class Registro {
     }
 
     public void setLlave_secreta(String llave_secreta) {
-        this.llave_secreta = llave_secreta;
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        this.llave_secreta = encoder.encode(llave_secreta);
     }
 
     public String getAccess_token() {

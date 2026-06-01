@@ -1,4 +1,4 @@
-/* 
+
 package proyecto.lp.iii.api.security;
 
 import org.springframework.context.annotation.Bean;
@@ -14,7 +14,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception
     {
         http.csrf(csrf -> csrf.disable()).authorizeHttpRequests(auth -> 
-            auth.requestMatchers("/lpIII/token","/lpIII/registros").permitAll()
+            auth.requestMatchers("/api/token","/api/registros").permitAll()
             .anyRequest().authenticated()).addFilterBefore(jwtFilter,
             UsernamePasswordAuthenticationFilter.class);
         return http.build();
@@ -25,4 +25,3 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 }
-*/
