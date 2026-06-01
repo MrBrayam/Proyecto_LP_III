@@ -3,9 +3,9 @@ package proyecto.lp.iii.api.entity;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 @Entity
@@ -19,9 +19,7 @@ import jakarta.persistence.*;
         "apellidos_usuario",
         "correo",
         "numero_documento",
-        "contrasenia",
-        "llave_secreta",
-        "access_token",
+        "contraseña",
         "tipo_usuario",
         "estado"
 })
@@ -37,17 +35,14 @@ public class Usuarios {
 
     private String nombre_usuario;
     private String apellidos_usuario;
+    @Column(name = "correo", length = 100)
     private String correo;
+    @Column(name = "numero_documento", length = 20)
     private String numero_documento;
 
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Column(name = "contraseña")
     private String contrasenia;
-
-    @JsonIgnore
-    private String llave_secreta;
-
-    @JsonIgnore
-    private String access_token;
 
     private String tipo_usuario;
     private Integer estado = 1;
@@ -106,22 +101,6 @@ public class Usuarios {
 
     public void setContrasenia(String contrasenia) {
         this.contrasenia = contrasenia;
-    }
-
-    public String getLlave_secreta() {
-        return llave_secreta;
-    }
-
-    public void setLlave_secreta(String llave_secreta) {
-        this.llave_secreta = llave_secreta;
-    }
-
-    public String getAccess_token() {
-        return access_token;
-    }
-
-    public void setAccess_token(String access_token) {
-        this.access_token = access_token;
     }
 
     public String getTipo_usuario() {

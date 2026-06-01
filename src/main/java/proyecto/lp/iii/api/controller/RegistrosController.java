@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 
 
 @RestController
-@RequestMapping("/lpIII")
+@RequestMapping("/api")
 
 public class RegistrosController {
     @Autowired
