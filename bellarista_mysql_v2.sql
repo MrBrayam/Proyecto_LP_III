@@ -1,21 +1,6 @@
 -- ============================================================
 -- Base de datos: bellarista (v2 - corregida y optimizada)
 -- Generado: 2026-05-31
--- Cambios aplicados:
---   [FIX-1] access_token eliminado de usuarios; nueva tabla sesiones_usuario
---   [FIX-2] Índices duplicados eliminados: idx_producto_tenant, idx_usuario_tenant, idx_lote_producto
---   [FIX-3] SET FOREIGN_KEY_CHECKS duplicado corregido
---   [FIX-4] repartidores: eliminados campos duplicados de usuarios
---   [FIX-5] citas: eliminado id_servicios_belleza (ahora solo via servicios_cita)
---   [FIX-6] productos: margen_ganancia convertido a columna generada
---   [FIX-7] servicios_belleza: categoria cambiada a FK via categorias_servicios
---   [FIX-8] proveedores: categorias_productos varchar reemplazado por tabla proveedor_categorias
---   [FIX-9] sedes: horario_apertura y horario_cierre eliminados (usan horarios_operacion)
---   [FIX-10] clientes: agregado fecha_registro
---   [FIX-11] planes_suscripcion: precios unificados en tabla precios_plan
---   [FIX-12] series_comprobantes: eliminado numero_correlativo (redundante con numero_proximo)
---   [FIX-13] configuracion_tienda_online fusionada en configuracion_global
--- ============================================================
 
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -316,8 +301,6 @@ CREATE TABLE `suscripciones` (
   CONSTRAINT `fk_suscripciones_2` FOREIGN KEY (`id_planes_suscripcion`) REFERENCES `planes_suscripcion` (`id_planes_suscripcion`)
 );
 
--- [FIX-1] Eliminadas columnas: llave_secreta, access_token
--- Los tokens ahora viven en sesiones_usuario
 DROP TABLE IF EXISTS `usuarios`;
 CREATE TABLE `usuarios` (
   `id_usuarios` int(11) NOT NULL AUTO_INCREMENT,
@@ -1147,16 +1130,3 @@ CREATE TABLE `proveedor_categorias` (
 );
 
 SET FOREIGN_KEY_CHECKS = 1;
-
--- ============================================================
--- RESUMEN DE CAMBIOS
--- ============================================================
--- Tablas eliminadas (1):    configuracion_tienda_online
--- Tablas nuevas (4):        sesiones_usuario, precios_plan,
---                           categorias_servicios, proveedor_categorias
--- Tablas modificadas (11):  planes_suscripcion, clientes, proveedores,
---                           sedes, series_comprobantes, servicios_belleza,
---                           usuarios, productos, repartidores, citas,
---                           lotes_inventario
--- Total tablas v2: 57 (54 - 1 + 4 = 57)
--- ============================================================
