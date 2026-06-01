@@ -12,7 +12,8 @@ import java.util.List;
 
 @Repository
 public interface VentaRepository extends JpaRepository<Venta, Integer> {
-    List<Venta> findByTenant(Tenants tenant);
+    @Query("SELECT v FROM Venta v WHERE v.id_tenants = :tenant")
+    List<Venta> findByTenant(@Param("tenant") Tenants tenant);
 
     @Query("SELECT v FROM Venta v WHERE v.id_sedes = :sede")
     List<Venta> findBySede(@Param("sede") Sede sede);

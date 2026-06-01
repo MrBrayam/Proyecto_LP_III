@@ -9,25 +9,25 @@ PS C:\xampp\htdocs\Proyecto_LP_III>  c:; cd 'c:\xampp\htdocs\Proyecto_LP_III'; &
 
  :: Spring Boot ::                (v4.0.6)
 
-2026-06-01T16:03:48.145-05:00  INFO 23756 --- [api] [  restartedMain] proyecto.lp.iii.api.ApiApplication       : Starting ApiApplication using Java 21.0.10 with PID 23756 (C:\xampp\htdocs\Proyecto_LP_III\target\classes started by braya in C:\xampp\htdocs\Proyecto_LP_III)
-2026-06-01T16:03:48.148-05:00  INFO 23756 --- [api] [  restartedMain] proyecto.lp.iii.api.ApiApplication       : No active profile set, falling back to 1 default profile: "default"
-2026-06-01T16:03:48.208-05:00  INFO 23756 --- [api] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
-2026-06-01T16:03:48.209-05:00  INFO 23756 --- [api] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
-2026-06-01T16:03:49.175-05:00  INFO 23756 --- [api] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-06-01T16:03:49.430-05:00  INFO 23756 --- [api] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 244 ms. Found 57 JPA repository interfaces.
-2026-06-01T16:03:50.544-05:00  INFO 23756 --- [api] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
-2026-06-01T16:03:50.563-05:00  INFO 23756 --- [api] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2026-06-01T16:03:50.565-05:00  INFO 23756 --- [api] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.21]
-2026-06-01T16:03:50.616-05:00  INFO 23756 --- [api] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 2406 ms
-2026-06-01T16:03:50.865-05:00  INFO 23756 --- [api] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2026-06-01T16:03:51.090-05:00  INFO 23756 --- [api] [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@72c9e3b0
-2026-06-01T16:03:51.091-05:00  INFO 23756 --- [api] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2026-06-01T16:03:51.122-05:00  INFO 23756 --- [api] [  restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
-2026-06-01T16:03:51.174-05:00  INFO 23756 --- [api] [  restartedMain] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.12.Final
-2026-06-01T16:03:51.698-05:00  INFO 23756 --- [api] [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-06-01T16:03:51.750-05:00  WARN 23756 --- [api] [  restartedMain] org.hibernate.orm.core                   : HHH000511: The 5.5.5 version for [org.hibernate.dialect.MySQLDialect] is no longer supported, hence certain features may not work properly.The minimum supported version is 8.0.0. Check the community dialects project for available legacy versions.
-2026-06-01T16:03:51.752-05:00  WARN 23756 --- [api] [  restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2026-06-01T16:03:51.764-05:00  INFO 23756 --- [api] [  restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+2026-06-01T16:06:25.498-05:00  INFO 36656 --- [api] [  restartedMain] proyecto.lp.iii.api.ApiApplication       : Starting ApiApplication using Java 21.0.10 with PID 36656 (C:\xampp\htdocs\Proyecto_LP_III\target\classes started by braya in C:\xampp\htdocs\Proyecto_LP_III)
+2026-06-01T16:06:25.502-05:00  INFO 36656 --- [api] [  restartedMain] proyecto.lp.iii.api.ApiApplication       : No active profile set, falling back to 1 default profile: "default"
+2026-06-01T16:06:25.554-05:00  INFO 36656 --- [api] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-06-01T16:06:25.554-05:00  INFO 36656 --- [api] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-06-01T16:06:26.428-05:00  INFO 36656 --- [api] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-01T16:06:26.646-05:00  INFO 36656 --- [api] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 210 ms. Found 57 JPA repository interfaces.
+2026-06-01T16:06:27.895-05:00  INFO 36656 --- [api] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-06-01T16:06:27.913-05:00  INFO 36656 --- [api] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-01T16:06:27.913-05:00  INFO 36656 --- [api] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.21]
+2026-06-01T16:06:27.966-05:00  INFO 36656 --- [api] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 2408 ms
+2026-06-01T16:06:28.167-05:00  INFO 36656 --- [api] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-01T16:06:28.400-05:00  INFO 36656 --- [api] [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@9d3a3da
+2026-06-01T16:06:28.401-05:00  INFO 36656 --- [api] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-01T16:06:28.427-05:00  INFO 36656 --- [api] [  restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-06-01T16:06:28.478-05:00  INFO 36656 --- [api] [  restartedMain] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.12.Final
+2026-06-01T16:06:28.993-05:00  INFO 36656 --- [api] [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-01T16:06:29.051-05:00  WARN 36656 --- [api] [  restartedMain] org.hibernate.orm.core                   : HHH000511: The 5.5.5 version for [org.hibernate.dialect.MySQLDialect] is no longer supported, hence certain features may not work properly.The minimum supported version is 8.0.0. Check the community dialects project for available legacy versions.
+2026-06-01T16:06:29.054-05:00  WARN 36656 --- [api] [  restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-01T16:06:29.067-05:00  INFO 36656 --- [api] [  restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
         Database JDBC URL [jdbc:mysql://localhost:3307/bellaaristav2]
         Database driver: MySQL Connector/J
         Database dialect: MySQLDialect
@@ -39,20 +39,20 @@ PS C:\xampp\htdocs\Proyecto_LP_III>  c:; cd 'c:\xampp\htdocs\Proyecto_LP_III'; &
         Pool: DataSourceConnectionProvider
         Minimum pool size: undefined/unknown
         Maximum pool size: undefined/unknown
-2026-06-01T16:03:53.202-05:00  INFO 23756 --- [api] [  restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-06-01T16:03:53.210-05:00  INFO 23756 --- [api] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-06-01T16:03:53.271-05:00  INFO 23756 --- [api] [  restartedMain] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
-2026-06-01T16:03:54.008-05:00  WARN 23756 --- [api] [  restartedMain] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'auditoriaController': Unsatisfied dependency expressed through field 'serviceAuditoria': Error creating bean with name 'auditoriaService': Unsatisfied dependency expressed through field 'repoAuditoria': Error creating bean with name 'auditoriaRepository' defined in proyecto.lp.iii.api.repository.AuditoriaRepository defined in @EnableJpaRepositories declared on DataJpaRepositoriesRegistrar.EnableJpaRepositoriesConfiguration: No property 'tenant' found for type 'Auditoria'
-2026-06-01T16:03:54.009-05:00  INFO 23756 --- [api] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
-2026-06-01T16:03:54.012-05:00  INFO 23756 --- [api] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
-2026-06-01T16:03:54.017-05:00  INFO 23756 --- [api] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
-2026-06-01T16:03:54.019-05:00  INFO 23756 --- [api] [  restartedMain] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
-2026-06-01T16:03:54.026-05:00  INFO 23756 --- [api] [  restartedMain] .s.b.a.l.ConditionEvaluationReportLogger : 
+2026-06-01T16:06:30.473-05:00  INFO 36656 --- [api] [  restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-01T16:06:30.478-05:00  INFO 36656 --- [api] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-01T16:06:30.542-05:00  INFO 36656 --- [api] [  restartedMain] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-01T16:06:31.412-05:00  WARN 36656 --- [api] [  restartedMain] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'brandingNegocioController': Unsatisfied dependency expressed through field 'serviceBrandingNegocio': Error creating bean with name 'brandingNegocioService': Unsatisfied dependency expressed through field 'repoBrandingNegocio': Error creating bean with name 'brandingNegocioRepository' defined in proyecto.lp.iii.api.repository.BrandingNegocioRepository defined in @EnableJpaRepositories declared on DataJpaRepositoriesRegistrar.EnableJpaRepositoriesConfiguration: No property 'tenant' found for type 'BrandingNegocio'
+2026-06-01T16:06:31.413-05:00  INFO 36656 --- [api] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-06-01T16:06:31.424-05:00  INFO 36656 --- [api] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-06-01T16:06:31.433-05:00  INFO 36656 --- [api] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-06-01T16:06:31.434-05:00  INFO 36656 --- [api] [  restartedMain] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2026-06-01T16:06:31.443-05:00  INFO 36656 --- [api] [  restartedMain] .s.b.a.l.ConditionEvaluationReportLogger : 
 
 Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
-2026-06-01T16:03:54.039-05:00 ERROR 23756 --- [api] [  restartedMain] o.s.boot.SpringApplication               : Application run failed
+2026-06-01T16:06:31.459-05:00 ERROR 36656 --- [api] [  restartedMain] o.s.boot.SpringApplication               : Application run failed
 
-org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'auditoriaController': Unsatisfied dependency expressed through field 'serviceAuditoria': Error creating bean with name 'auditoriaService': Unsatisfied dependency expressed through field 'repoAuditoria': Error creating bean with name 'auditoriaRepository' defined in proyecto.lp.iii.api.repository.AuditoriaRepository defined in @EnableJpaRepositories declared on DataJpaRepositoriesRegistrar.EnableJpaRepositoriesConfiguration: No property 'tenant' found for type 'Auditoria'
+org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'brandingNegocioController': Unsatisfied dependency expressed through field 'serviceBrandingNegocio': Error creating bean with name 'brandingNegocioService': Unsatisfied dependency expressed through field 'repoBrandingNegocio': Error creating bean with name 'brandingNegocioRepository' defined in proyecto.lp.iii.api.repository.BrandingNegocioRepository defined in @EnableJpaRepositories declared on DataJpaRepositoriesRegistrar.EnableJpaRepositoriesConfiguration: No property 'tenant' found for type 'BrandingNegocio'
         at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.resolveFieldValue(AutowiredAnnotationBeanPostProcessor.java:767) ~[spring-beans-7.0.7.jar:7.0.7]
         at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.inject(AutowiredAnnotationBeanPostProcessor.java:748) ~[spring-beans-7.0.7.jar:7.0.7]
         at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:146) ~[spring-beans-7.0.7.jar:7.0.7]
@@ -79,7 +79,7 @@ org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating
         at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Unknown Source) ~[na:na]
         at java.base/java.lang.reflect.Method.invoke(Unknown Source) ~[na:na]
         at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52) ~[spring-boot-devtools-4.0.6.jar:4.0.6]
-Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'auditoriaService': Unsatisfied dependency expressed through field 'repoAuditoria': Error creating bean with name 'auditoriaRepository' defined in proyecto.lp.iii.api.repository.AuditoriaRepository defined in @EnableJpaRepositories declared on DataJpaRepositoriesRegistrar.EnableJpaRepositoriesConfiguration: No property 'tenant' found for type 'Auditoria'
+Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'brandingNegocioService': Unsatisfied dependency expressed through field 'repoBrandingNegocio': Error creating bean with name 'brandingNegocioRepository' defined in proyecto.lp.iii.api.repository.BrandingNegocioRepository defined in @EnableJpaRepositories declared on DataJpaRepositoriesRegistrar.EnableJpaRepositoriesConfiguration: No property 'tenant' found for type 'BrandingNegocio'
         at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.resolveFieldValue(AutowiredAnnotationBeanPostProcessor.java:767) ~[spring-beans-7.0.7.jar:7.0.7]
         at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.inject(AutowiredAnnotationBeanPostProcessor.java:748) ~[spring-beans-7.0.7.jar:7.0.7]
         at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:146) ~[spring-beans-7.0.7.jar:7.0.7]
@@ -96,7 +96,7 @@ Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Err
         at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1651) ~[spring-beans-7.0.7.jar:7.0.7]
         at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.resolveFieldValue(AutowiredAnnotationBeanPostProcessor.java:764) ~[spring-beans-7.0.7.jar:7.0.7]
         ... 25 common frames omitted
-Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'auditoriaRepository' defined in proyecto.lp.iii.api.repository.AuditoriaRepository defined in @EnableJpaRepositories declared on DataJpaRepositoriesRegistrar.EnableJpaRepositoriesConfiguration: No property 'tenant' found for type 'Auditoria'
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'brandingNegocioRepository' defined in proyecto.lp.iii.api.repository.BrandingNegocioRepository defined in @EnableJpaRepositories declared on DataJpaRepositoriesRegistrar.EnableJpaRepositoriesConfiguration: No property 'tenant' found for type 'BrandingNegocio'
         at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1817) ~[spring-beans-7.0.7.jar:7.0.7]
         at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603) ~[spring-beans-7.0.7.jar:7.0.7]
         at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525) ~[spring-beans-7.0.7.jar:7.0.7]
@@ -109,7 +109,7 @@ Caused by: org.springframework.beans.factory.BeanCreationException: Error creati
         at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1651) ~[spring-beans-7.0.7.jar:7.0.7]
         at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.resolveFieldValue(AutowiredAnnotationBeanPostProcessor.java:764) ~[spring-beans-7.0.7.jar:7.0.7]
         ... 39 common frames omitted
-Caused by: org.springframework.data.repository.query.QueryCreationException: Cannot create query for method [AuditoriaRepository.findByTenant(proyecto.lp.iii.api.entity.Tenants)]; No property 'tenant' found for type 'Auditoria'
+Caused by: org.springframework.data.repository.query.QueryCreationException: Cannot create query for method [BrandingNegocioRepository.findByTenant(proyecto.lp.iii.api.entity.Tenants)]; No property 'tenant' found for type 'BrandingNegocio'
         at org.springframework.data.repository.query.QueryCreationException.create(QueryCreationException.java:109) ~[spring-data-commons-4.0.5.jar:4.0.5]
         at org.springframework.data.jpa.repository.query.PartTreeJpaQuery.<init>(PartTreeJpaQuery.java:114) ~[spring-data-jpa-4.0.5.jar:4.0.5]
         at org.springframework.data.jpa.repository.query.JpaQueryLookupStrategy$CreateQueryLookupStrategy.resolveQuery(JpaQueryLookupStrategy.java:118) ~[spring-data-jpa-4.0.5.jar:4.0.5]
@@ -127,7 +127,7 @@ Caused by: org.springframework.data.repository.query.QueryCreationException: Can
         at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1864) ~[spring-beans-7.0.7.jar:7.0.7]
         at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1813) ~[spring-beans-7.0.7.jar:7.0.7]
         ... 49 common frames omitted
-Caused by: org.springframework.data.core.PropertyReferenceException: No property 'tenant' found for type 'Auditoria'
+Caused by: org.springframework.data.core.PropertyReferenceException: No property 'tenant' found for type 'BrandingNegocio'
         at org.springframework.data.core.SimplePropertyPath.<init>(SimplePropertyPath.java:93) ~[spring-data-commons-4.0.5.jar:4.0.5]
         at org.springframework.data.core.SimplePropertyPath.create(SimplePropertyPath.java:360) ~[spring-data-commons-4.0.5.jar:4.0.5]
         at org.springframework.data.core.SimplePropertyPath.create(SimplePropertyPath.java:335) ~[spring-data-commons-4.0.5.jar:4.0.5]

@@ -11,7 +11,8 @@ import java.util.List;
 
 @Repository
 public interface UsuarioSedeRepository extends JpaRepository<UsuarioSede, Integer> {
-    List<UsuarioSede> findByUsuario(Usuarios usuario);
+    @Query("SELECT u FROM UsuarioSede u WHERE u.id_usuarios = :usuario")
+    List<UsuarioSede> findByUsuario(@Param("usuario") Usuarios usuario);
 
     @Query("SELECT u FROM UsuarioSede u WHERE u.id_sedes = :sede")
     List<UsuarioSede> findBySede(@Param("sede") Sede sede);

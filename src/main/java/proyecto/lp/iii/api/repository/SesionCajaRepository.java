@@ -14,6 +14,7 @@ public interface SesionCajaRepository extends JpaRepository<SesionCaja, Integer>
     @Query("SELECT s FROM SesionCaja s WHERE s.id_sedes = :sede")
     List<SesionCaja> findBySede(@Param("sede") Sede sede);
 
-    List<SesionCaja> findByUsuario(Usuarios usuario);
+    @Query("SELECT s FROM SesionCaja s WHERE s.id_usuarios = :usuario")
+    List<SesionCaja> findByUsuario(@Param("usuario") Usuarios usuario);
 
 }

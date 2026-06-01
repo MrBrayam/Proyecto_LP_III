@@ -12,7 +12,8 @@ import java.util.List;
 
 @Repository
 public interface CitaRepository extends JpaRepository<Cita, Integer> {
-    List<Cita> findByTenant(Tenants tenant);
+    @Query("SELECT c FROM Cita c WHERE c.id_tenants = :tenant")
+    List<Cita> findByTenant(@Param("tenant") Tenants tenant);
 
     @Query("SELECT c FROM Cita c WHERE c.id_sedes = :sede")
     List<Cita> findBySede(@Param("sede") Sede sede);
