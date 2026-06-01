@@ -12,10 +12,10 @@ import java.util.List;
 public interface SerieComprobanteRepository extends JpaRepository<SerieComprobante, Integer> {
     @Query("SELECT s FROM SerieComprobante s WHERE s.id_tenants = :tenant")
     List<SerieComprobante> findByTenant(@Param("tenant") Tenants tenant);
-
-    SerieComprobante findByTenantAndTipoComprobanteAndPuntoEmisionAndNumeroSerie(
-            Tenants tenant,
-
-            Integer puntoEmision,
-            String numeroSerie);
+        @Query("SELECT s FROM SerieComprobante s WHERE s.id_tenants = :tenant AND s.tipo_comprobante = :tipoComprobante AND s.punto_emision = :puntoEmision AND s.numero_serie = :numeroSerie")
+        SerieComprobante findByTenantAndTipoComprobanteAndPuntoEmisionAndNumeroSerie(
+            @Param("tenant") Tenants tenant,
+            @Param("tipoComprobante") String tipoComprobante,
+            @Param("puntoEmision") Integer puntoEmision,
+            @Param("numeroSerie") String numeroSerie);
 }

@@ -9,25 +9,25 @@ PS C:\xampp\htdocs\Proyecto_LP_III>  c:; cd 'c:\xampp\htdocs\Proyecto_LP_III'; &
 
  :: Spring Boot ::                (v4.0.6)
 
-2026-06-01T16:21:53.951-05:00  INFO 25992 --- [api] [  restartedMain] proyecto.lp.iii.api.ApiApplication       : Starting ApiApplication using Java 21.0.10 with PID 25992 (C:\xampp\htdocs\Proyecto_LP_III\target\classes started by braya in C:\xampp\htdocs\Proyecto_LP_III)
-2026-06-01T16:21:53.955-05:00  INFO 25992 --- [api] [  restartedMain] proyecto.lp.iii.api.ApiApplication       : No active profile set, falling back to 1 default profile: "default"
-2026-06-01T16:21:54.011-05:00  INFO 25992 --- [api] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
-2026-06-01T16:21:54.011-05:00  INFO 25992 --- [api] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
-2026-06-01T16:21:54.932-05:00  INFO 25992 --- [api] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-06-01T16:21:55.152-05:00  INFO 25992 --- [api] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 210 ms. Found 57 JPA repository interfaces.
-2026-06-01T16:21:56.257-05:00  INFO 25992 --- [api] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
-2026-06-01T16:21:56.276-05:00  INFO 25992 --- [api] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2026-06-01T16:21:56.276-05:00  INFO 25992 --- [api] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.21]
-2026-06-01T16:21:56.322-05:00  INFO 25992 --- [api] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 2308 ms
-2026-06-01T16:21:56.494-05:00  INFO 25992 --- [api] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2026-06-01T16:21:56.732-05:00  INFO 25992 --- [api] [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@72c9e3b0
-2026-06-01T16:21:56.733-05:00  INFO 25992 --- [api] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2026-06-01T16:21:56.757-05:00  INFO 25992 --- [api] [  restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
-2026-06-01T16:21:56.797-05:00  INFO 25992 --- [api] [  restartedMain] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.12.Final
-2026-06-01T16:21:57.343-05:00  INFO 25992 --- [api] [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-06-01T16:21:57.400-05:00  WARN 25992 --- [api] [  restartedMain] org.hibernate.orm.core                   : HHH000511: The 5.5.5 version for [org.hibernate.dialect.MySQLDialect] is no longer supported, hence certain features may not work properly.The minimum supported version is 8.0.0. Check the community dialects project for available legacy versions.
-2026-06-01T16:21:57.402-05:00  WARN 25992 --- [api] [  restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2026-06-01T16:21:57.414-05:00  INFO 25992 --- [api] [  restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+2026-06-01T16:48:38.570-05:00  INFO 40940 --- [api] [  restartedMain] proyecto.lp.iii.api.ApiApplication       : Starting ApiApplication using Java 21.0.10 with PID 40940 (C:\xampp\htdocs\Proyecto_LP_III\target\classes started by braya in C:\xampp\htdocs\Proyecto_LP_III)
+2026-06-01T16:48:38.574-05:00  INFO 40940 --- [api] [  restartedMain] proyecto.lp.iii.api.ApiApplication       : No active profile set, falling back to 1 default profile: "default"
+2026-06-01T16:48:38.633-05:00  INFO 40940 --- [api] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-06-01T16:48:38.633-05:00  INFO 40940 --- [api] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-06-01T16:48:39.626-05:00  INFO 40940 --- [api] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-01T16:48:39.858-05:00  INFO 40940 --- [api] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 222 ms. Found 57 JPA repository interfaces.
+2026-06-01T16:48:41.038-05:00  INFO 40940 --- [api] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-06-01T16:48:41.062-05:00  INFO 40940 --- [api] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-01T16:48:41.062-05:00  INFO 40940 --- [api] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.21]
+2026-06-01T16:48:41.111-05:00  INFO 40940 --- [api] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 2476 ms
+2026-06-01T16:48:41.374-05:00  INFO 40940 --- [api] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-01T16:48:41.636-05:00  INFO 40940 --- [api] [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@65e27be5
+2026-06-01T16:48:41.638-05:00  INFO 40940 --- [api] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-01T16:48:41.670-05:00  INFO 40940 --- [api] [  restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-06-01T16:48:41.769-05:00  INFO 40940 --- [api] [  restartedMain] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.12.Final
+2026-06-01T16:48:42.388-05:00  INFO 40940 --- [api] [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-01T16:48:42.459-05:00  WARN 40940 --- [api] [  restartedMain] org.hibernate.orm.core                   : HHH000511: The 5.5.5 version for [org.hibernate.dialect.MySQLDialect] is no longer supported, hence certain features may not work properly.The minimum supported version is 8.0.0. Check the community dialects project for available legacy versions.
+2026-06-01T16:48:42.461-05:00  WARN 40940 --- [api] [  restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-01T16:48:42.476-05:00  INFO 40940 --- [api] [  restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
         Database JDBC URL [jdbc:mysql://localhost:3307/bellaaristav2]
         Database driver: MySQL Connector/J
         Database dialect: MySQLDialect
@@ -39,20 +39,20 @@ PS C:\xampp\htdocs\Proyecto_LP_III>  c:; cd 'c:\xampp\htdocs\Proyecto_LP_III'; &
         Pool: DataSourceConnectionProvider
         Minimum pool size: undefined/unknown
         Maximum pool size: undefined/unknown
-2026-06-01T16:21:58.968-05:00  INFO 25992 --- [api] [  restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-06-01T16:21:58.974-05:00  INFO 25992 --- [api] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-06-01T16:21:59.038-05:00  INFO 25992 --- [api] [  restartedMain] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
-2026-06-01T16:22:00.000-05:00  WARN 25992 --- [api] [  restartedMain] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'composicionComboController': Unsatisfied dependency expressed through field 'serviceComposicionCombo': Error creating bean with name 'composicionComboService': Unsatisfied dependency expressed through field 'repoComposicionCombo': Error creating bean with name 'composicionComboRepository' defined in proyecto.lp.iii.api.repository.ComposicionComboRepository defined in @EnableJpaRepositories declared on DataJpaRepositoriesRegistrar.EnableJpaRepositoriesConfiguration: No property 'combo' found for type 'ComposicionCombo'
-2026-06-01T16:22:00.001-05:00  INFO 25992 --- [api] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
-2026-06-01T16:22:00.020-05:00  INFO 25992 --- [api] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
-2026-06-01T16:22:00.028-05:00  INFO 25992 --- [api] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
-2026-06-01T16:22:00.030-05:00  INFO 25992 --- [api] [  restartedMain] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
-2026-06-01T16:22:00.038-05:00  INFO 25992 --- [api] [  restartedMain] .s.b.a.l.ConditionEvaluationReportLogger : 
+2026-06-01T16:48:44.172-05:00  INFO 40940 --- [api] [  restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-01T16:48:44.180-05:00  INFO 40940 --- [api] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-01T16:48:44.250-05:00  INFO 40940 --- [api] [  restartedMain] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-01T16:48:46.199-05:00  WARN 40940 --- [api] [  restartedMain] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'serieComprobanteService': Unsatisfied dependency expressed through field 'repoSerieComprobante': Error creating bean with name 'serieComprobanteRepository' defined in proyecto.lp.iii.api.repository.SerieComprobanteRepository defined in @EnableJpaRepositories declared on DataJpaRepositoriesRegistrar.EnableJpaRepositoriesConfiguration: No property 'tenant' found for type 'SerieComprobante'
+2026-06-01T16:48:46.203-05:00  INFO 40940 --- [api] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-06-01T16:48:46.207-05:00  INFO 40940 --- [api] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-06-01T16:48:46.214-05:00  INFO 40940 --- [api] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-06-01T16:48:46.216-05:00  INFO 40940 --- [api] [  restartedMain] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2026-06-01T16:48:46.227-05:00  INFO 40940 --- [api] [  restartedMain] .s.b.a.l.ConditionEvaluationReportLogger : 
 
 Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
-2026-06-01T16:22:00.056-05:00 ERROR 25992 --- [api] [  restartedMain] o.s.boot.SpringApplication               : Application run failed
+2026-06-01T16:48:46.244-05:00 ERROR 40940 --- [api] [  restartedMain] o.s.boot.SpringApplication               : Application run failed
 
-org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'composicionComboController': Unsatisfied dependency expressed through field 'serviceComposicionCombo': Error creating bean with name 'composicionComboService': Unsatisfied dependency expressed through field 'repoComposicionCombo': Error creating bean with name 'composicionComboRepository' defined in proyecto.lp.iii.api.repository.ComposicionComboRepository defined in @EnableJpaRepositories declared on DataJpaRepositoriesRegistrar.EnableJpaRepositoriesConfiguration: No property 'combo' found for type 'ComposicionCombo'
+org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'serieComprobanteService': Unsatisfied dependency expressed through field 'repoSerieComprobante': Error creating bean with name 'serieComprobanteRepository' defined in proyecto.lp.iii.api.repository.SerieComprobanteRepository defined in @EnableJpaRepositories declared on DataJpaRepositoriesRegistrar.EnableJpaRepositoriesConfiguration: No property 'tenant' found for type 'SerieComprobante'
         at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.resolveFieldValue(AutowiredAnnotationBeanPostProcessor.java:767) ~[spring-beans-7.0.7.jar:7.0.7]
         at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.inject(AutowiredAnnotationBeanPostProcessor.java:748) ~[spring-beans-7.0.7.jar:7.0.7]
         at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:146) ~[spring-beans-7.0.7.jar:7.0.7]
@@ -79,24 +79,7 @@ org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating
         at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Unknown Source) ~[na:na]
         at java.base/java.lang.reflect.Method.invoke(Unknown Source) ~[na:na]
         at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52) ~[spring-boot-devtools-4.0.6.jar:4.0.6]
-Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'composicionComboService': Unsatisfied dependency expressed through field 'repoComposicionCombo': Error creating bean with name 'composicionComboRepository' defined in proyecto.lp.iii.api.repository.ComposicionComboRepository defined in @EnableJpaRepositories declared on DataJpaRepositoriesRegistrar.EnableJpaRepositoriesConfiguration: No property 'combo' found for type 'ComposicionCombo'
-        at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.resolveFieldValue(AutowiredAnnotationBeanPostProcessor.java:767) ~[spring-beans-7.0.7.jar:7.0.7]
-        at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.inject(AutowiredAnnotationBeanPostProcessor.java:748) ~[spring-beans-7.0.7.jar:7.0.7]
-        at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:146) ~[spring-beans-7.0.7.jar:7.0.7]
-        at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:493) ~[spring-beans-7.0.7.jar:7.0.7]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.populateBean(AbstractAutowireCapableBeanFactory.java:1446) ~[spring-beans-7.0.7.jar:7.0.7]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:602) ~[spring-beans-7.0.7.jar:7.0.7]
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525) ~[spring-beans-7.0.7.jar:7.0.7]
-        at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333) ~[spring-beans-7.0.7.jar:7.0.7]
-        at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371) ~[spring-beans-7.0.7.jar:7.0.7]
-        at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331) ~[spring-beans-7.0.7.jar:7.0.7]
-        at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:201) ~[spring-beans-7.0.7.jar:7.0.7]
-        at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:229) ~[spring-beans-7.0.7.jar:7.0.7]
-        at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1762) ~[spring-beans-7.0.7.jar:7.0.7]
-        at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1651) ~[spring-beans-7.0.7.jar:7.0.7]
-        at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.resolveFieldValue(AutowiredAnnotationBeanPostProcessor.java:764) ~[spring-beans-7.0.7.jar:7.0.7]
-        ... 25 common frames omitted
-Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'composicionComboRepository' defined in proyecto.lp.iii.api.repository.ComposicionComboRepository defined in @EnableJpaRepositories declared on DataJpaRepositoriesRegistrar.EnableJpaRepositoriesConfiguration: No property 'combo' found for type 'ComposicionCombo'
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'serieComprobanteRepository' defined in proyecto.lp.iii.api.repository.SerieComprobanteRepository defined in @EnableJpaRepositories declared on DataJpaRepositoriesRegistrar.EnableJpaRepositoriesConfiguration: No property 'tenant' found for type 'SerieComprobante'
         at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1817) ~[spring-beans-7.0.7.jar:7.0.7]
         at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603) ~[spring-beans-7.0.7.jar:7.0.7]
         at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525) ~[spring-beans-7.0.7.jar:7.0.7]
@@ -108,8 +91,8 @@ Caused by: org.springframework.beans.factory.BeanCreationException: Error creati
         at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1762) ~[spring-beans-7.0.7.jar:7.0.7]
         at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1651) ~[spring-beans-7.0.7.jar:7.0.7]
         at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.resolveFieldValue(AutowiredAnnotationBeanPostProcessor.java:764) ~[spring-beans-7.0.7.jar:7.0.7]
-        ... 39 common frames omitted
-Caused by: org.springframework.data.repository.query.QueryCreationException: Cannot create query for method [ComposicionComboRepository.findByCombo(proyecto.lp.iii.api.entity.ComboPromocional)]; No property 'combo' found for type 'ComposicionCombo'
+        ... 25 common frames omitted
+Caused by: org.springframework.data.repository.query.QueryCreationException: Cannot create query for method [SerieComprobanteRepository.findByTenantAndTipoComprobanteAndPuntoEmisionAndNumeroSerie(proyecto.lp.iii.api.entity.Tenants,java.lang.Integer,java.lang.String)]; No property 'tenant' found for type 'SerieComprobante'
         at org.springframework.data.repository.query.QueryCreationException.create(QueryCreationException.java:109) ~[spring-data-commons-4.0.5.jar:4.0.5]
         at org.springframework.data.jpa.repository.query.PartTreeJpaQuery.<init>(PartTreeJpaQuery.java:114) ~[spring-data-jpa-4.0.5.jar:4.0.5]
         at org.springframework.data.jpa.repository.query.JpaQueryLookupStrategy$CreateQueryLookupStrategy.resolveQuery(JpaQueryLookupStrategy.java:118) ~[spring-data-jpa-4.0.5.jar:4.0.5]
@@ -126,8 +109,8 @@ Caused by: org.springframework.data.repository.query.QueryCreationException: Can
         at org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean.afterPropertiesSet(JpaRepositoryFactoryBean.java:212) ~[spring-data-jpa-4.0.5.jar:4.0.5]
         at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1864) ~[spring-beans-7.0.7.jar:7.0.7]
         at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1813) ~[spring-beans-7.0.7.jar:7.0.7]
-        ... 49 common frames omitted
-Caused by: org.springframework.data.core.PropertyReferenceException: No property 'combo' found for type 'ComposicionCombo'
+        ... 35 common frames omitted
+Caused by: org.springframework.data.core.PropertyReferenceException: No property 'tenant' found for type 'SerieComprobante'
         at org.springframework.data.core.SimplePropertyPath.<init>(SimplePropertyPath.java:93) ~[spring-data-commons-4.0.5.jar:4.0.5]
         at org.springframework.data.core.SimplePropertyPath.create(SimplePropertyPath.java:360) ~[spring-data-commons-4.0.5.jar:4.0.5]
         at org.springframework.data.core.SimplePropertyPath.create(SimplePropertyPath.java:335) ~[spring-data-commons-4.0.5.jar:4.0.5]
@@ -162,4 +145,4 @@ Caused by: org.springframework.data.core.PropertyReferenceException: No property
         at org.springframework.data.repository.query.parser.PartTree$Predicate.<init>(PartTree.java:391) ~[spring-data-commons-4.0.5.jar:4.0.5]
         at org.springframework.data.repository.query.parser.PartTree.<init>(PartTree.java:104) ~[spring-data-commons-4.0.5.jar:4.0.5]
         at org.springframework.data.jpa.repository.query.PartTreeJpaQuery.<init>(PartTreeJpaQuery.java:108) ~[spring-data-jpa-4.0.5.jar:4.0.5]
-        ... 63 common frames omitted
+        ... 49 common frames omitted
