@@ -18,5 +18,6 @@ public interface CitaRepository extends JpaRepository<Cita, Integer> {
     @Query("SELECT c FROM Cita c WHERE c.id_sedes = :sede")
     List<Cita> findBySede(@Param("sede") Sede sede);
 
-    List<Cita> findByCliente(Cliente cliente);
+    @Query("SELECT c FROM Cita c WHERE c.id_clientes = :cliente")
+    List<Cita> findByCliente(@Param("cliente") Cliente cliente);
 }

@@ -12,5 +12,7 @@ import java.util.List;
 public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
     @Query("SELECT c FROM Cliente c WHERE c.id_tenants = :tenant")
     List<Cliente> findByTenant(@Param("tenant") Tenants tenant);
-    Cliente findByNumeroDocumento(String numeroDocumento);
+
+    @Query("SELECT c FROM Cliente c WHERE c.numero_documento = :numeroDocumento")
+    Cliente findByNumeroDocumento(@Param("numeroDocumento") String numeroDocumento);
 }

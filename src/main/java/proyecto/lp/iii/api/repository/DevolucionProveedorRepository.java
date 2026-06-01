@@ -13,5 +13,6 @@ import java.util.List;
 public interface DevolucionProveedorRepository extends JpaRepository<DevolucionProveedor, Integer> {
     @Query("SELECT d FROM DevolucionProveedor d WHERE d.id_tenants = :tenant")
     List<DevolucionProveedor> findByTenant(@Param("tenant") Tenants tenant);
-    List<DevolucionProveedor> findByProveedor(Proveedor proveedor);
+    @Query("SELECT d FROM DevolucionProveedor d WHERE d.id_proveedores = :proveedor")
+    List<DevolucionProveedor> findByProveedor(@Param("proveedor") Proveedor proveedor);
 }

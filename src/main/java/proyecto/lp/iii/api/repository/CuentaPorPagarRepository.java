@@ -13,5 +13,6 @@ import java.util.List;
 public interface CuentaPorPagarRepository extends JpaRepository<CuentaPorPagar, Integer> {
     @Query("SELECT c FROM CuentaPorPagar c WHERE c.id_tenants = :tenant")
     List<CuentaPorPagar> findByTenant(@Param("tenant") Tenants tenant);
-    List<CuentaPorPagar> findByProveedor(Proveedor proveedor);
+    @Query("SELECT c FROM CuentaPorPagar c WHERE c.id_proveedores = :proveedor")
+    List<CuentaPorPagar> findByProveedor(@Param("proveedor") Proveedor proveedor);
 }

@@ -15,7 +15,8 @@ public interface ProductoRepository extends JpaRepository<Producto, Integer> {
     @Query("SELECT p FROM Producto p WHERE p.id_tenants = :tenant")
     List<Producto> findByTenant(@Param("tenant") Tenants tenant);
 
-    List<Producto> findByCategoria(CategoriaProducto categoria);
+    @Query("SELECT p FROM Producto p WHERE p.id_categorias_productos = :categoria")
+    List<Producto> findByCategoria(@Param("categoria") CategoriaProducto categoria);
 
     Optional<Producto> findByCodigoBarras(String codigoBarras);
 

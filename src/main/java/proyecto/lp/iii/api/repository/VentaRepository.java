@@ -18,5 +18,6 @@ public interface VentaRepository extends JpaRepository<Venta, Integer> {
     @Query("SELECT v FROM Venta v WHERE v.id_sedes = :sede")
     List<Venta> findBySede(@Param("sede") Sede sede);
 
-    List<Venta> findByCliente(Cliente cliente);
+    @Query("SELECT v FROM Venta v WHERE v.id_clientes = :cliente")
+    List<Venta> findByCliente(@Param("cliente") Cliente cliente);
 }
