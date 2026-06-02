@@ -1,5 +1,5 @@
-Llenar los controladores que les falta codigo. recuerda validar con la base de datos.
-los que faltan son:
+usar el esquema de AlmacenesController
+Llenar los siguientes controladores.
 -FacturaSuscripcionController
 -FormaPagoVentaController
 -GastoOperativoController
