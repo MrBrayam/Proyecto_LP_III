@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
@@ -30,7 +31,8 @@ import org.hibernate.annotations.SQLRestriction;
         "direccion",
         "distrito",
         "tipo_cliente",
-        "estado"
+        "estado",
+        "fecha_registro"
 })
 public class Cliente {
     @Id
@@ -71,6 +73,9 @@ public class Cliente {
 
     @Column
     private Integer estado = 1;
+
+    @Column(name = "fecha_registro", insertable = false, updatable = false)
+    private LocalDateTime fecha_registro;
 
     public Integer getId_clientes() {
         return id_clientes;
@@ -168,12 +173,21 @@ public class Cliente {
         this.estado = estado;
     }
 
+    public LocalDateTime getFecha_registro() {
+        return fecha_registro;
+    }
+
+    public void setFecha_registro(LocalDateTime fecha_registro) {
+        this.fecha_registro = fecha_registro;
+    }
+
     @Override
     public String toString() {
         return "Cliente [id_clientes=" + id_clientes + ", id_tenants=" + id_tenants + ", nombre_cliente="
                 + nombre_cliente + ", apellidos_clientes=" + apellidos_clientes + ", tipo_documento="
                 + tipo_documento + ", numero_documento=" + numero_documento + ", telefono=" + telefono
                 + ", correo=" + correo + ", direccion=" + direccion + ", distrito=" + distrito
-                + ", tipo_cliente=" + tipo_cliente + ", estado=" + estado + "]";
+                + ", tipo_cliente=" + tipo_cliente + ", estado=" + estado
+                + ", fecha_registro=" + fecha_registro + "]";
     }
 }

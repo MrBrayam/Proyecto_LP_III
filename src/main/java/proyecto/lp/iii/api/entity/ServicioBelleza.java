@@ -15,9 +15,9 @@ import org.hibernate.annotations.SQLRestriction;
 @JsonPropertyOrder({
         "id_servicios_belleza",
         "id_tenants",
+        "id_categorias_servicios",
         "nombre_servicio_belleza",
         "descripcion",
-        "categoria",
         "duracion_minima",
         "duracion_maxima",
         "precio_base",
@@ -34,12 +34,16 @@ public class ServicioBelleza {
     @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Tenants id_tenants;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_categorias_servicios")
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+    private CategoriaServicio id_categorias_servicios;
+
     private String nombre_servicio_belleza;
 
     @Column(columnDefinition = "TEXT")
     private String descripcion;
 
-    private String categoria;
     private Integer duracion_minima;
     private Integer duracion_maxima;
     private BigDecimal precio_base;
@@ -62,6 +66,14 @@ public class ServicioBelleza {
         this.id_tenants = id_tenants;
     }
 
+    public CategoriaServicio getId_categorias_servicios() {
+        return id_categorias_servicios;
+    }
+
+    public void setId_categorias_servicios(CategoriaServicio id_categorias_servicios) {
+        this.id_categorias_servicios = id_categorias_servicios;
+    }
+
     public String getNombre_servicio_belleza() {
         return nombre_servicio_belleza;
     }
@@ -78,13 +90,6 @@ public class ServicioBelleza {
         this.descripcion = descripcion;
     }
 
-    public String getCategoria() {
-        return categoria;
-    }
-
-    public void setCategoria(String categoria) {
-        this.categoria = categoria;
-    }
 
     public Integer getDuracion_minima() {
         return duracion_minima;
@@ -129,8 +134,9 @@ public class ServicioBelleza {
     @Override
     public String toString() {
         return "ServicioBelleza [id_servicios_belleza=" + id_servicios_belleza + ", id_tenants=" + id_tenants
+                + ", id_categorias_servicios=" + id_categorias_servicios
                 + ", nombre_servicio_belleza=" + nombre_servicio_belleza + ", descripcion=" + descripcion
-                + ", categoria=" + categoria + ", duracion_minima=" + duracion_minima + ", duracion_maxima="
+                + ", duracion_minima=" + duracion_minima + ", duracion_maxima="
                 + duracion_maxima + ", precio_base=" + precio_base + ", precio_editable=" + precio_editable
                 + ", estado=" + estado + "]";
     }

@@ -14,9 +14,6 @@ import jakarta.persistence.*;
 @JsonPropertyOrder({
         "id_repartidores",
         "id_usuarios",
-        "nombre_repartidor",
-        "apellidos_repartidor",
-        "numero_documento",
         "tipo_vehiculo",
         "placa_vehiculo",
         "numero_licencia",
@@ -32,9 +29,6 @@ public class Repartidor {
     @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Usuarios id_usuarios;
 
-    private String nombre_repartidor;
-    private String apellidos_repartidor;
-    private String numero_documento;
     private String tipo_vehiculo;
     private String placa_vehiculo;
     private String numero_licencia;
@@ -54,30 +48,6 @@ public class Repartidor {
 
     public void setId_usuarios(Usuarios id_usuarios) {
         this.id_usuarios = id_usuarios;
-    }
-
-    public String getNombre_repartidor() {
-        return nombre_repartidor;
-    }
-
-    public void setNombre_repartidor(String nombre_repartidor) {
-        this.nombre_repartidor = nombre_repartidor;
-    }
-
-    public String getApellidos_repartidor() {
-        return apellidos_repartidor;
-    }
-
-    public void setApellidos_repartidor(String apellidos_repartidor) {
-        this.apellidos_repartidor = apellidos_repartidor;
-    }
-
-    public String getNumero_documento() {
-        return numero_documento;
-    }
-
-    public void setNumero_documento(String numero_documento) {
-        this.numero_documento = numero_documento;
     }
 
     public String getTipo_vehiculo() {
@@ -115,8 +85,7 @@ public class Repartidor {
     @Override
     public String toString() {
         return "Repartidor [id_repartidores=" + id_repartidores + ", id_usuarios=" + id_usuarios
-                + ", nombre_repartidor=" + nombre_repartidor + ", apellidos_repartidor=" + apellidos_repartidor
-                + ", numero_documento=" + numero_documento + ", tipo_vehiculo=" + tipo_vehiculo + ", placa_vehiculo="
+                + ", tipo_vehiculo=" + tipo_vehiculo + ", placa_vehiculo="
                 + placa_vehiculo + ", numero_licencia=" + numero_licencia + ", estado=" + estado + "]";
     }
 }

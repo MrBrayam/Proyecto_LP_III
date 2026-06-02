@@ -20,7 +20,6 @@ import org.hibernate.annotations.SQLRestriction;
         "correo",
         "persona_contacto",
         "terminos_comerciales",
-        "categorias_productos",
         "estado"
 })
 public class Proveedor {
@@ -43,7 +42,6 @@ public class Proveedor {
     @Column(columnDefinition = "TEXT")
     private String terminos_comerciales;
 
-    private String categorias_productos;
     private Integer estado = 1;
 
     public Integer getId_proveedores() {
@@ -118,13 +116,6 @@ public class Proveedor {
         this.terminos_comerciales = terminos_comerciales;
     }
 
-    public String getCategorias_productos() {
-        return categorias_productos;
-    }
-
-    public void setCategorias_productos(String categorias_productos) {
-        this.categorias_productos = categorias_productos;
-    }
 
     public Integer getEstado() {
         return estado;
@@ -139,6 +130,6 @@ public class Proveedor {
         return "Proveedor [id_proveedores=" + id_proveedores + ", id_tenants=" + id_tenants + ", razon_social="
                 + razon_social + ", ruc=" + ruc + ", direccion=" + direccion + ", telefono=" + telefono + ", correo="
                 + correo + ", persona_contacto=" + persona_contacto + ", terminos_comerciales=" + terminos_comerciales
-                + ", categorias_productos=" + categorias_productos + ", estado=" + estado + "]";
+                + ", estado=" + estado + "]";
     }
 }

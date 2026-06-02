@@ -26,7 +26,6 @@ import org.hibernate.annotations.SQLRestriction;
         "id_sedes",
         "id_clientes",
         "id_usuarios_especialista",
-        "id_servicios_belleza",
         "fecha_cita",
         "hora_inicio",
         "hora_fin",
@@ -59,11 +58,6 @@ public class Cita {
     @JoinColumn(name = "id_usuarios_especialista")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Usuarios id_usuarios_especialista;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_servicios_belleza", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private ServicioBelleza id_servicios_belleza;
 
     @Column(name = "fecha_cita")
     private LocalDate fecha_cita;
@@ -128,13 +122,6 @@ public class Cita {
         this.id_usuarios_especialista = id_usuarios_especialista;
     }
 
-    public ServicioBelleza getId_servicios_belleza() {
-        return id_servicios_belleza;
-    }
-
-    public void setId_servicios_belleza(ServicioBelleza id_servicios_belleza) {
-        this.id_servicios_belleza = id_servicios_belleza;
-    }
 
     public LocalDate getFecha_cita() {
         return fecha_cita;
@@ -196,7 +183,7 @@ public class Cita {
     public String toString() {
         return "Cita [id_citas=" + id_citas + ", id_tenants=" + id_tenants + ", id_sedes=" + id_sedes
                 + ", id_clientes=" + id_clientes + ", id_usuarios_especialista=" + id_usuarios_especialista
-                + ", id_servicios_belleza=" + id_servicios_belleza + ", fecha_cita=" + fecha_cita
+                + ", fecha_cita=" + fecha_cita
                 + ", hora_inicio=" + hora_inicio + ", hora_fin=" + hora_fin + ", duracion_minutos="
                 + duracion_minutos + ", estado=" + estado + ", observaciones=" + observaciones
                 + ", id_usuarios_usuario_creacion=" + id_usuarios_usuario_creacion + "]";

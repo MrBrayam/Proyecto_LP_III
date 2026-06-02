@@ -65,6 +65,8 @@ public class Producto {
     private String contenido_neto;
     private BigDecimal precio_costo;
     private BigDecimal precio_venta;
+
+    @Column(name = "margen_ganancia", insertable = false, updatable = false)
     private BigDecimal margen_ganancia;
     private Integer stock_minimo = 10;
     private Integer stock_critico = 5;
@@ -178,10 +180,6 @@ public class Producto {
 
     public BigDecimal getMargen_ganancia() {
         return margen_ganancia;
-    }
-
-    public void setMargen_ganancia(BigDecimal margen_ganancia) {
-        this.margen_ganancia = margen_ganancia;
     }
 
     public Integer getStock_minimo() {

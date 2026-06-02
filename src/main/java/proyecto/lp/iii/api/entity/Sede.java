@@ -3,7 +3,6 @@ package proyecto.lp.iii.api.entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
-import java.time.LocalTime;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
@@ -19,8 +18,6 @@ import org.hibernate.annotations.SQLRestriction;
         "direccion",
         "distrito",
         "telefono",
-        "horario_apertura",
-        "horario_cierre",
         "responsable",
         "estado"
 })
@@ -38,8 +35,6 @@ public class Sede {
     private String direccion;
     private String distrito;
     private String telefono;
-    private LocalTime horario_apertura;
-    private LocalTime horario_cierre;
     private String responsable;
     private Integer estado = 1;
 
@@ -91,21 +86,6 @@ public class Sede {
         this.telefono = telefono;
     }
 
-    public LocalTime getHorario_apertura() {
-        return horario_apertura;
-    }
-
-    public void setHorario_apertura(LocalTime horario_apertura) {
-        this.horario_apertura = horario_apertura;
-    }
-
-    public LocalTime getHorario_cierre() {
-        return horario_cierre;
-    }
-
-    public void setHorario_cierre(LocalTime horario_cierre) {
-        this.horario_cierre = horario_cierre;
-    }
 
     public String getResponsable() {
         return responsable;
@@ -127,7 +107,6 @@ public class Sede {
     public String toString() {
         return "Sede [id_sedes=" + id_sedes + ", id_tenants=" + id_tenants + ", nombre_sede=" + nombre_sede
                 + ", direccion=" + direccion + ", distrito=" + distrito + ", telefono=" + telefono
-                + ", horario_apertura=" + horario_apertura + ", horario_cierre=" + horario_cierre
                 + ", responsable=" + responsable + ", estado=" + estado + "]";
     }
 }
