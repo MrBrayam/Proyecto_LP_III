@@ -6,6 +6,7 @@ import org.hibernate.annotations.SQLRestriction;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
+import jakarta.persistence.FetchType;
 
 @Entity
 @Table(name = "repartidores")
@@ -13,6 +14,7 @@ import jakarta.persistence.*;
 @SQLRestriction("estado=1")
 @JsonPropertyOrder({
         "id_repartidores",
+        "id_tenants",
         "id_usuarios",
         "tipo_vehiculo",
         "placa_vehiculo",
@@ -24,7 +26,12 @@ public class Repartidor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id_repartidores;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_tenants", nullable = false)
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+    private Tenants id_tenants;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuarios", nullable = false)
     @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Usuarios id_usuarios;
@@ -40,6 +47,14 @@ public class Repartidor {
 
     public void setId_repartidores(Integer id_repartidores) {
         this.id_repartidores = id_repartidores;
+    }
+
+    public Tenants getId_tenants() {
+        return id_tenants;
+    }
+
+    public void setId_tenants(Tenants id_tenants) {
+        this.id_tenants = id_tenants;
     }
 
     public Usuarios getId_usuarios() {
@@ -84,8 +99,9 @@ public class Repartidor {
 
     @Override
     public String toString() {
-        return "Repartidor [id_repartidores=" + id_repartidores + ", id_usuarios=" + id_usuarios
-                + ", tipo_vehiculo=" + tipo_vehiculo + ", placa_vehiculo="
-                + placa_vehiculo + ", numero_licencia=" + numero_licencia + ", estado=" + estado + "]";
+        return "Repartidor [id_repartidores=" + id_repartidores + ", id_tenants=" + id_tenants
+                + ", id_usuarios=" + id_usuarios + ", tipo_vehiculo=" + tipo_vehiculo
+                + ", placa_vehiculo=" + placa_vehiculo + ", numero_licencia=" + numero_licencia
+                + ", estado=" + estado + "]";
     }
 }

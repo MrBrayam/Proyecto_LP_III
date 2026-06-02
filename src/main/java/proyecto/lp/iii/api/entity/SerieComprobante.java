@@ -18,7 +18,6 @@ import org.hibernate.annotations.SQLRestriction;
         "tipo_comprobante",
         "punto_emision",
         "numero_serie",
-        "numero_correlativo",
         "numero_proximo",
         "fecha_autorizacion",
         "fecha_vencimiento",
@@ -37,7 +36,6 @@ public class SerieComprobante {
     private String tipo_comprobante;
     private Integer punto_emision;
     private String numero_serie;
-    private Integer numero_correlativo = 0;
     private Integer numero_proximo;
     private LocalDate fecha_autorizacion;
     private LocalDate fecha_vencimiento;
@@ -83,14 +81,6 @@ public class SerieComprobante {
         this.numero_serie = numero_serie;
     }
 
-    public Integer getNumero_correlativo() {
-        return numero_correlativo;
-    }
-
-    public void setNumero_correlativo(Integer numero_correlativo) {
-        this.numero_correlativo = numero_correlativo;
-    }
-
     public Integer getNumero_proximo() {
         return numero_proximo;
     }
@@ -127,7 +117,7 @@ public class SerieComprobante {
     public String toString() {
         return "SerieComprobante [id_series_comprobantes=" + id_series_comprobantes + ", id_tenants=" + id_tenants
                 + ", tipo_comprobante=" + tipo_comprobante + ", punto_emision=" + punto_emision + ", numero_serie="
-                + numero_serie + ", numero_correlativo=" + numero_correlativo + ", numero_proximo=" + numero_proximo
+                + numero_serie + ", numero_proximo=" + numero_proximo
                 + ", fecha_autorizacion=" + fecha_autorizacion + ", fecha_vencimiento=" + fecha_vencimiento
                 + ", estado=" + estado + "]";
     }

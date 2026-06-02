@@ -13,13 +13,13 @@ import org.hibernate.annotations.SQLRestriction;
 @JsonPropertyOrder({
         "id_proveedores",
         "id_tenants",
+        "nombre_proveedor",
+        "apellido_proveedor",
         "razon_social",
         "ruc",
         "direccion",
         "telefono",
         "correo",
-        "persona_contacto",
-        "terminos_comerciales",
         "estado"
 })
 public class Proveedor {
@@ -32,15 +32,17 @@ public class Proveedor {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Tenants id_tenants;
 
+    @Column(name = "nombre_proveedor", nullable = false, length = 255)
+    private String nombre_proveedor;
+
+    @Column(name = "apellido_proveedor", nullable = false, length = 255)
+    private String apellido_proveedor;
+
     private String razon_social;
     private String ruc;
     private String direccion;
     private String telefono;
     private String correo;
-    private String persona_contacto;
-
-    @Column(columnDefinition = "TEXT")
-    private String terminos_comerciales;
 
     private Integer estado = 1;
 
@@ -58,6 +60,22 @@ public class Proveedor {
 
     public void setId_tenants(Tenants id_tenants) {
         this.id_tenants = id_tenants;
+    }
+
+    public String getNombre_proveedor() {
+        return nombre_proveedor;
+    }
+
+    public void setNombre_proveedor(String nombre_proveedor) {
+        this.nombre_proveedor = nombre_proveedor;
+    }
+
+    public String getApellido_proveedor() {
+        return apellido_proveedor;
+    }
+
+    public void setApellido_proveedor(String apellido_proveedor) {
+        this.apellido_proveedor = apellido_proveedor;
     }
 
     public String getRazon_social() {
@@ -100,23 +118,6 @@ public class Proveedor {
         this.correo = correo;
     }
 
-    public String getPersona_contacto() {
-        return persona_contacto;
-    }
-
-    public void setPersona_contacto(String persona_contacto) {
-        this.persona_contacto = persona_contacto;
-    }
-
-    public String getTerminos_comerciales() {
-        return terminos_comerciales;
-    }
-
-    public void setTerminos_comerciales(String terminos_comerciales) {
-        this.terminos_comerciales = terminos_comerciales;
-    }
-
-
     public Integer getEstado() {
         return estado;
     }
@@ -127,9 +128,9 @@ public class Proveedor {
 
     @Override
     public String toString() {
-        return "Proveedor [id_proveedores=" + id_proveedores + ", id_tenants=" + id_tenants + ", razon_social="
-                + razon_social + ", ruc=" + ruc + ", direccion=" + direccion + ", telefono=" + telefono + ", correo="
-                + correo + ", persona_contacto=" + persona_contacto + ", terminos_comerciales=" + terminos_comerciales
-                + ", estado=" + estado + "]";
+        return "Proveedor [id_proveedores=" + id_proveedores + ", id_tenants=" + id_tenants
+                + ", nombre_proveedor=" + nombre_proveedor + ", apellido_proveedor=" + apellido_proveedor
+                + ", razon_social=" + razon_social + ", ruc=" + ruc + ", direccion=" + direccion
+                + ", telefono=" + telefono + ", correo=" + correo + ", estado=" + estado + "]";
     }
 }

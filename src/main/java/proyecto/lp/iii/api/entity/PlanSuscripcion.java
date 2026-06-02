@@ -1,7 +1,6 @@
 package proyecto.lp.iii.api.entity;
 
 import jakarta.persistence.*;
-import java.math.BigDecimal;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -14,10 +13,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
         "id_planes_suscripcion",
         "nombre_plan_suscripcion",
         "descripcion",
-        "precio_mensual",
-        "precio_trimestral",
-        "precio_anual",
-        "periodo",
         "estado"
 })
 public class PlanSuscripcion {
@@ -30,10 +25,6 @@ public class PlanSuscripcion {
     @Column(columnDefinition = "TEXT")
     private String descripcion;
 
-    private BigDecimal precio_mensual;
-    private BigDecimal precio_trimestral;
-    private BigDecimal precio_anual;
-    private String periodo;
     private Integer estado = 1;
 
     public Integer getId_planes_suscripcion() {
@@ -60,38 +51,6 @@ public class PlanSuscripcion {
         this.descripcion = descripcion;
     }
 
-    public BigDecimal getPrecio_mensual() {
-        return precio_mensual;
-    }
-
-    public void setPrecio_mensual(BigDecimal precio_mensual) {
-        this.precio_mensual = precio_mensual;
-    }
-
-    public BigDecimal getPrecio_trimestral() {
-        return precio_trimestral;
-    }
-
-    public void setPrecio_trimestral(BigDecimal precio_trimestral) {
-        this.precio_trimestral = precio_trimestral;
-    }
-
-    public BigDecimal getPrecio_anual() {
-        return precio_anual;
-    }
-
-    public void setPrecio_anual(BigDecimal precio_anual) {
-        this.precio_anual = precio_anual;
-    }
-
-    public String getPeriodo() {
-        return periodo;
-    }
-
-    public void setPeriodo(String periodo) {
-        this.periodo = periodo;
-    }
-
     public Integer getEstado() {
         return estado;
     }
@@ -103,8 +62,6 @@ public class PlanSuscripcion {
     @Override
     public String toString() {
         return "PlanSuscripcion [id_planes_suscripcion=" + id_planes_suscripcion + ", nombre_plan_suscripcion="
-                + nombre_plan_suscripcion + ", descripcion=" + descripcion + ", precio_mensual=" + precio_mensual
-                + ", precio_trimestral=" + precio_trimestral + ", precio_anual=" + precio_anual + ", periodo="
-                + periodo + ", estado=" + estado + "]";
+                + nombre_plan_suscripcion + ", descripcion=" + descripcion + ", estado=" + estado + "]";
     }
 }

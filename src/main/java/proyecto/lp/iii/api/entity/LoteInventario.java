@@ -8,6 +8,7 @@ import java.time.LocalDate;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
+import jakarta.persistence.FetchType;
 
 @Entity
 @Table(name = "lotes_inventario")
@@ -47,7 +48,11 @@ public class LoteInventario {
     private Integer cantidad_disponible;
     private BigDecimal precio_unitario;
     private LocalDate fecha_vencimiento;
-    private Integer id_proveedores;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_proveedores")
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+    private Proveedor id_proveedores;
     private LocalDate fecha_ingreso;
 
     @Column(columnDefinition = "TEXT")
@@ -119,11 +124,11 @@ public class LoteInventario {
         this.fecha_vencimiento = fecha_vencimiento;
     }
 
-    public Integer getId_proveedores() {
+    public Proveedor getId_proveedores() {
         return id_proveedores;
     }
 
-    public void setId_proveedores(Integer id_proveedores) {
+    public void setId_proveedores(Proveedor id_proveedores) {
         this.id_proveedores = id_proveedores;
     }
 

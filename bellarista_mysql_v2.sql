@@ -1,16 +1,6 @@
 -- ============================================================
--- Base de datos: bellarista (v3 - refactorizada e íntegra)
+-- Base de datos: bellarista
 -- Generado: 2026-06-01
--- Cambios respecto a v2:
---   - Eliminada tabla imagenes_producto
---   - Agregada columna img_url en productos
---   - repartidores vinculado a usuarios (id_usuarios FK) y a tenants (id_tenants)
---   - tipo_usuario ENUM incluye 'repartidor'
---   - Corregidas comillas simples en proveedores y repartidores
---   - FK faltante en pedidos (id_zonas_delivery)
---   - FK faltante en lotes_inventario (id_proveedores)
---   - Trailing comma corregida en repartidores
---   - Punto y coma faltante en registros
 -- ============================================================
 
 SET FOREIGN_KEY_CHECKS = 0;
@@ -293,11 +283,7 @@ CREATE TABLE `suscripciones` (
   CONSTRAINT `fk_suscripciones_2` FOREIGN KEY (`id_planes_suscripcion`) REFERENCES `planes_suscripcion` (`id_planes_suscripcion`)
 );
 
--- ============================================================
--- NOTA: tipo_usuario incluye 'repartidor' para que los repartidores
--- puedan ser creados primero como usuarios del sistema y luego
--- registrados en la tabla repartidores con sus datos de vehículo.
--- ============================================================
+
 DROP TABLE IF EXISTS `usuarios`;
 CREATE TABLE `usuarios` (
   `id_usuarios` int(11) NOT NULL AUTO_INCREMENT,
@@ -338,11 +324,6 @@ CREATE TABLE `promociones` (
   CONSTRAINT `fk_promociones_2` FOREIGN KEY (`id_categorias_productos`) REFERENCES `categorias_productos` (`id_categorias_productos`)
 );
 
-
--- ============================================================
--- CAMBIO: Se eliminó la tabla imagenes_producto y se agregó
--- la columna img_url directamente en productos para la imagen principal.
--- ============================================================
 DROP TABLE IF EXISTS `productos`;
 CREATE TABLE `productos` (
   `id_productos` int(11) NOT NULL AUTO_INCREMENT,
@@ -662,9 +643,6 @@ CREATE TABLE `notificaciones` (
 );
 
 
--- ============================================================
--- CORRECCIÓN: Se agrega FK a zonas_delivery que faltaba en v2
--- ============================================================
 DROP TABLE IF EXISTS `pedidos`;
 CREATE TABLE `pedidos` (
   `id_pedidos` int(11) NOT NULL AUTO_INCREMENT,
@@ -715,12 +693,6 @@ CREATE TABLE `preferencias_usuario` (
 );
 
 
--- ============================================================
--- CAMBIO: repartidores ahora vinculado a usuarios (id_usuarios)
--- y a tenants (id_tenants). El flujo correcto es:
---   1. Crear el usuario con tipo_usuario = 'repartidor'
---   2. Registrar en repartidores referenciando ese id_usuarios
--- ============================================================
 DROP TABLE IF EXISTS `repartidores`;
 CREATE TABLE `repartidores` (
   `id_repartidores` int(11) NOT NULL AUTO_INCREMENT,
@@ -789,8 +761,6 @@ CREATE TABLE `composicion_combo` (
   CONSTRAINT `fk_composicion_combo_2` FOREIGN KEY (`id_productos`) REFERENCES `productos` (`id_productos`)
 );
 
--- imagenes_producto eliminada (reemplazada por img_url en productos)
-
 DROP TABLE IF EXISTS `pagos_proveedor`;
 CREATE TABLE `pagos_proveedor` (
   `id_pagos_proveedor` int(11) NOT NULL AUTO_INCREMENT,
@@ -827,9 +797,6 @@ CREATE TABLE `detalle_orden_compra` (
 );
 
 
--- ============================================================
--- CORRECCIÓN: Se agrega FK a proveedores que faltaba en v2
--- ============================================================
 DROP TABLE IF EXISTS `lotes_inventario`;
 CREATE TABLE `lotes_inventario` (
   `id_lotes_inventario` int(11) NOT NULL AUTO_INCREMENT,
