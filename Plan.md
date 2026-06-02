@@ -1,16 +1,33 @@
-revisa todos los en entity nas espeficamente en la session 
-@JsonPropertyOrder({
-        "id_almacenes",
-        "id_sedes",
-        "nombre_almacen",
-        "ubicacion",
-        "capacidad",
-        "estado"
-})
-y tambien que esten referenciadas los fk ejem:
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_sedes", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private Sede id_sedes;
-    
-    el resto del codigo deban coincidir con la base datos. si no coinciden arreglar el codigo
+Llenar los controladores que les falta codigo. recuerda validar con la base de datos.
+los que faltan son:
+-FacturaSuscripcionController
+-FormaPagoVentaController
+-GastoOperativoController
+-GastoRecurrenteController
+-HorarioOperacionController
+-LoteInventarioController
+-MetodoPagoController
+-MovimientoInventarioController
+-NotificacionController
+-OrdenCompraController
+-PagoProveedorController
+-PedidoControlle
+-PermisoRolController
+-PlanSuscripcionController
+-PreciosPlanController
+-PreferenciaUsuarioController
+-ProductoController
+-PromocionController
+-ProveedorCategoriaController
+-ProveedorController
+-ReclamoController
+-RepartidorController
+-RolPersonalizadoController
+-SedeController
+-SerieComprobanteController
+-ServicioBellezaController
+-SesionCajaController
+-SuscripcionController
+-UsuariosSedeController
+-VentaController
+ZonaDeliveryController

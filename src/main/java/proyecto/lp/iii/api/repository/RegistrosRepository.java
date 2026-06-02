@@ -6,4 +6,5 @@ import proyecto.lp.iii.api.entity.Registros;
 
 @Repository
 public interface RegistrosRepository extends JpaRepository<Registros, Integer> {
+
 }
