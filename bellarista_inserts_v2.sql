@@ -1,8 +1,5 @@
 -- ============================================================
 -- Inserts de prueba: bellarista v3
--- 3 registros por tabla (excepto registros)
--- Orden respeta dependencias de FK
--- ============================================================
 
 SET FOREIGN_KEY_CHECKS = 0;
 
