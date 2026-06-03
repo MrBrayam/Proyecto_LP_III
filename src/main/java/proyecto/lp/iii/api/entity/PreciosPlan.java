@@ -64,4 +64,12 @@ public class PreciosPlan {
     public void setEstado(Integer estado) {
         this.estado = estado;
     }
+
+    @Override
+    public String toString() {
+        return "PreciosPlan [id_precios_plan=" + id_precios_plan + ", id_planes_suscripcion=" + id_planes_suscripcion
+                + ", periodo=" + periodo + ", precio=" + precio + ", estado=" + estado + "]";
+    }
+
+    
 }

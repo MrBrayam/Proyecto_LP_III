@@ -53,4 +53,12 @@ public class ProveedorCategoria {
     public void setId_categorias_productos(CategoriaProducto id_categorias_productos) {
         this.id_categorias_productos = id_categorias_productos;
     }
+
+    @Override
+    public String toString() {
+        return "ProveedorCategoria [id_proveedor_categorias=" + id_proveedor_categorias + ", id_proveedores="
+                + id_proveedores + ", id_categorias_productos=" + id_categorias_productos + "]";
+    }
+
+    
 }

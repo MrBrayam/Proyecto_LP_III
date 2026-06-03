@@ -104,4 +104,13 @@ public class Registros {
     public void setEstado(Integer estado) {
         this.estado = estado;
     }
+
+    @Override
+    public String toString() {
+        return "Registros [idregistro=" + idregistro + ", nombres=" + nombres + ", apellidos=" + apellidos + ", email="
+                + email + ", cliente_id=" + cliente_id + ", llave_secreta=" + llave_secreta + ", access_token="
+                + access_token + ", estado=" + estado + "]";
+    }
+
+    
 }
