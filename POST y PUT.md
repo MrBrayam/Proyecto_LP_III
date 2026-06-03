@@ -1,3 +1,33 @@
+Estrucutura correcta:
+en Post: En branding_negocio
+{
+  "id_tenants": {
+    "id_tenants": 1
+  },
+  "logo_url": "https://cdn.bellarista.pe/logos/bellarista.png",
+  "color_primario": "#FF6B9D",
+  "color_secundario": "#FFFFFF",
+  "nombre_visible": "Bellarista",
+  "redes_sociales": "{\"instagram\":\"@bellarista\",\"facebook\":\"BellaristaPe\"}"
+}
+
+Estructura PUT correcta: esto es en branding_negocio
+{
+  "id_branding_negocio": 1,
+  "id_tenants": {
+    "id_tenants": 1
+  },
+  "logo_url": "https://cdn.bellarista.pe/logos/bellarista-new.png",
+  "color_primario": "#E91E63",
+  "color_secundario": "#F8F9FA",
+  "nombre_visible": "Bellarista Premium",
+  "redes_sociales": "{\"instagram\":\"@bellarista_oficial\",\"tiktok\":\"@bellarista\"}"
+}
+
+
+ya sigue los lineamientos de la base de datos:
+
+corregir los de abajo
 # POST y PUT - Controllers de la imagen
 
 Base URL sugerida: `https://belleza.spring.informaticapp.com:2451`
@@ -13,7 +43,7 @@ POST
 	"concepto": "Alquiler local sede central",
 	"monto": 3500.00,
 	"frecuencia": "mensual",
-	"fecha_proximo_registro": "2026-07-01",
+	"id_proveedores": { "id_proveedores": 1 },
 	"estado": 1
 }
 ```
@@ -44,7 +74,7 @@ POST
 	"hora_cierre": "20:00:00",
 	"estado": 1
 }
-```
+	"id_proveedores": { "id_proveedores": 1 },
 
 PUT
 ```json
@@ -62,7 +92,7 @@ PUT
 Endpoint: `/api/lotes_inventario`
 
 POST
-```json
+	"id_usuarios": { "id_usuarios": 1 },
 {
 	"id_productos": { "id_productos": 1 },
 	"id_almacenes": { "id_almacenes": 1 },
@@ -83,7 +113,7 @@ PUT
 {
 	"id_lotes_inventario": 1,
 	"id_productos": { "id_productos": 1 },
-	"id_almacenes": { "id_almacenes": 1 },
+	"id_usuarios": { "id_usuarios": 1 },
 	"numero_lote": "LOT-2026-001-A",
 	"cantidad": 120,
 	"cantidad_disponible": 110,

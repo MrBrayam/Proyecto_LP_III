@@ -157,11 +157,10 @@ public class ComprobanteElectronico {
 
     @Override
     public String toString() {
-        return "ComprobanteElectronico [id_comprobantes_electronicos=" + id_comprobantes_electronicos
-                + ", id_tenants=" + id_tenants + ", tipo_comprobante=" + tipo_comprobante + ", numero_serie="
-                + numero_serie + ", numero_comprobante=" + numero_comprobante + ", id_ventas=" + id_ventas
-                + ", estado_sunat=" + estado_sunat + ", respuesta_sunat=" + respuesta_sunat
-                + ", fecha_envio_sunat=" + fecha_envio_sunat + ", xml_generado=" + xml_generado
-                + ", cdr_recibida=" + cdr_recibida + "]";
+        return "ComprobanteElectronico [id_comprobantes_electronicos=" + id_comprobantes_electronicos + ", id_tenants="
+                + id_tenants + ", tipo_comprobante=" + tipo_comprobante + ", numero_serie=" + numero_serie
+                + ", numero_comprobante=" + numero_comprobante + ", id_ventas=" + id_ventas + ", estado_sunat="
+                + estado_sunat + ", respuesta_sunat=" + respuesta_sunat + ", fecha_envio_sunat=" + fecha_envio_sunat
+                + ", xml_generado=" + xml_generado + ", cdr_recibida=" + cdr_recibida + "]";
     }
 }
