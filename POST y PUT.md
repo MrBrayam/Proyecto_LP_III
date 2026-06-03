@@ -69,12 +69,12 @@ POST
 ```json
 {
 	"id_sedes": { "id_sedes": 1 },
-	"dia_semana": "lunes",
+	"dia_semana": "Viernes",
 	"hora_apertura": "09:00:00",
 	"hora_cierre": "20:00:00",
 	"estado": 1
 }
-	"id_proveedores": { "id_proveedores": 1 },
+```
 
 PUT
 ```json
@@ -92,7 +92,7 @@ PUT
 Endpoint: `/api/lotes_inventario`
 
 POST
-	"id_usuarios": { "id_usuarios": 1 },
+```json
 {
 	"id_productos": { "id_productos": 1 },
 	"id_almacenes": { "id_almacenes": 1 },
@@ -113,7 +113,7 @@ PUT
 {
 	"id_lotes_inventario": 1,
 	"id_productos": { "id_productos": 1 },
-	"id_usuarios": { "id_usuarios": 1 },
+	"id_almacenes": { "id_almacenes": 1 },
 	"numero_lote": "LOT-2026-001-A",
 	"cantidad": 120,
 	"cantidad_disponible": 110,
@@ -254,7 +254,7 @@ POST
 	"fecha_orden": "2026-06-02",
 	"fecha_entrega_estimada": "2026-06-10",
 	"estado": 1,
-	"monto_total": 540.00,
+	"monto_total": 690.00,
 	"condiciones_entrega": "Entrega en almacen principal",
 	"forma_pago": "transferencia",
 	"notas": "Pedido urgente"
