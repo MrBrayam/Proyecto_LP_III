@@ -33,9 +33,10 @@ serviceMovimientoInventario.guardar(registro);
 return registro;
 }
 
-@PutMapping("/movimientos_inventario")
-public MovimientoInventario modificar(@RequestBody MovimientoInventario registro) {
-serviceMovimientoInventario.modificar(registro);
+@PutMapping("/movimientos_inventario/{id}")
+public MovimientoInventario modificar(@PathVariable Integer id, @RequestBody MovimientoInventario registro) {
+registro.setId_movimientos_inventario(id);
+        serviceMovimientoInventario.modificar(registro);
 return registro;
 }
 

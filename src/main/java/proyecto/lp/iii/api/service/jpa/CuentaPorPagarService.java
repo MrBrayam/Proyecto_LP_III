@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
 import proyecto.lp.iii.api.entity.CuentaPorPagar;
 import proyecto.lp.iii.api.repository.CuentaPorPagarRepository;
 import proyecto.lp.iii.api.service.ICuentaPorPagarService;
@@ -14,6 +16,9 @@ import proyecto.lp.iii.api.service.ICuentaPorPagarService;
 public class CuentaPorPagarService implements ICuentaPorPagarService {
     @Autowired
     private CuentaPorPagarRepository repoCuentaPorPagar;
+    
+    @Autowired
+    private EntityManager entityManager;
 
     public List<CuentaPorPagar> buscarTodos() {
         return repoCuentaPorPagar.findAll();
@@ -23,8 +28,9 @@ public class CuentaPorPagarService implements ICuentaPorPagarService {
         repoCuentaPorPagar.save(cuentaporpagar);
     }
 
+    @Transactional
     public void modificar(CuentaPorPagar cuentaporpagar) {
-        repoCuentaPorPagar.save(cuentaporpagar);
+        entityManager.merge(cuentaporpagar);
     }
 
     public Optional<CuentaPorPagar> buscarId(Integer id) {

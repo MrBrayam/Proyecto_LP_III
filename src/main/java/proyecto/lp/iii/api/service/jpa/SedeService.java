@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
 import proyecto.lp.iii.api.entity.Sede;
 import proyecto.lp.iii.api.repository.SedeRepository;
 import proyecto.lp.iii.api.service.ISedeService;
@@ -14,6 +16,9 @@ import proyecto.lp.iii.api.service.ISedeService;
 public class SedeService implements ISedeService {
     @Autowired
     private SedeRepository repoSede;
+    
+    @Autowired
+    private EntityManager entityManager;
 
     public List<Sede> buscarTodos() {
         return repoSede.findAll();
@@ -23,8 +28,9 @@ public class SedeService implements ISedeService {
         repoSede.save(sede);
     }
 
+    @Transactional
     public void modificar(Sede sede) {
-        repoSede.save(sede);
+        entityManager.merge(sede);
     }
 
     public Optional<Sede> buscarId(Integer id) {

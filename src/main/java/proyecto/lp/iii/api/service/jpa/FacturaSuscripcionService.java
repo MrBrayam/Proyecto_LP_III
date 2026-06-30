@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
 import proyecto.lp.iii.api.entity.FacturaSuscripcion;
 import proyecto.lp.iii.api.repository.FacturaSuscripcionRepository;
 import proyecto.lp.iii.api.service.IFacturaSuscripcionService;
@@ -14,6 +16,9 @@ import proyecto.lp.iii.api.service.IFacturaSuscripcionService;
 public class FacturaSuscripcionService implements IFacturaSuscripcionService {
     @Autowired
     private FacturaSuscripcionRepository repoFacturaSuscripcion;
+    
+    @Autowired
+    private EntityManager entityManager;
 
     public List<FacturaSuscripcion> buscarTodos() { 
         return repoFacturaSuscripcion.findAll(); 
@@ -21,8 +26,9 @@ public class FacturaSuscripcionService implements IFacturaSuscripcionService {
     public void guardar(FacturaSuscripcion facturasuscripcion) { 
         repoFacturaSuscripcion.save(facturasuscripcion);
     }
+    @Transactional
     public void modificar(FacturaSuscripcion facturasuscripcion) { 
-        repoFacturaSuscripcion.save(facturasuscripcion); 
+        entityManager.merge(facturasuscripcion); 
     }
     public Optional<FacturaSuscripcion> buscarId(Integer id) {
          return repoFacturaSuscripcion.findById(id); 

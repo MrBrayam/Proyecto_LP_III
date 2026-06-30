@@ -33,9 +33,10 @@ serviceSerieComprobante.guardar(registro);
 return registro;
 }
 
-@PutMapping("/series_comprobantes")
-public SerieComprobante modificar(@RequestBody SerieComprobante registro) {
-serviceSerieComprobante.modificar(registro);
+@PutMapping("/series_comprobantes/{id}")
+public SerieComprobante modificar(@PathVariable Integer id, @RequestBody SerieComprobante registro) {
+registro.setId_series_comprobantes(id);
+        serviceSerieComprobante.modificar(registro);
 return registro;
 }
 

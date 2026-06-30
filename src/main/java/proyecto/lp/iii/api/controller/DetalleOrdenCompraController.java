@@ -33,9 +33,10 @@ public class DetalleOrdenCompraController {
 		return registro;
 	}
 
-	@PutMapping("/detalle_orden_compra")
-	public DetalleOrdenCompra modificar(@RequestBody DetalleOrdenCompra registro) {
-		serviceDetalleOrdenCompra.modificar(registro);
+	@PutMapping("/detalle_orden_compra/{id}")
+	public DetalleOrdenCompra modificar(@PathVariable Integer id, @RequestBody DetalleOrdenCompra registro) {
+		registro.setId_detalle_orden_compra(id);
+        serviceDetalleOrdenCompra.modificar(registro);
 		return registro;
 	}
 

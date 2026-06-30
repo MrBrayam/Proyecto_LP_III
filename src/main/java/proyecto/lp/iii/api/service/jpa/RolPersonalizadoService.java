@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
 import proyecto.lp.iii.api.entity.RolPersonalizado;
 import proyecto.lp.iii.api.repository.RolPersonalizadoRepository;
 import proyecto.lp.iii.api.service.IRolPersonalizadoService;
@@ -14,6 +16,9 @@ import proyecto.lp.iii.api.service.IRolPersonalizadoService;
 public class RolPersonalizadoService implements IRolPersonalizadoService {
     @Autowired
     private RolPersonalizadoRepository repoRolPersonalizado;
+    
+    @Autowired
+    private EntityManager entityManager;
 
     public List<RolPersonalizado> buscarTodos() {
         return repoRolPersonalizado.findAll();
@@ -23,8 +28,9 @@ public class RolPersonalizadoService implements IRolPersonalizadoService {
         repoRolPersonalizado.save(rolPersonalizado);
     }
 
+    @Transactional
     public void modificar(RolPersonalizado rolPersonalizado) {
-        repoRolPersonalizado.save(rolPersonalizado);
+        entityManager.merge(rolPersonalizado);
     }
 
     public Optional<RolPersonalizado> buscarId(Integer id) {

@@ -33,10 +33,11 @@ serviceProducto.guardar(registro);
 return registro;
 }
 
-@PutMapping("/productos")
-public Producto modificar(@RequestBody Producto registro) {
-serviceProducto.modificar(registro);
-return registro;
+@PutMapping("/productos/{id}")
+public Producto modificar(@PathVariable Integer id, @RequestBody Producto registro) {
+	registro.setId_productos(id);
+	serviceProducto.modificar(registro);
+	return registro;
 }
 
 @GetMapping("/productos/{id}")

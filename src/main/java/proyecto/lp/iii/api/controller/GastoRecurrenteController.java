@@ -33,9 +33,10 @@ serviceGastoRecurrente.guardar(registro);
 return registro;
 }
 
-@PutMapping("/gastos_recurrentes")
-public GastoRecurrente modificar(@RequestBody GastoRecurrente registro) {
-serviceGastoRecurrente.modificar(registro);
+@PutMapping("/gastos_recurrentes/{id}")
+public GastoRecurrente modificar(@PathVariable Integer id, @RequestBody GastoRecurrente registro) {
+registro.setId_gastos_recurrentes(id);
+        serviceGastoRecurrente.modificar(registro);
 return registro;
 }
 

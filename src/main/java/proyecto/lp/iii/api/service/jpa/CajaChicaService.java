@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
 import proyecto.lp.iii.api.entity.CajaChica;
 import proyecto.lp.iii.api.repository.CajaChicaRepository;
 import proyecto.lp.iii.api.service.ICajaChicaService;
@@ -14,6 +16,9 @@ import proyecto.lp.iii.api.service.ICajaChicaService;
 public class CajaChicaService implements ICajaChicaService {
     @Autowired
     private CajaChicaRepository repoCajaChica;
+    
+    @Autowired
+    private EntityManager entityManager;
 
     public List<CajaChica> buscarTodos() {
         return repoCajaChica.findAll();
@@ -23,8 +28,9 @@ public class CajaChicaService implements ICajaChicaService {
         repoCajaChica.save(cajachica);
     }
 
+    @Transactional
     public void modificar(CajaChica cajachica) {
-        repoCajaChica.save(cajachica);
+        entityManager.merge(cajachica);
     }
 
     public Optional<CajaChica> buscarId(Integer id) {

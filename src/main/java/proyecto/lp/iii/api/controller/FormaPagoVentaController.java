@@ -33,9 +33,10 @@ serviceFormaPagoVenta.guardar(registro);
 return registro;
 }
 
-@PutMapping("/formas_pago_venta")
-public FormaPagoVenta modificar(@RequestBody FormaPagoVenta registro) {
-serviceFormaPagoVenta.modificar(registro);
+@PutMapping("/formas_pago_venta/{id}")
+public FormaPagoVenta modificar(@PathVariable Integer id, @RequestBody FormaPagoVenta registro) {
+registro.setId_formas_pago_venta(id);
+        serviceFormaPagoVenta.modificar(registro);
 return registro;
 }
 

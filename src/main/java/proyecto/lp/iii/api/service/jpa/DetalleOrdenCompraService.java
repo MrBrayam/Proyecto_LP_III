@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
 import proyecto.lp.iii.api.entity.DetalleOrdenCompra;
 import proyecto.lp.iii.api.repository.DetalleOrdenCompraRepository;
 import proyecto.lp.iii.api.service.IDetalleOrdenCompraService;
@@ -14,6 +16,9 @@ import proyecto.lp.iii.api.service.IDetalleOrdenCompraService;
 public class DetalleOrdenCompraService implements IDetalleOrdenCompraService {
     @Autowired
     private DetalleOrdenCompraRepository repoDetalleOrdenCompra;
+    
+    @Autowired
+    private EntityManager entityManager;
 
     public List<DetalleOrdenCompra> buscarTodos() {
         return repoDetalleOrdenCompra.findAll();
@@ -23,8 +28,9 @@ public class DetalleOrdenCompraService implements IDetalleOrdenCompraService {
         repoDetalleOrdenCompra.save(detalleordencompra);
     }
 
+    @Transactional
     public void modificar(DetalleOrdenCompra detalleordencompra) {
-        repoDetalleOrdenCompra.save(detalleordencompra);
+        entityManager.merge(detalleordencompra);
     }
 
     public Optional<DetalleOrdenCompra> buscarId(Integer id) {

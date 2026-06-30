@@ -33,8 +33,9 @@ public class CitaController {
 		return registro;
 	}
 
-	@PutMapping("/citas")
-	public Cita modificar(@RequestBody Cita registro) {
+	@PutMapping("/citas/{id}")
+	public Cita modificar(@PathVariable Integer id, @RequestBody Cita registro) {
+		registro.setId_citas(id);
 		serviceCita.modificar(registro);
 		return registro;
 	}

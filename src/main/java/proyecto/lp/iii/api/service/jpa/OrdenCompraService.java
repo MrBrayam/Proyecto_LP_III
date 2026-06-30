@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
 import proyecto.lp.iii.api.entity.OrdenCompra;
 import proyecto.lp.iii.api.repository.OrdenCompraRepository;
 import proyecto.lp.iii.api.service.IOrdenCompraService;
@@ -14,6 +16,9 @@ import proyecto.lp.iii.api.service.IOrdenCompraService;
 public class OrdenCompraService implements IOrdenCompraService {
     @Autowired
     private OrdenCompraRepository repoOrdenCompra;
+    
+    @Autowired
+    private EntityManager entityManager;
 
     public List<OrdenCompra> buscarTodos() { 
         return repoOrdenCompra.findAll(); 
@@ -21,8 +26,9 @@ public class OrdenCompraService implements IOrdenCompraService {
     public void guardar(OrdenCompra ordencompra) { 
         repoOrdenCompra.save(ordencompra); 
     }
+    @Transactional
     public void modificar(OrdenCompra ordencompra) { 
-        repoOrdenCompra.save(ordencompra); 
+        entityManager.merge(ordencompra); 
     }
     public Optional<OrdenCompra> buscarId(Integer id) { 
         return repoOrdenCompra.findById(id); 

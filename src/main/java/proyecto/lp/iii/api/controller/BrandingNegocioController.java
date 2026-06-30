@@ -33,9 +33,10 @@ public class BrandingNegocioController {
 		return registro;
 	}
 
-	@PutMapping("/branding_negocio")
-	public BrandingNegocio modificar(@RequestBody BrandingNegocio registro) {
-		serviceBrandingNegocio.modificar(registro);
+	@PutMapping("/branding_negocio/{id}")
+	public BrandingNegocio modificar(@PathVariable Integer id, @RequestBody BrandingNegocio registro) {
+		registro.setId_branding_negocio(id);
+        serviceBrandingNegocio.modificar(registro);
 		return registro;
 	}
 

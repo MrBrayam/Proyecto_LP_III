@@ -33,9 +33,10 @@ serviceLoteInventario.guardar(registro);
 return registro;
 }
 
-@PutMapping("/lotes_inventario")
-public LoteInventario modificar(@RequestBody LoteInventario registro) {
-serviceLoteInventario.modificar(registro);
+@PutMapping("/lotes_inventario/{id}")
+public LoteInventario modificar(@PathVariable Integer id, @RequestBody LoteInventario registro) {
+registro.setId_lotes_inventario(id);
+        serviceLoteInventario.modificar(registro);
 return registro;
 }
 

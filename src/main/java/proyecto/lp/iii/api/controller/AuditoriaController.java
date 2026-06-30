@@ -33,9 +33,10 @@ public class AuditoriaController {
 		return registro;
 	}
 
-	@PutMapping("/auditoria")
-	public Auditoria modificar(@RequestBody Auditoria registro) {
-		serviceAuditoria.modificar(registro);
+	@PutMapping("/auditoria/{id}")
+	public Auditoria modificar(@PathVariable Integer id, @RequestBody Auditoria registro) {
+		registro.setId_auditoria(id);
+        serviceAuditoria.modificar(registro);
 		return registro;
 	}
 

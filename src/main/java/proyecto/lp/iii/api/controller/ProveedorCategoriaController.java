@@ -33,9 +33,10 @@ serviceProveedorCategoria.guardar(registro);
 return registro;
 }
 
-@PutMapping("/proveedor_categorias")
-public ProveedorCategoria modificar(@RequestBody ProveedorCategoria registro) {
-serviceProveedorCategoria.modificar(registro);
+@PutMapping("/proveedor_categorias/{id}")
+public ProveedorCategoria modificar(@PathVariable Integer id, @RequestBody ProveedorCategoria registro) {
+registro.setId_proveedor_categorias(id);
+        serviceProveedorCategoria.modificar(registro);
 return registro;
 }
 

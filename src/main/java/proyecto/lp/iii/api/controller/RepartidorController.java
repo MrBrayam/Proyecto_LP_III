@@ -33,9 +33,10 @@ serviceRepartidor.guardar(registro);
 return registro;
 }
 
-@PutMapping("/repartidores")
-public Repartidor modificar(@RequestBody Repartidor registro) {
-serviceRepartidor.modificar(registro);
+@PutMapping("/repartidores/{id}")
+public Repartidor modificar(@PathVariable Integer id, @RequestBody Repartidor registro) {
+registro.setId_repartidores(id);
+        serviceRepartidor.modificar(registro);
 return registro;
 }
 

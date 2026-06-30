@@ -33,9 +33,10 @@ servicePermisoRol.guardar(registro);
 return registro;
 }
 
-@PutMapping("/permisos_rol")
-public PermisoRol modificar(@RequestBody PermisoRol registro) {
-servicePermisoRol.modificar(registro);
+@PutMapping("/permisos_rol/{id}")
+public PermisoRol modificar(@PathVariable Integer id, @RequestBody PermisoRol registro) {
+registro.setId_permisos_rol(id);
+        servicePermisoRol.modificar(registro);
 return registro;
 }
 

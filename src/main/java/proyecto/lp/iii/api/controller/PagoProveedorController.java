@@ -33,9 +33,10 @@ servicePagoProveedor.guardar(registro);
 return registro;
 }
 
-@PutMapping("/pagos_proveedor")
-public PagoProveedor modificar(@RequestBody PagoProveedor registro) {
-servicePagoProveedor.modificar(registro);
+@PutMapping("/pagos_proveedor/{id}")
+public PagoProveedor modificar(@PathVariable Integer id, @RequestBody PagoProveedor registro) {
+registro.setId_pagos_proveedor(id);
+        servicePagoProveedor.modificar(registro);
 return registro;
 }
 

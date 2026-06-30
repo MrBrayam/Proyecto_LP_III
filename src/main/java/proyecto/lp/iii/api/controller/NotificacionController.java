@@ -33,9 +33,10 @@ serviceNotificacion.guardar(registro);
 return registro;
 }
 
-@PutMapping("/notificaciones")
-public Notificacion modificar(@RequestBody Notificacion registro) {
-serviceNotificacion.modificar(registro);
+@PutMapping("/notificaciones/{id}")
+public Notificacion modificar(@PathVariable Integer id, @RequestBody Notificacion registro) {
+registro.setId_notificaciones(id);
+        serviceNotificacion.modificar(registro);
 return registro;
 }
 

@@ -33,9 +33,10 @@ serviceProveedor.guardar(registro);
 return registro;
 }
 
-@PutMapping("/proveedores")
-public Proveedor modificar(@RequestBody Proveedor registro) {
-serviceProveedor.modificar(registro);
+@PutMapping("/proveedores/{id}")
+public Proveedor modificar(@PathVariable Integer id, @RequestBody Proveedor registro) {
+registro.setId_proveedores(id);
+        serviceProveedor.modificar(registro);
 return registro;
 }
 

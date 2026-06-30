@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
 import proyecto.lp.iii.api.entity.FormaPagoVenta;
 import proyecto.lp.iii.api.repository.FormaPagoVentaRepository;
 import proyecto.lp.iii.api.service.IFormaPagoVentaService;
@@ -14,6 +16,9 @@ import proyecto.lp.iii.api.service.IFormaPagoVentaService;
 public class FormaPagoVentaService implements IFormaPagoVentaService {
     @Autowired
     private FormaPagoVentaRepository repoFormaPagoVenta;
+    
+    @Autowired
+    private EntityManager entityManager;
 
     public List<FormaPagoVenta> buscarTodos() { 
         return repoFormaPagoVenta.findAll();
@@ -21,8 +26,9 @@ public class FormaPagoVentaService implements IFormaPagoVentaService {
     public void guardar(FormaPagoVenta formapagoventa) { 
         repoFormaPagoVenta.save(formapagoventa); 
     }
+    @Transactional
     public void modificar(FormaPagoVenta formapagoventa) { 
-        repoFormaPagoVenta.save(formapagoventa); 
+        entityManager.merge(formapagoventa); 
     }
     public Optional<FormaPagoVenta> buscarId(Integer id) { 
         return repoFormaPagoVenta.findById(id); 

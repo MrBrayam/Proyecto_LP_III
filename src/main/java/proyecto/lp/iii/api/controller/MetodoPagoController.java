@@ -33,9 +33,10 @@ serviceMetodoPago.guardar(registro);
 return registro;
 }
 
-@PutMapping("/metodos_pago")
-public MetodoPago modificar(@RequestBody MetodoPago registro) {
-serviceMetodoPago.modificar(registro);
+@PutMapping("/metodos_pago/{id}")
+public MetodoPago modificar(@PathVariable Integer id, @RequestBody MetodoPago registro) {
+registro.setId_metodos_pago(id);
+        serviceMetodoPago.modificar(registro);
 return registro;
 }
 

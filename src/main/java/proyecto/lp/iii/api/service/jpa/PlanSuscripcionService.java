@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
 import proyecto.lp.iii.api.entity.PlanSuscripcion;
 import proyecto.lp.iii.api.repository.PlanSuscripcionRepository;
 import proyecto.lp.iii.api.service.IPlanSuscripcionService;
@@ -14,6 +16,9 @@ import proyecto.lp.iii.api.service.IPlanSuscripcionService;
 public class PlanSuscripcionService implements IPlanSuscripcionService {
     @Autowired
     private PlanSuscripcionRepository repoPlanSuscripcion;
+    
+    @Autowired
+    private EntityManager entityManager;
 
     public List<PlanSuscripcion> buscarTodos() {
         return repoPlanSuscripcion.findAll();
@@ -23,8 +28,9 @@ public class PlanSuscripcionService implements IPlanSuscripcionService {
         repoPlanSuscripcion.save(planSuscripcion);
     }
 
+    @Transactional
     public void modificar(PlanSuscripcion planSuscripcion) {
-        repoPlanSuscripcion.save(planSuscripcion);
+        entityManager.merge(planSuscripcion);
     }
 
     public Optional<PlanSuscripcion> buscarId(Integer id) {

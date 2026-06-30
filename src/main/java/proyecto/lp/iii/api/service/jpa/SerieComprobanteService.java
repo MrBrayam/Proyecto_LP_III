@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
 import proyecto.lp.iii.api.entity.SerieComprobante;
 import proyecto.lp.iii.api.repository.SerieComprobanteRepository;
 import proyecto.lp.iii.api.service.ISerieComprobanteService;
@@ -14,6 +16,9 @@ import proyecto.lp.iii.api.service.ISerieComprobanteService;
 public class SerieComprobanteService implements ISerieComprobanteService {
     @Autowired
     private SerieComprobanteRepository repoSerieComprobante;
+    
+    @Autowired
+    private EntityManager entityManager;
 
     public List<SerieComprobante> buscarTodos() {
         return repoSerieComprobante.findAll();
@@ -23,8 +28,9 @@ public class SerieComprobanteService implements ISerieComprobanteService {
         repoSerieComprobante.save(serieComprobante);
     }
 
+    @Transactional
     public void modificar(SerieComprobante serieComprobante) {
-        repoSerieComprobante.save(serieComprobante);
+        entityManager.merge(serieComprobante);
     }
 
     public Optional<SerieComprobante> buscarId(Integer id) {

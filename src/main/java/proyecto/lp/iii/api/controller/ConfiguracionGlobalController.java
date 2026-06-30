@@ -33,9 +33,10 @@ public class ConfiguracionGlobalController {
 		return registro;
 	}
 
-	@PutMapping("/configuracion_global")
-	public ConfiguracionGlobal modificar(@RequestBody ConfiguracionGlobal registro) {
-		serviceConfiguracionGlobal.modificar(registro);
+	@PutMapping("/configuracion_global/{id}")
+	public ConfiguracionGlobal modificar(@PathVariable Integer id, @RequestBody ConfiguracionGlobal registro) {
+		registro.setId_configuracion_global(id);
+        serviceConfiguracionGlobal.modificar(registro);
 		return registro;
 	}
 

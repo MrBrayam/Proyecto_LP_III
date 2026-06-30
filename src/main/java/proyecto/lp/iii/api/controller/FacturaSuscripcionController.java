@@ -33,9 +33,10 @@ public class FacturaSuscripcionController {
         return registro;
     }
 
-    @PutMapping("/facturas_suscripcion")
-    public FacturaSuscripcion modificar(@RequestBody FacturaSuscripcion registro) {
-    serviceFacturaSuscripcion.modificar(registro);
+    @PutMapping("/facturas_suscripcion/{id}")
+    public FacturaSuscripcion modificar(@PathVariable Integer id, @RequestBody FacturaSuscripcion registro) {
+    registro.setId_facturas_suscripcion(id);
+        serviceFacturaSuscripcion.modificar(registro);
         return registro;
     }
 

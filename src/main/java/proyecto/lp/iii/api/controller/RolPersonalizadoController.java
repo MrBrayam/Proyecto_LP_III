@@ -33,9 +33,10 @@ serviceRolPersonalizado.guardar(registro);
 return registro;
 }
 
-@PutMapping("/roles_personalizados")
-public RolPersonalizado modificar(@RequestBody RolPersonalizado registro) {
-serviceRolPersonalizado.modificar(registro);
+@PutMapping("/roles_personalizados/{id}")
+public RolPersonalizado modificar(@PathVariable Integer id, @RequestBody RolPersonalizado registro) {
+registro.setId_roles_personalizados(id);
+        serviceRolPersonalizado.modificar(registro);
 return registro;
 }
 

@@ -33,9 +33,10 @@ public class DetalleDevolucionProveedorController {
 		return registro;
 	}
 
-	@PutMapping("/detalle_devolucion_proveedor")
-	public DetalleDevolucionProveedor modificar(@RequestBody DetalleDevolucionProveedor registro) {
-		serviceDetalleDevolucionProveedor.modificar(registro);
+	@PutMapping("/detalle_devolucion_proveedor/{id}")
+	public DetalleDevolucionProveedor modificar(@PathVariable Integer id, @RequestBody DetalleDevolucionProveedor registro) {
+		registro.setId_detalle_devolucion_proveedor(id);
+        serviceDetalleDevolucionProveedor.modificar(registro);
 		return registro;
 	}
 

@@ -33,8 +33,8 @@ public class ServicioCitaController {
 		return registro;
 	}
 
-	@PutMapping("/servicio_cita")
-	public ServicioCita modificar(@RequestBody ServicioCita registro) {
+	@PutMapping("/servicio_cita/{id}")
+	public ServicioCita modificar(@PathVariable Integer id, @RequestBody ServicioCita registro) {
 		service.modificar(registro);
 		return registro;
 	}

@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
 import proyecto.lp.iii.api.entity.MovimientoInventario;
 import proyecto.lp.iii.api.repository.MovimientoInventarioRepository;
 import proyecto.lp.iii.api.service.IMovimientoInventarioService;
@@ -14,6 +16,9 @@ import proyecto.lp.iii.api.service.IMovimientoInventarioService;
 public class MovimientoInventarioService implements IMovimientoInventarioService {
     @Autowired
     private MovimientoInventarioRepository repoMovimientoInventario;
+    
+    @Autowired
+    private EntityManager entityManager;
 
     public List<MovimientoInventario> buscarTodos() { 
         return repoMovimientoInventario.findAll(); 
@@ -21,8 +26,9 @@ public class MovimientoInventarioService implements IMovimientoInventarioService
     public void guardar(MovimientoInventario movimientoinventario) { 
         repoMovimientoInventario.save(movimientoinventario); 
     }
+    @Transactional
     public void modificar(MovimientoInventario movimientoinventario) { 
-        repoMovimientoInventario.save(movimientoinventario); 
+        entityManager.merge(movimientoinventario); 
     }
     public Optional<MovimientoInventario> buscarId(Integer id) { 
         return repoMovimientoInventario.findById(id); 

@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
 import proyecto.lp.iii.api.entity.ComposicionCombo;
 import proyecto.lp.iii.api.repository.ComposicionComboRepository;
 import proyecto.lp.iii.api.service.IComposicionComboService;
@@ -14,6 +16,9 @@ import proyecto.lp.iii.api.service.IComposicionComboService;
 public class ComposicionComboService implements IComposicionComboService {
     @Autowired
     private ComposicionComboRepository repoComposicionCombo;
+    
+    @Autowired
+    private EntityManager entityManager;
 
     public List<ComposicionCombo> buscarTodos() {
         return repoComposicionCombo.findAll();
@@ -23,8 +28,9 @@ public class ComposicionComboService implements IComposicionComboService {
         repoComposicionCombo.save(composicioncombo);
     }
 
+    @Transactional
     public void modificar(ComposicionCombo composicioncombo) {
-        repoComposicionCombo.save(composicioncombo);
+        entityManager.merge(composicioncombo);
     }
 
     public Optional<ComposicionCombo> buscarId(Integer id) {

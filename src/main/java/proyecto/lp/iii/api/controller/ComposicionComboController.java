@@ -33,9 +33,10 @@ public class ComposicionComboController {
 		return registro;
 	}
 
-	@PutMapping("/composicion_combo")
-	public ComposicionCombo modificar(@RequestBody ComposicionCombo registro) {
-		serviceComposicionCombo.modificar(registro);
+	@PutMapping("/composicion_combo/{id}")
+	public ComposicionCombo modificar(@PathVariable Integer id, @RequestBody ComposicionCombo registro) {
+		registro.setId_composicion_combo(id);
+        serviceComposicionCombo.modificar(registro);
 		return registro;
 	}
 

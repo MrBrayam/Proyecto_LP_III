@@ -33,9 +33,10 @@ serviceUsuarioSede.guardar(registro);
 return registro;
 }
 
-@PutMapping("/usuario_sedes")
-public UsuarioSede modificar(@RequestBody UsuarioSede registro) {
-serviceUsuarioSede.modificar(registro);
+@PutMapping("/usuario_sedes/{id}")
+public UsuarioSede modificar(@PathVariable Integer id, @RequestBody UsuarioSede registro) {
+registro.setId_usuario_sedes(id);
+        serviceUsuarioSede.modificar(registro);
 return registro;
 }
 

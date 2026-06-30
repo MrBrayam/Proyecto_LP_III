@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
 import proyecto.lp.iii.api.entity.Auditoria;
 import proyecto.lp.iii.api.repository.AuditoriaRepository;
 import proyecto.lp.iii.api.service.IAuditoriaService;
@@ -14,6 +16,9 @@ import proyecto.lp.iii.api.service.IAuditoriaService;
 public class AuditoriaService implements IAuditoriaService {
     @Autowired
     private AuditoriaRepository repoAuditoria;
+    
+    @Autowired
+    private EntityManager entityManager;
 
     public List<Auditoria> buscarTodos() {
         return repoAuditoria.findAll();
@@ -23,8 +28,9 @@ public class AuditoriaService implements IAuditoriaService {
         repoAuditoria.save(auditoria);
     }
 
+    @Transactional
     public void modificar(Auditoria auditoria) {
-        repoAuditoria.save(auditoria);
+        entityManager.merge(auditoria);
     }
 
     public Optional<Auditoria> buscarId(Integer id) {

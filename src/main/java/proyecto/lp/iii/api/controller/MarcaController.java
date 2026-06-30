@@ -33,11 +33,12 @@ public class MarcaController {
 		return registro;
 	}
 
-	@PutMapping("/marcas")
-	public Marca modificar(@RequestBody Marca registro) {
-		serviceMarca.modificar(registro);
-		return registro;
-	}
+@PutMapping("/marcas/{id}")
+public Marca modificar(@PathVariable Integer id, @RequestBody Marca registro) {
+	registro.setId_marcas(id);
+	serviceMarca.modificar(registro);
+	return registro;
+}
 
 	@GetMapping("/marcas/{id}")
 	public Optional<Marca> buscarId(@PathVariable("id") Integer id) {

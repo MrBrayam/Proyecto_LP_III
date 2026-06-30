@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
 import proyecto.lp.iii.api.entity.HorarioOperacion;
 import proyecto.lp.iii.api.repository.HorarioOperacionRepository;
 import proyecto.lp.iii.api.service.IHorarioOperacionService;
@@ -14,6 +16,9 @@ import proyecto.lp.iii.api.service.IHorarioOperacionService;
 public class HorarioOperacionService implements IHorarioOperacionService {
     @Autowired
     private HorarioOperacionRepository repoHorarioOperacion;
+    
+    @Autowired
+    private EntityManager entityManager;
 
     public List<HorarioOperacion> buscarTodos() { 
         return repoHorarioOperacion.findAll(); 
@@ -21,8 +26,9 @@ public class HorarioOperacionService implements IHorarioOperacionService {
     public void guardar(HorarioOperacion horariooperacion) { 
         repoHorarioOperacion.save(horariooperacion); 
     }
+    @Transactional
     public void modificar(HorarioOperacion horariooperacion) { 
-        repoHorarioOperacion.save(horariooperacion); 
+        entityManager.merge(horariooperacion); 
     }
     public Optional<HorarioOperacion> buscarId(Integer id) { 
         return repoHorarioOperacion.findById(id); 

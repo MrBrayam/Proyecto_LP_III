@@ -33,9 +33,10 @@ public class ComboPromocionalController {
 		return registro;
 	}
 
-	@PutMapping("/combos_promocionales")
-	public ComboPromocional modificar(@RequestBody ComboPromocional registro) {
-		serviceComboPromocional.modificar(registro);
+	@PutMapping("/combos_promocionales/{id}")
+	public ComboPromocional modificar(@PathVariable Integer id, @RequestBody ComboPromocional registro) {
+		registro.setId_combos_promocionales(id);
+        serviceComboPromocional.modificar(registro);
 		return registro;
 	}
 

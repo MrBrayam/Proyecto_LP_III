@@ -33,9 +33,10 @@ public class AlmacenController {
 		return registro;
 	}
 
-	@PutMapping("/almacenes")
-	public Almacen modificar(@RequestBody Almacen registro) {
-		serviceAlmacen.modificar(registro);
+	@PutMapping("/almacenes/{id}")
+	public Almacen modificar(@PathVariable Integer id, @RequestBody Almacen registro) {
+		registro.setId_almacenes(id);
+        serviceAlmacen.modificar(registro);
 		return registro;
 	}
 

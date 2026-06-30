@@ -33,9 +33,10 @@ serviceOrdenCompra.guardar(registro);
 return registro;
 }
 
-@PutMapping("/ordenes_compra")
-public OrdenCompra modificar(@RequestBody OrdenCompra registro) {
-serviceOrdenCompra.modificar(registro);
+@PutMapping("/ordenes_compra/{id}")
+public OrdenCompra modificar(@PathVariable Integer id, @RequestBody OrdenCompra registro) {
+registro.setId_ordenes_compra(id);
+        serviceOrdenCompra.modificar(registro);
 return registro;
 }
 

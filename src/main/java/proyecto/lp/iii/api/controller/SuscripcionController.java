@@ -33,9 +33,10 @@ serviceSuscripcion.guardar(registro);
 return registro;
 }
 
-@PutMapping("/suscripciones")
-public Suscripcion modificar(@RequestBody Suscripcion registro) {
-serviceSuscripcion.modificar(registro);
+@PutMapping("/suscripciones/{id}")
+public Suscripcion modificar(@PathVariable Integer id, @RequestBody Suscripcion registro) {
+registro.setId_suscripciones(id);
+        serviceSuscripcion.modificar(registro);
 return registro;
 }
 

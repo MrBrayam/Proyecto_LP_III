@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
 import proyecto.lp.iii.api.entity.CategoriaServicio;
 import proyecto.lp.iii.api.repository.CategoriaServicioRepository;
 import proyecto.lp.iii.api.service.ICategoriaServicioService;
@@ -14,6 +16,9 @@ import proyecto.lp.iii.api.service.ICategoriaServicioService;
 public class CategoriaServicioService implements ICategoriaServicioService {
     @Autowired
     private CategoriaServicioRepository repoCategoriaServicio;
+    
+    @Autowired
+    private EntityManager entityManager;
 
     public List<CategoriaServicio> buscarTodos() {
         return repoCategoriaServicio.findAll();
@@ -23,8 +28,9 @@ public class CategoriaServicioService implements ICategoriaServicioService {
         repoCategoriaServicio.save(categoriaservicio);
     }
 
+    @Transactional
     public void modificar(CategoriaServicio categoriaservicio) {
-        repoCategoriaServicio.save(categoriaservicio);
+        entityManager.merge(categoriaservicio);
     }
 
     public Optional<CategoriaServicio> buscarId(Integer id) {

@@ -33,11 +33,12 @@ public class CategoriaProductoController {
 		return registro;
 	}
 
-	@PutMapping("/categorias_productos")
-	public CategoriaProducto modificar(@RequestBody CategoriaProducto registro) {
-		serviceCategoriaProducto.modificar(registro);
-		return registro;
-	}
+@PutMapping("/categorias_productos/{id}")
+public CategoriaProducto modificar(@PathVariable Integer id, @RequestBody CategoriaProducto registro) {
+	registro.setId_categorias_productos(id);
+	serviceCategoriaProducto.modificar(registro);
+	return registro;
+}
 
 	@GetMapping("/categorias_productos/{id}")
 	public Optional<CategoriaProducto> buscarId(@PathVariable("id") Integer id) {

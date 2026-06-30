@@ -33,8 +33,9 @@ public class TenantController {
         return registro;
     }
     
-    @PutMapping("/tenants")
-    public Tenants modificar(@RequestBody Tenants registro) {
+    @PutMapping("/tenants/{id}")
+    public Tenants modificar(@PathVariable Integer id, @RequestBody Tenants registro) {
+        registro.setId_tenants(id);
         serviceTenants.modificar(registro);
         return registro;
     }

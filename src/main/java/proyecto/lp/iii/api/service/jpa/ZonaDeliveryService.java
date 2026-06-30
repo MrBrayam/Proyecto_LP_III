@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
 import proyecto.lp.iii.api.entity.ZonaDelivery;
 import proyecto.lp.iii.api.repository.ZonaDeliveryRepository;
 import proyecto.lp.iii.api.service.IZonaDeliveryService;
@@ -14,6 +16,9 @@ import proyecto.lp.iii.api.service.IZonaDeliveryService;
 public class ZonaDeliveryService implements IZonaDeliveryService {
     @Autowired
     private ZonaDeliveryRepository repoZonaDelivery;
+    
+    @Autowired
+    private EntityManager entityManager;
 
     public List<ZonaDelivery> buscarTodos() { 
         return repoZonaDelivery.findAll(); 
@@ -21,8 +26,9 @@ public class ZonaDeliveryService implements IZonaDeliveryService {
     public void guardar(ZonaDelivery zonadelivery) { 
         repoZonaDelivery.save(zonadelivery); 
     }
+    @Transactional
     public void modificar(ZonaDelivery zonadelivery) { 
-        repoZonaDelivery.save(zonadelivery); 
+        entityManager.merge(zonadelivery); 
     }
     public Optional<ZonaDelivery> buscarId(Integer id) { 
         return repoZonaDelivery.findById(id); 

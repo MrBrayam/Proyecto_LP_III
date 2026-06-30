@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
 import proyecto.lp.iii.api.entity.DevolucionVenta;
 import proyecto.lp.iii.api.repository.DevolucionVentaRepository;
 import proyecto.lp.iii.api.service.IDevolucionVentaService;
@@ -14,6 +16,9 @@ import proyecto.lp.iii.api.service.IDevolucionVentaService;
 public class DevolucionVentaService implements IDevolucionVentaService {
     @Autowired
     private DevolucionVentaRepository repoDevolucionVenta;
+    
+    @Autowired
+    private EntityManager entityManager;
 
     public List<DevolucionVenta> buscarTodos() {
         return repoDevolucionVenta.findAll();
@@ -23,8 +28,9 @@ public class DevolucionVentaService implements IDevolucionVentaService {
         repoDevolucionVenta.save(devolucionventa);
     }
 
+    @Transactional
     public void modificar(DevolucionVenta devolucionventa) {
-        repoDevolucionVenta.save(devolucionventa);
+        entityManager.merge(devolucionventa);
     }
 
     public Optional<DevolucionVenta> buscarId(Integer id) {

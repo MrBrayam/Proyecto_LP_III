@@ -33,8 +33,9 @@ public class ClienteController {
 		return registro;
 	}
 
-	@PutMapping("/clientes")
-	public Cliente modificar(@RequestBody Cliente registro) {
+	@PutMapping("/clientes/{id}")
+	public Cliente modificar(@PathVariable Integer id, @RequestBody Cliente registro) {
+		registro.setId_clientes(id);
 		serviceCliente.modificar(registro);
 		return registro;
 	}

@@ -33,9 +33,10 @@ serviceServicioBelleza.guardar(registro);
 return registro;
 }
 
-@PutMapping("/servicios_belleza")
-public ServicioBelleza modificar(@RequestBody ServicioBelleza registro) {
-serviceServicioBelleza.modificar(registro);
+@PutMapping("/servicios_belleza/{id}")
+public ServicioBelleza modificar(@PathVariable Integer id, @RequestBody ServicioBelleza registro) {
+registro.setId_servicios_belleza(id);
+        serviceServicioBelleza.modificar(registro);
 return registro;
 }
 

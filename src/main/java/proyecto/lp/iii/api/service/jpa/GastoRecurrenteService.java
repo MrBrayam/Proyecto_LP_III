@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
 import proyecto.lp.iii.api.entity.GastoRecurrente;
 import proyecto.lp.iii.api.repository.GastoRecurrenteRepository;
 import proyecto.lp.iii.api.service.IGastoRecurrenteService;
@@ -14,6 +16,9 @@ import proyecto.lp.iii.api.service.IGastoRecurrenteService;
 public class GastoRecurrenteService implements IGastoRecurrenteService {
     @Autowired
     private GastoRecurrenteRepository repoGastoRecurrente;
+    
+    @Autowired
+    private EntityManager entityManager;
 
     public List<GastoRecurrente> buscarTodos() { 
         return repoGastoRecurrente.findAll(); 
@@ -21,8 +26,9 @@ public class GastoRecurrenteService implements IGastoRecurrenteService {
     public void guardar(GastoRecurrente gastorecurrente) { 
         repoGastoRecurrente.save(gastorecurrente); 
     }
+    @Transactional
     public void modificar(GastoRecurrente gastorecurrente) { 
-        repoGastoRecurrente.save(gastorecurrente); 
+        entityManager.merge(gastorecurrente); 
     }
     public Optional<GastoRecurrente> buscarId(Integer id) { 
         return repoGastoRecurrente.findById(id); 

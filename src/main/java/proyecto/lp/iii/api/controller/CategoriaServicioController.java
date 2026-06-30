@@ -33,8 +33,9 @@ public class CategoriaServicioController {
         return registro;
     }
 
-    @PutMapping("/categorias_servicios")
-    public CategoriaServicio modificar(@RequestBody CategoriaServicio registro) {
+    @PutMapping("/categorias_servicios/{id}")
+    public CategoriaServicio modificar(@PathVariable Integer id, @RequestBody CategoriaServicio registro) {
+        registro.setId_categorias_servicios(id);
         serviceCategoriaServicio.modificar(registro);
         return registro;
     }

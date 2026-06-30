@@ -33,10 +33,11 @@ serviceReclamo.guardar(registro);
 return registro;
 }
 
-@PutMapping("/reclamos")
-public Reclamo modificar(@RequestBody Reclamo registro) {
-serviceReclamo.modificar(registro);
-return registro;
+@PutMapping("/reclamos/{id}")
+public Reclamo modificar(@PathVariable Integer id, @RequestBody Reclamo registro) {
+	registro.setId_reclamos(id);
+	serviceReclamo.modificar(registro);
+	return registro;
 }
 
 @GetMapping("/reclamos/{id}")

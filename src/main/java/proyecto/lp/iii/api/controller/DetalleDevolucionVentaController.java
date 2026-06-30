@@ -33,9 +33,10 @@ public class DetalleDevolucionVentaController {
 		return registro;
 	}
 
-	@PutMapping("/detalle_devolucion_venta")
-	public DetalleDevolucionVenta modificar(@RequestBody DetalleDevolucionVenta registro) {
-		serviceDetalleDevolucionVenta.modificar(registro);
+	@PutMapping("/detalle_devolucion_venta/{id}")
+	public DetalleDevolucionVenta modificar(@PathVariable Integer id, @RequestBody DetalleDevolucionVenta registro) {
+		registro.setId_detalle_devolucion_venta(id);
+        serviceDetalleDevolucionVenta.modificar(registro);
 		return registro;
 	}
 

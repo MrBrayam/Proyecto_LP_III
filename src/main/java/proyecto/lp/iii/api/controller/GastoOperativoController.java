@@ -33,9 +33,10 @@ serviceGastoOperativo.guardar(registro);
 return registro;
 }
 
-@PutMapping("/gastos_operativos")
-public GastoOperativo modificar(@RequestBody GastoOperativo registro) {
-serviceGastoOperativo.modificar(registro);
+@PutMapping("/gastos_operativos/{id}")
+public GastoOperativo modificar(@PathVariable Integer id, @RequestBody GastoOperativo registro) {
+registro.setId_gastos_operativos(id);
+        serviceGastoOperativo.modificar(registro);
 return registro;
 }
 

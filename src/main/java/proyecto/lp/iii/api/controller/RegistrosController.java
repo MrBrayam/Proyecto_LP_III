@@ -55,8 +55,9 @@ public class RegistrosController {
         return registro;
     }
     
-    @PutMapping("/registros")
-    public Registros modificar(@RequestBody Registros registro) {
+    @PutMapping("/registros/{id}")
+    public Registros modificar(@PathVariable Integer id, @RequestBody Registros registro) {
+        registro.setIdregistro(id);
         serviceRegistros.modificar(registro);
         return registro;
     }

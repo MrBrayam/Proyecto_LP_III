@@ -33,9 +33,10 @@ serviceHorarioOperacion.guardar(registro);
 return registro;
 }
 
-@PutMapping("/horarios_operacion")
-public HorarioOperacion modificar(@RequestBody HorarioOperacion registro) {
-serviceHorarioOperacion.modificar(registro);
+@PutMapping("/horarios_operacion/{id}")
+public HorarioOperacion modificar(@PathVariable Integer id, @RequestBody HorarioOperacion registro) {
+registro.setId_horarios_operacion(id);
+        serviceHorarioOperacion.modificar(registro);
 return registro;
 }
 

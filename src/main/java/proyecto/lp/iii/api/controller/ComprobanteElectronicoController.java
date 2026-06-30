@@ -33,9 +33,10 @@ public class ComprobanteElectronicoController {
 		return registro;
 	}
 
-	@PutMapping("/comprobantes_electronicos")
-	public ComprobanteElectronico modificar(@RequestBody ComprobanteElectronico registro) {
-		serviceComprobanteElectronico.modificar(registro);
+	@PutMapping("/comprobantes_electronicos/{id}")
+	public ComprobanteElectronico modificar(@PathVariable Integer id, @RequestBody ComprobanteElectronico registro) {
+		registro.setId_comprobantes_electronicos(id);
+        serviceComprobanteElectronico.modificar(registro);
 		return registro;
 	}
 

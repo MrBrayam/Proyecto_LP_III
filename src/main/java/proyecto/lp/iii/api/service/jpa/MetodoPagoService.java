@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
 import proyecto.lp.iii.api.entity.MetodoPago;
 import proyecto.lp.iii.api.repository.MetodoPagoRepository;
 import proyecto.lp.iii.api.service.IMetodoPagoService;
@@ -14,6 +16,9 @@ import proyecto.lp.iii.api.service.IMetodoPagoService;
 public class MetodoPagoService implements IMetodoPagoService {
     @Autowired
     private MetodoPagoRepository repoMetodoPago;
+    
+    @Autowired
+    private EntityManager entityManager;
 
     public List<MetodoPago> buscarTodos() {
         return repoMetodoPago.findAll();
@@ -23,8 +28,9 @@ public class MetodoPagoService implements IMetodoPagoService {
         repoMetodoPago.save(metodoPago);
     }
 
+    @Transactional
     public void modificar(MetodoPago metodoPago) {
-        repoMetodoPago.save(metodoPago);
+        entityManager.merge(metodoPago);
     }
 
     public Optional<MetodoPago> buscarId(Integer id) {

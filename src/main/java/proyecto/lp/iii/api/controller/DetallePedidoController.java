@@ -33,9 +33,10 @@ public class DetallePedidoController {
 		return registro;
 	}
 
-	@PutMapping("/detalle_pedido")
-	public DetallePedido modificar(@RequestBody DetallePedido registro) {
-		serviceDetallePedido.modificar(registro);
+	@PutMapping("/detalle_pedido/{id}")
+	public DetallePedido modificar(@PathVariable Integer id, @RequestBody DetallePedido registro) {
+		registro.setId_detalle_pedido(id);
+        serviceDetallePedido.modificar(registro);
 		return registro;
 	}
 

@@ -33,9 +33,10 @@ servicePromocion.guardar(registro);
 return registro;
 }
 
-@PutMapping("/promociones")
-public Promocion modificar(@RequestBody Promocion registro) {
-servicePromocion.modificar(registro);
+@PutMapping("/promociones/{id}")
+public Promocion modificar(@PathVariable Integer id, @RequestBody Promocion registro) {
+registro.setId_promociones(id);
+        servicePromocion.modificar(registro);
 return registro;
 }
 

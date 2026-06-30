@@ -33,9 +33,10 @@ serviceSesionCaja.guardar(registro);
 return registro;
 }
 
-@PutMapping("/sesiones_caja")
-public SesionCaja modificar(@RequestBody SesionCaja registro) {
-serviceSesionCaja.modificar(registro);
+@PutMapping("/sesiones_caja/{id}")
+public SesionCaja modificar(@PathVariable Integer id, @RequestBody SesionCaja registro) {
+registro.setId_sesiones_caja(id);
+        serviceSesionCaja.modificar(registro);
 return registro;
 }
 

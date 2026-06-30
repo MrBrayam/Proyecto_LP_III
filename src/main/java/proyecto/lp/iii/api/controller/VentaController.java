@@ -33,10 +33,11 @@ serviceVenta.guardar(registro);
 return registro;
 }
 
-@PutMapping("/ventas")
-public Venta modificar(@RequestBody Venta registro) {
-serviceVenta.modificar(registro);
-return registro;
+@PutMapping("/ventas/{id}")
+public Venta modificar(@PathVariable Integer id, @RequestBody Venta registro) {
+	registro.setId_ventas(id);
+	serviceVenta.modificar(registro);
+	return registro;
 }
 
 @GetMapping("/ventas/{id}")

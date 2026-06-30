@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
 import proyecto.lp.iii.api.entity.Repartidor;
 import proyecto.lp.iii.api.repository.RepartidorRepository;
 import proyecto.lp.iii.api.service.IRepartidorService;
@@ -14,6 +16,9 @@ import proyecto.lp.iii.api.service.IRepartidorService;
 public class RepartidorService implements IRepartidorService {
     @Autowired
     private RepartidorRepository repoRepartidor;
+    
+    @Autowired
+    private EntityManager entityManager;
 
     public List<Repartidor> buscarTodos() { 
         return repoRepartidor.findAll();
@@ -21,8 +26,9 @@ public class RepartidorService implements IRepartidorService {
     public void guardar(Repartidor repartidor) {
          repoRepartidor.save(repartidor); 
     }
+    @Transactional
     public void modificar(Repartidor repartidor) { 
-        repoRepartidor.save(repartidor); 
+        entityManager.merge(repartidor); 
     }
     public Optional<Repartidor> buscarId(Integer id) { 
         return repoRepartidor.findById(id); 

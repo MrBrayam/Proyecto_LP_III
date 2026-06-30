@@ -1,0 +1,33 @@
+<div th:fragment="content">
+    <div class="stats-grid" id="statsGrid"></div>
+    <div class="card">
+        <div class="card-header">
+            <h3>Bienvenido</h3>
+        </div>
+        <p style="color:#888;font-size:14px;">Seleccione un modulo del menu lateral para gestionar.</p>
+    </div>
+
+    <script>
+    const stats = [
+        { label: 'Productos', api: '/api/productos', el: 'statProductos' },
+        { label: 'Categorias', api: '/api/categorias_productos', el: 'statCategorias' },
+        { label: 'Marcas', api: '/api/marcas', el: 'statMarcas' },
+        { label: 'Almacenes', api: '/api/almacenes', el: 'statAlmacenes' },
+        { label: 'Lotes', api: '/api/lotes_inventario', el: 'statLotes' },
+        { label: 'Movimientos', api: '/api/movimientos_inventario', el: 'statMovimientos' },
+        { label: 'Combos', api: '/api/combos_promocionales', el: 'statCombos' },
+        { label: 'Promociones', api: '/api/promociones', el: 'statPromociones' }
+    ];
+
+    const grid = document.getElementById('statsGrid');
+    stats.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'stat-card';
+        div.innerHTML = `<div class="stat-value" id="${s.el}">-</div><div class="stat-label">${s.label}</div>`;
+        grid.appendChild(div);
+        apiFetch(s.api).then(d => {
+            document.getElementById(s.el).textContent = d ? d.length : '0';
+        }).catch(() => document.getElementById(s.el).textContent = '0');
+    });
+    </script>
+</div>

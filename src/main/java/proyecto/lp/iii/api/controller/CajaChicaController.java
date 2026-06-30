@@ -33,9 +33,10 @@ public class CajaChicaController {
 		return registro;
 	}
 
-	@PutMapping("/caja_chica")
-	public CajaChica modificar(@RequestBody CajaChica registro) {
-		serviceCajaChica.modificar(registro);
+	@PutMapping("/caja_chica/{id}")
+	public CajaChica modificar(@PathVariable Integer id, @RequestBody CajaChica registro) {
+		registro.setId_caja_chica(id);
+        serviceCajaChica.modificar(registro);
 		return registro;
 	}
 

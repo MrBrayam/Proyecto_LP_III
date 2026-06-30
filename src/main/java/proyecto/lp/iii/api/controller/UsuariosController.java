@@ -33,8 +33,9 @@ public class UsuariosController {
         return registro;
     }
     
-    @PutMapping("/usuarios")
-    public Usuarios modificar(@RequestBody Usuarios registro) {
+    @PutMapping("/usuarios/{id}")
+    public Usuarios modificar(@PathVariable Integer id, @RequestBody Usuarios registro) {
+        registro.setId_usuarios(id);
         serviceUsuarios.modificar(registro);
         return registro;
     }

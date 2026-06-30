@@ -33,10 +33,11 @@ serviceSede.guardar(registro);
 return registro;
 }
 
-@PutMapping("/sedes")
-public Sede modificar(@RequestBody Sede registro) {
-serviceSede.modificar(registro);
-return registro;
+@PutMapping("/sedes/{id}")
+public Sede modificar(@PathVariable Integer id, @RequestBody Sede registro) {
+	registro.setId_sedes(id);
+	serviceSede.modificar(registro);
+	return registro;
 }
 
 @GetMapping("/sedes/{id}")

@@ -33,10 +33,11 @@ servicePedido.guardar(registro);
 return registro;
 }
 
-@PutMapping("/pedidos")
-public Pedido modificar(@RequestBody Pedido registro) {
-servicePedido.modificar(registro);
-return registro;
+@PutMapping("/pedidos/{id}")
+public Pedido modificar(@PathVariable Integer id, @RequestBody Pedido registro) {
+	registro.setId_pedidos(id);
+	servicePedido.modificar(registro);
+	return registro;
 }
 
 @GetMapping("/pedidos/{id}")

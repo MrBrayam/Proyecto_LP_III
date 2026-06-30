@@ -33,9 +33,10 @@ public class CuentaPorPagarController {
 		return registro;
 	}
 
-	@PutMapping("/cuentas_por_pagar")
-	public CuentaPorPagar modificar(@RequestBody CuentaPorPagar registro) {
-		serviceCuentaPorPagar.modificar(registro);
+	@PutMapping("/cuentas_por_pagar/{id}")
+	public CuentaPorPagar modificar(@PathVariable Integer id, @RequestBody CuentaPorPagar registro) {
+		registro.setId_cuentas_por_pagar(id);
+        serviceCuentaPorPagar.modificar(registro);
 		return registro;
 	}
 

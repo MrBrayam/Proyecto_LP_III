@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
 import proyecto.lp.iii.api.entity.ComprobanteElectronico;
 import proyecto.lp.iii.api.repository.ComprobanteElectronicoRepository;
 import proyecto.lp.iii.api.service.IComprobanteElectronicoService;
@@ -14,6 +16,9 @@ import proyecto.lp.iii.api.service.IComprobanteElectronicoService;
 public class ComprobanteElectronicoService implements IComprobanteElectronicoService {
     @Autowired
     private ComprobanteElectronicoRepository repoComprobanteElectronico;
+    
+    @Autowired
+    private EntityManager entityManager;
 
     public List<ComprobanteElectronico> buscarTodos() {
         return repoComprobanteElectronico.findAll();
@@ -23,8 +28,9 @@ public class ComprobanteElectronicoService implements IComprobanteElectronicoSer
         repoComprobanteElectronico.save(comprobanteelectronico);
     }
 
+    @Transactional
     public void modificar(ComprobanteElectronico comprobanteelectronico) {
-        repoComprobanteElectronico.save(comprobanteelectronico);
+        entityManager.merge(comprobanteelectronico);
     }
 
     public Optional<ComprobanteElectronico> buscarId(Integer id) {

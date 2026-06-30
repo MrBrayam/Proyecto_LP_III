@@ -33,9 +33,10 @@ servicePreciosPlan.guardar(registro);
 return registro;
 }
 
-@PutMapping("/precios_plan")
-public PreciosPlan modificar(@RequestBody PreciosPlan registro) {
-servicePreciosPlan.modificar(registro);
+@PutMapping("/precios_plan/{id}")
+public PreciosPlan modificar(@PathVariable Integer id, @RequestBody PreciosPlan registro) {
+registro.setId_precios_plan(id);
+        servicePreciosPlan.modificar(registro);
 return registro;
 }
 

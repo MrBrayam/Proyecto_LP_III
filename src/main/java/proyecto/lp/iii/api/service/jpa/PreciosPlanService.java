@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
 import proyecto.lp.iii.api.entity.PreciosPlan;
 import proyecto.lp.iii.api.repository.PreciosPlanRepository;
 import proyecto.lp.iii.api.service.IPreciosPlanService;
@@ -14,6 +16,9 @@ import proyecto.lp.iii.api.service.IPreciosPlanService;
 public class PreciosPlanService implements IPreciosPlanService {
     @Autowired
     private PreciosPlanRepository repo;
+    
+    @Autowired
+    private EntityManager entityManager;
 
     public List<PreciosPlan> buscarTodos() {
         return repo.findAll();
@@ -23,8 +28,9 @@ public class PreciosPlanService implements IPreciosPlanService {
         repo.save(p);
     }
 
+    @Transactional
     public void modificar(PreciosPlan p) {
-        repo.save(p);
+        entityManager.merge(p);
     }
 
     public Optional<PreciosPlan> buscarId(Integer id) {

@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
 import proyecto.lp.iii.api.entity.Marca;
 import proyecto.lp.iii.api.repository.MarcaRepository;
 import proyecto.lp.iii.api.service.IMarcaService;
@@ -14,6 +16,9 @@ import proyecto.lp.iii.api.service.IMarcaService;
 public class MarcaService implements IMarcaService {
     @Autowired
     private MarcaRepository repoMarca;
+    
+    @Autowired
+    private EntityManager entityManager;
 
     public List<Marca> buscarTodos() {
         return repoMarca.findAll();
@@ -23,8 +28,9 @@ public class MarcaService implements IMarcaService {
         repoMarca.save(marca);
     }
 
+    @Transactional
     public void modificar(Marca marca) {
-        repoMarca.save(marca);
+        entityManager.merge(marca);
     }
 
     public Optional<Marca> buscarId(Integer id) {

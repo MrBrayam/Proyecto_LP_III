@@ -33,9 +33,10 @@ servicePreferenciaUsuario.guardar(registro);
 return registro;
 }
 
-@PutMapping("/preferencias_usuario")
-public PreferenciaUsuario modificar(@RequestBody PreferenciaUsuario registro) {
-servicePreferenciaUsuario.modificar(registro);
+@PutMapping("/preferencias_usuario/{id}")
+public PreferenciaUsuario modificar(@PathVariable Integer id, @RequestBody PreferenciaUsuario registro) {
+registro.setId_preferencias_usuario(id);
+        servicePreferenciaUsuario.modificar(registro);
 return registro;
 }
 
