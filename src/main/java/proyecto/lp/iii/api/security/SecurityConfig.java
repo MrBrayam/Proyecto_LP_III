@@ -24,6 +24,8 @@ public class SecurityConfig {
                 "/js/**",
                 "/favicon.ico",
                 "/error",
+                "/uploads/**",
+                "/api/uploads/**",
                 "/api/token",
                 "/api/registros"
             ).permitAll()
