@@ -15,5 +15,8 @@ public interface IUsuariosService {
     Optional<Usuarios> buscarId(Integer id);
 
     void eliminar(Integer id);
-    
+
+    Optional<Usuarios> buscarPorCorreo(String correo);
+
+    List<Usuarios> buscarPorTenant(Integer idTenants);
 }

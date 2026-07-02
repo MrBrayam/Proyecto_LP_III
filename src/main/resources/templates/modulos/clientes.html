@@ -1,0 +1,161 @@
+<div th:fragment="content">
+    <div class="card">
+        <div class="card-header">
+            <h3>Clientes</h3>
+            <button class="btn btn-primary" onclick="crud.openNew()">+ Nuevo</button>
+        </div>
+        <div class="loading">Cargando...</div>
+        <div class="entity-cards" id="data-cards"></div>
+        <div class="empty-state" style="display:none;">No hay registros</div>
+    </div>
+
+    <div class="modal-overlay" id="entityModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Nuevo Cliente</h3>
+                <button class="modal-close" onclick="crud.closeModal()">x</button>
+            </div>
+            <div class="modal-body">
+                <form id="entityForm" autocomplete="off">
+                    <input type="hidden" name="id_tenants" value="1">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nombre</label>
+                            <input name="nombre_cliente" required placeholder="Nombre del cliente">
+                        </div>
+                        <div class="form-group">
+                            <label>Apellidos</label>
+                            <input name="apellidos_clientes" required placeholder="Apellidos del cliente">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Tipo Documento</label>
+                            <select name="tipo_documento">
+                                <option value="DNI" selected>DNI</option>
+                                <option value="RUC">RUC</option>
+                                <option value="Pasaporte">Pasaporte</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Numero Documento</label>
+                            <input name="numero_documento" placeholder="Numero de documento">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Telefono</label>
+                            <input name="telefono" placeholder="Ej: 987654321">
+                        </div>
+                        <div class="form-group">
+                            <label>Correo</label>
+                            <input name="correo" type="email" placeholder="cliente@correo.com">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Direccion</label>
+                            <input name="direccion" placeholder="Direccion">
+                        </div>
+                        <div class="form-group">
+                            <label>Distrito</label>
+                            <input name="distrito" placeholder="Ej: Miraflores">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Tipo Cliente</label>
+                            <select name="tipo_cliente">
+                                <option value="regular" selected>Regular</option>
+                                <option value="frecuente">Frecuente</option>
+                                <option value="vip">VIP</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Estado</label>
+                            <select name="estado">
+                                <option value="1">Activo</option>
+                                <option value="0">Inactivo</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" onclick="crud.closeModal()">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="crud.save()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    crud.init(
+        '/api/clientes',
+        [
+            { field: 'id_clientes', pk: true },
+            { field: 'nombre_cliente' },
+            { field: 'apellidos_clientes' },
+            { field: 'correo' },
+            { field: 'telefono' },
+            { field: 'tipo_cliente' },
+            { field: 'estado' },
+            { field: 'acciones', actions: true }
+        ],
+        [
+            { name: 'id_tenants', type: 'fk' },
+            { name: 'nombre_cliente', type: 'text' },
+            { name: 'apellidos_clientes', type: 'text' },
+            { name: 'tipo_documento', type: 'text' },
+            { name: 'numero_documento', type: 'text' },
+            { name: 'telefono', type: 'text' },
+            { name: 'correo', type: 'text' },
+            { name: 'direccion', type: 'text' },
+            { name: 'distrito', type: 'text' },
+            { name: 'tipo_cliente', type: 'text' },
+            { name: 'estado', type: 'number' }
+        ],
+        [],
+        {
+            view: 'cards',
+            cardRenderer: function(row) {
+                const id = row.id_clientes;
+                const nombre = escapeHtml((row.nombre_cliente || '') + ' ' + (row.apellidos_clientes || ''));
+                const correo = escapeHtml(row.correo || '-');
+                const telefono = escapeHtml(row.telefono || '-');
+                const tipo = escapeHtml(row.tipo_cliente || '-');
+                const distrito = escapeHtml(row.distrito || '-');
+                const fallback = (row.nombre_cliente || 'C').slice(0, 2).toUpperCase();
+                const estado = row.estado === 1 || row.estado === true
+                    ? '<span class="badge badge-active">Activo</span>'
+                    : '<span class="badge badge-inactive">Inactivo</span>';
+
+                let badgeClass = 'badge-inactive';
+                if (tipo === 'vip') badgeClass = 'badge-active';
+                else if (tipo === 'frecuente') badgeClass = 'badge-warning'; // Wait, let's keep style classes or custom styling
+
+                return `
+                    <article class="entity-card">
+                        <div class="entity-card__media"><div class="entity-card__fallback">${fallback}</div></div>
+                        <div class="entity-card__body">
+                            <div class="entity-card__header">
+                                <div>
+                                    <h4>${nombre}</h4>
+                                    <p>${correo} | ${telefono}</p>
+                                </div>
+                                ${estado}
+                            </div>
+                            <div class="entity-card__meta">
+                                <div class="entity-card__meta-item"><span>Tipo</span><strong>${tipo.toUpperCase()}</strong></div>
+                                <div class="entity-card__meta-item"><span>Distrito</span><strong>${distrito}</strong></div>
+                            </div>
+                            <div class="entity-card__actions">
+                                <button class="btn btn-sm" onclick="crud.edit(${id})">Editar</button>
+                                <button class="btn btn-sm btn-danger" onclick="crud.del(${id})">Eliminar</button>
+                            </div>
+                        </div>
+                    </article>`;
+            }
+        }
+    );
+    </script>
+</div>

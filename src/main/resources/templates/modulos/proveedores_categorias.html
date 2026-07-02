@@ -1,0 +1,82 @@
+<div th:fragment="content">
+    <div class="card">
+        <div class="card-header">
+            <h3>Categorias de Proveedor</h3>
+            <button class="btn btn-primary" onclick="crud.openNew()">+ Nueva Relacion</button>
+        </div>
+        <div class="loading">Cargando...</div>
+        <div class="entity-cards" id="data-cards"></div>
+        <div class="empty-state" style="display:none;">No hay registros</div>
+    </div>
+
+    <div class="modal-overlay" id="entityModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Nueva Categoria de Proveedor</h3>
+                <button class="modal-close" onclick="crud.closeModal()">x</button>
+            </div>
+            <div class="modal-body">
+                <form id="entityForm" autocomplete="off">
+                    <div class="form-group">
+                        <label>Proveedor</label>
+                        <select name="id_proveedores" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Categoria de Producto</label>
+                        <select name="id_categorias_productos" required></select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" onclick="crud.closeModal()">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="crud.save()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    crud.init(
+        '/api/proveedor_categorias',
+        [
+            { field: 'id_proveedor_categorias', pk: true },
+            { field: 'id_proveedores.razon_social', render: v => v || '-' },
+            { field: 'id_categorias_productos.nombre_categoria_producto', render: v => v || '-' },
+            { field: 'acciones', actions: true }
+        ],
+        [
+            { name: 'id_proveedores', type: 'fk' },
+            { name: 'id_categorias_productos', type: 'fk' }
+        ],
+        [
+            { field: 'id_proveedores', api: '/api/proveedores', label: 'razon_social' },
+            { field: 'id_categorias_productos', api: '/api/categorias_productos', label: 'nombre_categoria_producto' }
+        ],
+        {
+            view: 'cards',
+            cardRenderer: function(row) {
+                const id = row.id_proveedor_categorias;
+                const prov = escapeHtml(val(row, 'id_proveedores.razon_social', 'Proveedor'));
+                const cat = escapeHtml(val(row, 'id_categorias_productos.nombre_categoria_producto', 'Categoria'));
+                const fallback = prov.slice(0, 2).toUpperCase();
+
+                return `
+                    <article class="entity-card">
+                        <div class="entity-card__media"><div class="entity-card__fallback">${fallback}</div></div>
+                        <div class="entity-card__body">
+                            <div class="entity-card__header">
+                                <div>
+                                    <h4>${prov}</h4>
+                                    <p>Categoria: ${cat}</p>
+                                </div>
+                            </div>
+                            <div class="entity-card__actions">
+                                <button class="btn btn-sm" onclick="crud.edit(${id})">Editar</button>
+                                <button class="btn btn-sm btn-danger" onclick="crud.del(${id})">Eliminar</button>
+                            </div>
+                        </div>
+                    </article>`;
+            }
+        }
+    );
+    </script>
+</div>

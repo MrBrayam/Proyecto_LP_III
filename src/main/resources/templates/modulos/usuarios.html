@@ -1,0 +1,138 @@
+<div th:fragment="content">
+    <div class="card">
+        <div class="card-header">
+            <h3>Usuarios</h3>
+            <button class="btn btn-primary" onclick="crud.openNew()">+ Nuevo</button>
+        </div>
+        <div class="loading">Cargando...</div>
+        <div class="entity-cards" id="data-cards"></div>
+        <div class="empty-state" style="display:none;">No hay registros</div>
+    </div>
+
+    <div class="modal-overlay" id="entityModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Nuevo Usuario</h3>
+                <button class="modal-close" onclick="crud.closeModal()">x</button>
+            </div>
+            <div class="modal-body">
+                <form id="entityForm" autocomplete="off">
+                    <input type="hidden" name="id_tenants" value="1">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nombre</label>
+                            <input name="nombre_usuario" required placeholder="Nombre del usuario">
+                        </div>
+                        <div class="form-group">
+                            <label>Apellidos</label>
+                            <input name="apellidos_usuario" required placeholder="Apellidos del usuario">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Correo</label>
+                            <input name="correo" type="email" required placeholder="correo@ejemplo.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Numero Documento</label>
+                            <input name="numero_documento" placeholder="DNI o documento">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Contrasena</label>
+                            <input name="contrasenia" type="password" placeholder="Ingrese contrasena">
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo Usuario</label>
+                            <select name="tipo_usuario">
+                                <option value="admin">Admin</option>
+                                <option value="cajero">Cajero</option>
+                                <option value="recepcionista">Recepcionista</option>
+                                <option value="especialista">Especialista</option>
+                                <option value="estilista">Estilista</option>
+                                <option value="gerente">Gerente</option>
+                                <option value="repartidor">Repartidor</option>
+                                <option value="superadmin">SuperAdmin</option>
+                                <option value="otro" selected>Otro</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Estado</label>
+                        <select name="estado">
+                            <option value="1">Activo</option>
+                            <option value="0">Inactivo</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" onclick="crud.closeModal()">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="crud.save()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    crud.init(
+        '/api/usuarios',
+        [
+            { field: 'id_usuarios', pk: true },
+            { field: 'nombre_usuario' },
+            { field: 'apellidos_usuario' },
+            { field: 'correo' },
+            { field: 'tipo_usuario' },
+            { field: 'estado' },
+            { field: 'acciones', actions: true }
+        ],
+        [
+            { name: 'id_tenants', type: 'fk' },
+            { name: 'nombre_usuario', type: 'text' },
+            { name: 'apellidos_usuario', type: 'text' },
+            { name: 'correo', type: 'text' },
+            { name: 'numero_documento', type: 'text' },
+            { name: 'contrasenia', type: 'text' },
+            { name: 'tipo_usuario', type: 'text' },
+            { name: 'estado', type: 'number' }
+        ],
+        [],
+        {
+            view: 'cards',
+            cardRenderer: function(row) {
+                const id = row.id_usuarios;
+                const nombre = escapeHtml((row.nombre_usuario || '') + ' ' + (row.apellidos_usuario || ''));
+                const correo = escapeHtml(row.correo || '-');
+                const tipo = escapeHtml(row.tipo_usuario || '-');
+                const doc = escapeHtml(row.numero_documento || '-');
+                const fallback = (row.nombre_usuario || 'U').slice(0, 2).toUpperCase();
+                const estado = row.estado === 1 || row.estado === true
+                    ? '<span class="badge badge-active">Activo</span>'
+                    : '<span class="badge badge-inactive">Inactivo</span>';
+
+                return `
+                    <article class="entity-card">
+                        <div class="entity-card__media"><div class="entity-card__fallback">${fallback}</div></div>
+                        <div class="entity-card__body">
+                            <div class="entity-card__header">
+                                <div>
+                                    <h4>${nombre}</h4>
+                                    <p>${correo}</p>
+                                </div>
+                                ${estado}
+                            </div>
+                            <div class="entity-card__meta">
+                                <div class="entity-card__meta-item"><span>Tipo</span><strong>${tipo}</strong></div>
+                                <div class="entity-card__meta-item"><span>Documento</span><strong>${doc}</strong></div>
+                            </div>
+                            <div class="entity-card__actions">
+                                <button class="btn btn-sm" onclick="crud.edit(${id})">Editar</button>
+                                <button class="btn btn-sm btn-danger" onclick="crud.del(${id})">Eliminar</button>
+                            </div>
+                        </div>
+                    </article>`;
+            }
+        }
+    );
+    </script>
+</div>

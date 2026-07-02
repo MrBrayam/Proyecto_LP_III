@@ -50,4 +50,14 @@ public class UsuariosController {
         serviceUsuarios.eliminar(id);
         return "Registro Eliminado";
     }
+
+    @GetMapping("/usuarios/correo/{correo}")
+    public Optional<Usuarios> buscarPorCorreo(@PathVariable String correo) {
+        return serviceUsuarios.buscarPorCorreo(correo);
+    }
+
+    @GetMapping("/usuarios/tenant/{idTenants}")
+    public List<Usuarios> buscarPorTenant(@PathVariable Integer idTenants) {
+        return serviceUsuarios.buscarPorTenant(idTenants);
+    }
 }

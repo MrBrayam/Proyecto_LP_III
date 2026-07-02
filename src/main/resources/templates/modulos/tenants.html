@@ -1,0 +1,135 @@
+<div th:fragment="content">
+    <div class="card">
+        <div class="card-header">
+            <h3>Tenants</h3>
+            <button class="btn btn-primary" onclick="crud.openNew()">+ Nuevo</button>
+        </div>
+        <div class="loading">Cargando...</div>
+        <div class="entity-cards" id="data-cards"></div>
+        <div class="empty-state" style="display:none;">No hay registros</div>
+    </div>
+
+    <div class="modal-overlay" id="entityModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Nuevo Tenant</h3>
+                <button class="modal-close" onclick="crud.closeModal()">x</button>
+            </div>
+            <div class="modal-body">
+                <form id="entityForm" autocomplete="off">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Razon Social</label>
+                            <input name="razon_social" required placeholder="Razon social de la empresa">
+                        </div>
+                        <div class="form-group">
+                            <label>Nombre Comercial</label>
+                            <input name="nombre_comercial" placeholder="Nombre comercial">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>RUC</label>
+                            <input name="ruc" required placeholder="Numero de RUC">
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo Negocio</label>
+                            <input name="tipo_negocio" placeholder="Ej: Salon de belleza">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Correo</label>
+                            <input name="correo" type="email" required placeholder="correo@empresa.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Telefono</label>
+                            <input name="telefono" placeholder="Numero de telefono">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Direccion Fiscal</label>
+                        <input name="direccion_fiscal" placeholder="Direccion fiscal completa">
+                    </div>
+                    <div class="form-group">
+                        <label>Estado</label>
+                        <select name="estado">
+                            <option value="1">Activo</option>
+                            <option value="0">Inactivo</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" onclick="crud.closeModal()">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="crud.save()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    crud.init(
+        '/api/tenants',
+        [
+            { field: 'id_tenants', pk: true },
+            { field: 'razon_social' },
+            { field: 'ruc' },
+            { field: 'correo' },
+            { field: 'tipo_negocio' },
+            { field: 'estado' },
+            { field: 'acciones', actions: true }
+        ],
+        [
+            { name: 'razon_social', type: 'text' },
+            { name: 'nombre_comercial', type: 'text' },
+            { name: 'ruc', type: 'text' },
+            { name: 'tipo_negocio', type: 'text' },
+            { name: 'correo', type: 'text' },
+            { name: 'telefono', type: 'text' },
+            { name: 'direccion_fiscal', type: 'text' },
+            { name: 'estado', type: 'number' }
+        ],
+        [],
+        {
+            view: 'cards',
+            cardRenderer: function(row) {
+                const id = row.id_tenants;
+                const razon = escapeHtml(row.razon_social || 'Tenant');
+                const comercial = escapeHtml(row.nombre_comercial || '-');
+                const ruc = escapeHtml(row.ruc || '-');
+                const correo = escapeHtml(row.correo || '-');
+                const tipo = escapeHtml(row.tipo_negocio || '-');
+                const tel = escapeHtml(row.telefono || '-');
+                const fallback = razon.slice(0, 2).toUpperCase();
+                const estado = row.estado === 1 || row.estado === true
+                    ? '<span class="badge badge-active">Activo</span>'
+                    : '<span class="badge badge-inactive">Inactivo</span>';
+
+                return `
+                    <article class="entity-card">
+                        <div class="entity-card__media"><div class="entity-card__fallback">${fallback}</div></div>
+                        <div class="entity-card__body">
+                            <div class="entity-card__header">
+                                <div>
+                                    <h4>${razon}</h4>
+                                    <p>${comercial}</p>
+                                </div>
+                                ${estado}
+                            </div>
+                            <div class="entity-card__meta">
+                                <div class="entity-card__meta-item"><span>RUC</span><strong>${ruc}</strong></div>
+                                <div class="entity-card__meta-item"><span>Correo</span><strong>${correo}</strong></div>
+                                <div class="entity-card__meta-item"><span>Tipo</span><strong>${tipo}</strong></div>
+                                <div class="entity-card__meta-item"><span>Telefono</span><strong>${tel}</strong></div>
+                            </div>
+                            <div class="entity-card__actions">
+                                <button class="btn btn-sm" onclick="crud.edit(${id})">Editar</button>
+                                <button class="btn btn-sm btn-danger" onclick="crud.del(${id})">Eliminar</button>
+                            </div>
+                        </div>
+                    </article>`;
+            }
+        }
+    );
+    </script>
+</div>

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${title}">Bellarista</title>
     <link rel="stylesheet" href="/css/style.css">
-    <script src="/js/app.js?v=20260630-1"></script>
+    <script src="/js/app.js?v=20260702-1"></script>
 </head>
 <body>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -19,6 +19,73 @@
             <nav class="sidebar-nav">
                 <div class="menu-group">
                     <a href="/dashboard" style="display:block;padding:12px 20px;color:#555;text-decoration:none;font-size:14px;font-weight:500;">Dashboard</a>
+                </div>
+
+                <div class="menu-group">
+                    <div class="menu-header">
+                        <span>Usuarios y Seguridad</span>
+                        <span class="arrow">></span>
+                    </div>
+                    <div class="menu-items">
+                        <a href="/modulos/usuarios">Usuarios</a>
+                        <a href="/modulos/tenants">Tenants</a>
+                        <a href="/modulos/roles">Roles</a>
+                        <a href="/modulos/permisos">Permisos</a>
+                        <a href="/modulos/usuario-sedes">Usuario-Sedes</a>
+                        <a href="/modulos/preferencias">Preferencias</a>
+                        <a href="/modulos/auditoria">Auditoria</a>
+                    </div>
+                </div>
+
+                <div class="menu-group">
+                    <div class="menu-header">
+                        <span>Clientes y Contacto</span>
+                        <span class="arrow">></span>
+                    </div>
+                    <div class="menu-items">
+                        <a href="/modulos/clientes">Clientes</a>
+                        <a href="/modulos/citas">Citas</a>
+                        <a href="/modulos/repartidores">Repartidores</a>
+                        <a href="/modulos/sedes">Sedes</a>
+                        <a href="/modulos/horarios-operacion">Horarios de Operacion</a>
+                        <a href="/modulos/zonas-delivery">Zonas de Delivery</a>
+                        <a href="/modulos/notificaciones">Notificaciones</a>
+                    </div>
+                </div>
+
+                <div class="menu-group">
+                    <div class="menu-header">
+                        <span>Ventas y Pedidos</span>
+                        <span class="arrow">></span>
+                    </div>
+                    <div class="menu-items">
+                        <a href="/modulos/ventas">Ventas</a>
+                        <a href="/modulos/pedidos">Pedidos</a>
+                        <a href="/modulos/devoluciones-venta">Devoluciones de Venta</a>
+                        <a href="/modulos/formas-pago-venta">Formas de Pago</a>
+                        <a href="/modulos/comprobantes-electronicos">Comprobantes Electronicos</a>
+                        <a href="/modulos/series-comprobantes">Series de Comprobantes</a>
+                    </div>
+                </div>
+
+                <div class="menu-group">
+                    <div class="menu-header">
+                        <span>Compras y Finanzas</span>
+                        <span class="arrow">></span>
+                    </div>
+                    <div class="menu-items">
+                        <a href="/modulos/ordenes-compra">Ordenes de Compra</a>
+                        <a href="/modulos/proveedores">Proveedores</a>
+                        <a href="/modulos/proveedores-categorias">Categorias de Proveedor</a>
+                        <a href="/modulos/devoluciones-proveedor">Devoluciones a Proveedor</a>
+                        <a href="/modulos/cuentas-por-pagar">Cuentas por Pagar</a>
+                        <a href="/modulos/pagos-proveedor">Pagos a Proveedor</a>
+                        <a href="/modulos/caja-chica">Caja Chica</a>
+                        <a href="/modulos/sesiones-caja">Sesiones de Caja</a>
+                        <a href="/modulos/metodos-pago">Metodos de Pago</a>
+                        <a href="/modulos/gastos-operativos">Gastos Operativos</a>
+                        <a href="/modulos/gastos-recurrentes">Gastos Recurrentes</a>
+                    </div>
                 </div>
 
                 <div class="menu-group">

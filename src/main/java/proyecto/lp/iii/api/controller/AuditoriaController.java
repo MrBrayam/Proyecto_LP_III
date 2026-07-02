@@ -50,4 +50,9 @@ public class AuditoriaController {
 		serviceAuditoria.eliminar(id);
 		return "Registro Eliminado";
 	}
+
+	@GetMapping("/auditoria/tenant/{idTenants}")
+	public List<Auditoria> buscarPorTenant(@PathVariable Integer idTenants) {
+		return serviceAuditoria.buscarPorTenant(idTenants);
+	}
 }

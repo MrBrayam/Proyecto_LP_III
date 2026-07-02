@@ -1,0 +1,152 @@
+<div th:fragment="content">
+    <div class="card">
+        <div class="card-header">
+            <h3>Ordenes de Compra</h3>
+            <button class="btn btn-primary" onclick="crud.openNew()">+ Nueva Orden</button>
+        </div>
+        <div class="loading">Cargando...</div>
+        <div class="entity-cards" id="data-cards"></div>
+        <div class="empty-state" style="display:none;">No hay registros</div>
+    </div>
+
+    <div class="modal-overlay" id="entityModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Nueva Orden de Compra</h3>
+                <button class="modal-close" onclick="crud.closeModal()">x</button>
+            </div>
+            <div class="modal-body">
+                <form id="entityForm" autocomplete="off">
+                    <input type="hidden" name="id_tenants" value="1">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Proveedor</label>
+                            <select name="id_proveedores" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Numero de Orden</label>
+                            <input name="numero_orden" required placeholder="Ej: OC-0001">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Fecha Orden</label>
+                            <input name="fecha_orden" type="date" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Fecha Entrega Estimada</label>
+                            <input name="fecha_entrega_estimada" type="date">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Monto Total (S/)</label>
+                            <input name="monto_total" type="number" step="0.01" placeholder="0.00" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Forma Pago</label>
+                            <select name="forma_pago">
+                                <option value="contado" selected>Al Contado</option>
+                                <option value="credito_30">Credito 30 dias</option>
+                                <option value="credito_60">Credito 60 dias</option>
+                                <option value="transferencia">Transferencia</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Condiciones Entrega</label>
+                        <input name="condiciones_entrega" placeholder="Ej: En almacén principal">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Notas</label>
+                            <input name="notas" placeholder="Observaciones adicionales">
+                        </div>
+                        <div class="form-group">
+                            <label>Estado</label>
+                            <select name="estado">
+                                <option value="1">Pendiente / Creada</option>
+                                <option value="2">Recibida</option>
+                                <option value="0">Cancelada</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" onclick="crud.closeModal()">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="crud.save()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    crud.init(
+        '/api/ordenes_compra',
+        [
+            { field: 'id_ordenes_compra', pk: true },
+            { field: 'numero_orden' },
+            { field: 'id_proveedores.razon_social', render: v => v || '-' },
+            { field: 'fecha_orden' },
+            { field: 'monto_total', render: v => v != null ? 'S/ ' + parseFloat(v).toFixed(2) : '-' },
+            { field: 'forma_pago' },
+            { field: 'estado', render: v => v === 1 ? 'Pendiente' : v === 2 ? 'Recibida' : 'Cancelada' },
+            { field: 'acciones', actions: true }
+        ],
+        [
+            { name: 'id_tenants', type: 'fk' },
+            { name: 'id_proveedores', type: 'fk' },
+            { name: 'numero_orden', type: 'text' },
+            { name: 'fecha_orden', type: 'text' },
+            { name: 'fecha_entrega_estimada', type: 'text' },
+            { name: 'monto_total', type: 'decimal' },
+            { name: 'condiciones_entrega', type: 'text' },
+            { name: 'forma_pago', type: 'text' },
+            { name: 'notas', type: 'text' },
+            { name: 'estado', type: 'number' }
+        ],
+        [
+            { field: 'id_proveedores', api: '/api/proveedores', label: 'razon_social' }
+        ],
+        {
+            view: 'cards',
+            cardRenderer: function(row) {
+                const id = row.id_ordenes_compra;
+                const numero = escapeHtml(row.numero_orden || '-');
+                const prov = escapeHtml(val(row, 'id_proveedores.razon_social', 'Proveedor'));
+                const fecha = row.fecha_orden || '-';
+                const total = row.monto_total != null ? 'S/ ' + parseFloat(row.monto_total).toFixed(2) : '-';
+                const pago = escapeHtml(row.forma_pago || '-');
+                const fallback = numero.slice(0, 2).toUpperCase();
+
+                let estadoText = 'Pendiente';
+                let estadoClass = 'badge-warning';
+                if (row.estado === 2) { estadoText = 'Recibida'; estadoClass = 'badge-active'; }
+                else if (row.estado === 0) { estadoText = 'Cancelada'; estadoClass = 'badge-inactive'; }
+
+                return `
+                    <article class="entity-card">
+                        <div class="entity-card__media"><div class="entity-card__fallback">${fallback}</div></div>
+                        <div class="entity-card__body">
+                            <div class="entity-card__header">
+                                <div>
+                                    <h4>Orden: ${numero}</h4>
+                                    <p>Proveedor: ${prov} | Fecha: ${fecha}</p>
+                                </div>
+                                <span class="badge ${estadoClass}">${estadoText}</span>
+                            </div>
+                            <div class="entity-card__meta">
+                                <div class="entity-card__meta-item"><span>Monto Total</span><strong>${total}</strong></div>
+                                <div class="entity-card__meta-item"><span>Forma Pago</span><strong>${pago.toUpperCase()}</strong></div>
+                            </div>
+                            <div class="entity-card__actions">
+                                <button class="btn btn-sm" onclick="crud.edit(${id})">Editar</button>
+                                <button class="btn btn-sm btn-danger" onclick="crud.del(${id})">Eliminar</button>
+                            </div>
+                        </div>
+                    </article>`;
+            }
+        }
+    );
+    </script>
+</div>

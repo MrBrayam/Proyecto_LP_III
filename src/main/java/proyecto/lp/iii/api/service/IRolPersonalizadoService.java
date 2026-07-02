@@ -14,4 +14,6 @@ public interface IRolPersonalizadoService {
     Optional<RolPersonalizado> buscarId(Integer id);
 
     void eliminar(Integer id);
+
+    List<RolPersonalizado> buscarPorTenant(Integer idTenants);
 }

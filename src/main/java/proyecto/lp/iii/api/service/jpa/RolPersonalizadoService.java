@@ -40,4 +40,8 @@ public class RolPersonalizadoService implements IRolPersonalizadoService {
     public void eliminar(Integer id) {
         repoRolPersonalizado.deleteById(id);
     }
+
+    public List<RolPersonalizado> buscarPorTenant(Integer idTenants) {
+        return repoRolPersonalizado.findByIdTenantsIdTenants(idTenants);
+    }
 }

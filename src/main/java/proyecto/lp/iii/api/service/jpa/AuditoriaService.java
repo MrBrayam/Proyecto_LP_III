@@ -40,4 +40,8 @@ public class AuditoriaService implements IAuditoriaService {
     public void eliminar(Integer id) {
         repoAuditoria.deleteById(id);
     }
+
+    public List<Auditoria> buscarPorTenant(Integer idTenants) {
+        return repoAuditoria.findByIdTenantsIdTenants(idTenants);
+    }
 }

@@ -14,4 +14,6 @@ public interface IPermisoRolService {
     Optional<PermisoRol> buscarId(Integer id);
     
     void eliminar(Integer id);
+
+    List<PermisoRol> buscarPorRol(Integer idRol);
 }

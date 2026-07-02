@@ -15,4 +15,6 @@ public interface IAuditoriaService {
     Optional<Auditoria> buscarId(Integer id);
 
     void eliminar(Integer id);
+
+    List<Auditoria> buscarPorTenant(Integer idTenants);
 }

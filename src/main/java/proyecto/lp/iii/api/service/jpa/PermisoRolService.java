@@ -36,4 +36,8 @@ public class PermisoRolService implements IPermisoRolService {
     public void eliminar(Integer id) { 
         repoPermisoRol.deleteById(id); 
     }
+
+    public List<PermisoRol> buscarPorRol(Integer idRol) {
+        return repoPermisoRol.findByIdRolesPersonalizadosIdRolesPersonalizados(idRol);
+    }
 }
