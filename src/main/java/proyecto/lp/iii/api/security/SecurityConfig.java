@@ -16,6 +16,7 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable()).authorizeHttpRequests(auth -> 
             auth.requestMatchers(
                 "/",
+                "/admin/login",
                 "/login",
                 "/logout",
                 "/dashboard",
@@ -27,7 +28,8 @@ public class SecurityConfig {
                 "/uploads/**",
                 "/api/uploads/**",
                 "/api/token",
-                "/api/registros"
+                "/api/registros",
+                "/tienda/**"
             ).permitAll()
             .anyRequest().authenticated()).addFilterBefore(jwtFilter,
             UsernamePasswordAuthenticationFilter.class);
