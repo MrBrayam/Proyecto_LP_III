@@ -1,21 +1,26 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bellarista - Tienda Virtual</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..700;1,400..700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..700;1,400..700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
-            --primary: #c5a880; /* champagne gold */
+            --primary: #c5a880;
+            /* champagne gold */
             --primary-dark: #b09168;
             --primary-light: #f5efe6;
-            --dark: #1e1e24; /* charcoal dark */
+            --dark: #1e1e24;
+            /* charcoal dark */
             --light: #fbfbfb;
             --gray: #e6e6e9;
             --text-muted: #757577;
             --success: #2d6a4f;
-            --shadow-soft: 0 10px 30px rgba(0,0,0,0.03);
+            --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.03);
             --shadow-hover: 0 20px 40px rgba(197, 168, 128, 0.12);
             --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -33,7 +38,10 @@
             overflow-x: hidden;
         }
 
-        h1, h2, h3, .brand-font {
+        h1,
+        h2,
+        h3,
+        .brand-font {
             font-family: 'Playfair Display', serif;
         }
 
@@ -89,7 +97,8 @@
             opacity: 0.8;
         }
 
-        .nav-link:hover, .nav-link.active {
+        .nav-link:hover,
+        .nav-link.active {
             opacity: 1;
             color: var(--primary);
         }
@@ -118,7 +127,7 @@
 
         .btn-outline:hover {
             background: var(--primary);
-            color: #white;
+            color: white;
             box-shadow: 0 4px 15px rgba(197, 168, 128, 0.2);
         }
 
@@ -192,7 +201,7 @@
             width: 400px;
             height: 400px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(197, 168, 128, 0.1) 0%, rgba(255,255,255,0) 70%);
+            background: radial-gradient(circle, rgba(197, 168, 128, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
             z-index: 1;
         }
 
@@ -270,7 +279,8 @@
             white-space: nowrap;
         }
 
-        .pill.active, .pill:hover {
+        .pill.active,
+        .pill:hover {
             background: var(--primary);
             border-color: var(--primary);
             color: white;
@@ -368,7 +378,7 @@
             letter-spacing: 0.5px;
             text-transform: uppercase;
             color: var(--primary-dark);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
         }
 
         .product-card-body {
@@ -476,7 +486,7 @@
             height: 100%;
             background: white;
             z-index: 2001;
-            box-shadow: -10px 0 40px rgba(0,0,0,0.1);
+            box-shadow: -10px 0 40px rgba(0, 0, 0, 0.1);
             transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
             flex-direction: column;
@@ -573,7 +583,7 @@
         }
 
         .quantity-control button:hover {
-            background: rgba(0,0,0,0.03);
+            background: rgba(0, 0, 0, 0.03);
         }
 
         .quantity-control span {
@@ -643,6 +653,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <!-- Header / Navbar -->
@@ -657,7 +668,8 @@
                 <!-- User account greeting / Authentication links -->
                 <div class="auth-links">
                     <div th:if="${cliente != null}" style="display:flex;align-items:center;gap:14px;">
-                        <span style="font-size:13px;font-weight:500;">Hola, <strong th:text="${cliente.nombre_cliente}"></strong></span>
+                        <span style="font-size:13px;font-weight:500;">Hola, <strong
+                                th:text="${cliente.nombre_cliente}"></strong></span>
                         <a href="/tienda/logout" class="btn-outline" style="padding:6px 14px;font-size:12px;">Salir</a>
                     </div>
                     <div th:if="${cliente == null}" style="display:flex;align-items:center;gap:10px;">
@@ -669,7 +681,8 @@
                 <!-- Floating Cart button -->
                 <button class="cart-icon-btn" onclick="toggleCart(true)">
                     <svg viewBox="0 0 24 24">
-                        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4H6zM3 6h18M16 10a4 4 0 01-8 0" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4H6zM3 6h18M16 10a4 4 0 01-8 0"
+                            stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                     <span class="cart-badge" id="cartCount">0</span>
                 </button>
@@ -682,7 +695,8 @@
         <div class="hero-content">
             <p class="hero-subtitle">Bellarista Boutique</p>
             <h1>Encuentra los mejores productos para tu estilo y cuidado personal</h1>
-            <p>Una cuidada selección de cremas, esmaltes, tratamientos y accesorios premium recomendados por nuestros expertos.</p>
+            <p>Una cuidada selección de cremas, esmaltes, tratamientos y accesorios premium recomendados por nuestros
+                expertos.</p>
         </div>
     </section>
 
@@ -695,7 +709,8 @@
             </div>
             <div class="search-bar">
                 <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
                 <input type="text" id="searchInput" placeholder="Buscar productos..." oninput="handleSearch()">
             </div>
@@ -808,7 +823,7 @@
 
                 const imgUrl = p.img_url || '';
                 const fallbackChar = p.nombre_producto.charAt(0).toUpperCase();
-                const imageHtml = imgUrl 
+                const imageHtml = imgUrl
                     ? `<img src="${imgUrl}" class="product-img" alt="${p.nombre_producto}">`
                     : `<div style="width:100%;height:100%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:700;color:var(--primary);font-family:'Playfair Display',serif;">${fallbackChar}</div>`;
 
@@ -898,7 +913,7 @@
         function updateCartUI() {
             const container = document.getElementById('cartItems');
             const countBadge = document.getElementById('cartCount');
-            
+
             // Total items count
             const totalCount = cart.reduce((sum, item) => sum + item.cantidad, 0);
             countBadge.textContent = totalCount;
@@ -954,4 +969,5 @@
         }
     </script>
 </body>
+
 </html>
