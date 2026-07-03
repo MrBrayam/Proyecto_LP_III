@@ -23,8 +23,8 @@ public class VentaService implements IVentaService {
     public List<Venta> buscarTodos() { 
         return repoVenta.findAll(); 
     }
-    public void guardar(Venta venta) { 
-        repoVenta.save(venta);
+    public Venta guardar(Venta venta) { 
+        return repoVenta.save(venta);
     }
     @Transactional
     public void modificar(Venta venta) { 

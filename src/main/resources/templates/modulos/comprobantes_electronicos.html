@@ -47,9 +47,9 @@
                         <div class="form-group">
                             <label>Estado SUNAT</label>
                             <select name="estado_sunat">
-                                <option value="pendiente" selected>Pendiente</option>
-                                <option value="aceptado">Aceptado</option>
-                                <option value="rechazado">Rechazado</option>
+                                <option value="pendiente_envio" selected>Pendiente Envio</option>
+                                <option value="aceptada">Aceptada</option>
+                                <option value="rechazada">Rechazada</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -119,8 +119,8 @@
                 const fallback = tipo.slice(0, 2).toUpperCase();
 
                 let sunatClass = 'badge-warning';
-                if (sunat === 'aceptado') sunatClass = 'badge-active';
-                else if (sunat === 'rechazado') sunatClass = 'badge-inactive';
+                if (sunat === 'aceptada') sunatClass = 'badge-active';
+                else if (sunat === 'rechazada') sunatClass = 'badge-inactive';
 
                 return `
                     <article class="entity-card">

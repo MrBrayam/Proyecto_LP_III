@@ -52,6 +52,9 @@ public class ProductoService implements IProductoService {
         if (producto.getStock_critico() != null) {
             existente.setStock_critico(producto.getStock_critico());
         }
+        if (producto.getStock_actual() != null) {
+            existente.setStock_actual(producto.getStock_actual());
+        }
         if (producto.getVisible_storefront() != null) {
             existente.setVisible_storefront(producto.getVisible_storefront());
         }

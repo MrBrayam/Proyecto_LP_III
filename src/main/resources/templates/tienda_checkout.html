@@ -524,12 +524,13 @@
                     // Redirect to success page
                     window.location.href = '/tienda/success';
                 } else {
+                    console.error('Error detallado del servidor:', data.error);
                     alert('Error al registrar compra: ' + (data.error || 'Intente nuevamente'));
                 }
             })
             .catch(err => {
+                console.error('Error de red o de ejecución en la pasarela:', err);
                 alert('Ocurrió un error en la pasarela de pagos.');
-                console.error(err);
             });
         }
     </script>

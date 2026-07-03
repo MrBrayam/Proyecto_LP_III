@@ -277,6 +277,7 @@ const crud = {
         this.fileFields = options.fileFields || [];
         this.options = options || {};
         this.load();
+        this.bindFileInputs();
     },
 
     bindFileInputs() {
@@ -437,18 +438,18 @@ const crud = {
                 return Promise.resolve();
             }
 
-            if (hidden.value) {
-                crudLog('log', `Campo ${field.target} ya tiene valor antes de guardar`, hidden.value);
-                return Promise.resolve(hidden.value);
-            }
-
             if (file) {
-                crudLog('log', `El campo ${field.target} tiene archivo seleccionado y se va a subir ahora mismo`, {
+                crudLog('log', `El campo ${field.target} tiene archivo seleccionado y se va a subir ahora mismo o esperar a que termine`, {
                     name: file.name,
                     size: file.size,
                     type: file.type
                 });
                 return this.pendingUploadPromises[field.target] || this.uploadFileField(field, file, hidden, preview);
+            }
+
+            if (hidden.value) {
+                crudLog('log', `Campo ${field.target} conserva su valor anterior`, hidden.value);
+                return Promise.resolve(hidden.value);
             }
 
             crudLog('warn', `No hay archivo seleccionado para ${field.target} y el hidden sigue vacio`, {

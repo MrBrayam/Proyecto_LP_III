@@ -35,3 +35,6 @@ build/
 ### Post man ###
 .postman/
 postman/
+
+### Uploads ###
+uploads/

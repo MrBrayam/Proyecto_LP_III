@@ -1,293 +1,38 @@
-[CRUD] Cargando registro para edicion /api/productos/1 
-{id_productos: 1, id_tenants: {…}, id_categorias_productos: {…}, id_marcas: {…}, codigo_interno: 'TIN-001', …}
-codigo_barras
-: 
-"7501234560001"
-codigo_interno
-: 
-"TIN-001"
-contenido_neto
-: 
-"50ml"
-descripcion
-: 
-"Tinte permanente rubio medio con cobertura 100%"
-estado
-: 
-1
-etiqueta_especial
-: 
-null
-id_categorias_productos
-: 
-descripcion
-: 
-"Tintes, decolorantes y accesorios de color"
-estado
-: 
-1
-id_categorias_productos
-: 
-1
-id_tenants
-: 
-correo
-: 
-"contacto@bellarista.pe"
-direccion_fiscal
-: 
-"Av. La Marina 123, Lima"
-estado
-: 
-1
-fecha_registro
-: 
-"2026-06-01T21:52:12"
-id_tenants
-: 
-1
-nombre_comercial
-: 
-"Bellarista"
-razon_social
-: 
-"Salon Bellarista S.A.C."
-ruc
-: 
-"20601234561"
-telefono
-: 
-"01-3456789"
-tipo_negocio
-: 
-"Salón de belleza"
-[[Prototype]]
-: 
-Object
-imagen_url
-: 
-null
-nombre_categoria_producto
-: 
-"Tintes y Coloración"
-orden
-: 
-1
-[[Prototype]]
-: 
-Object
-id_marcas
-: 
-descripcion
-: 
-"Marca líder en productos capilares profesionales"
-estado
-: 
-1
-id_marcas
-: 
-1
-id_tenants
-: 
-correo
-: 
-"contacto@bellarista.pe"
-direccion_fiscal
-: 
-"Av. La Marina 123, Lima"
-estado
-: 
-1
-fecha_registro
-: 
-"2026-06-01T21:52:12"
-id_tenants
-: 
-1
-nombre_comercial
-: 
-"Bellarista"
-razon_social
-: 
-"Salon Bellarista S.A.C."
-ruc
-: 
-"20601234561"
-telefono
-: 
-"01-3456789"
-tipo_negocio
-: 
-"Salón de belleza"
-[[Prototype]]
-: 
-Object
-logo_url
-: 
-null
-nombre_marca
-: 
-"L'Oréal Professionnel XD"
-pais_origen
-: 
-"Peru"
-[[Prototype]]
-: 
-Object
-id_productos
-: 
-1
-id_tenants
-: 
-{id_tenants: 1, razon_social: 'Salon Bellarista S.A.C.', ruc: '20601234561', direccion_fiscal: 'Av. La Marina 123, Lima', correo: 'contacto@bellarista.pe', …}
-img_url
-: 
-"https://cdn.bellarista.pe/productos/majirel7.jpg"
-margen_ganancia
-: 
-75
-nombre_producto
-: 
-"Tinte L'Oréal Majirel N°7"
-precio_costo
-: 
-20
-precio_venta
-: 
-35
-presentacion
-: 
-"tubo"
-stock_critico
-: 
-5
-stock_minimo
-: 
-10
-tipo_producto
-: 
-"tinte"
-visible_storefront
-: 
-1
-[[Prototype]]
-: 
+[CRUD] Cargando registro para edicion /api/productos/4 
 Object
 app.js?v=20260702-1:20 [CRUD] Sincronizando preview para img_url 
-{hiddenValue: 'https://cdn.bellarista.pe/productos/majirel7.jpg'}
+Object
 hiddenValue
 : 
-"https://cdn.bellarista.pe/productos/majirel7.jpg"
+"/uploads/ced47f1e50c249f4b377a290cd6b5696.jpg"
 [[Prototype]]
 : 
 Object
 app.js?v=20260702-1:20 [CRUD] Formulario de edicion listo para img_url 
-{hiddenValue: 'https://cdn.bellarista.pe/productos/majirel7.jpg'}
+Object
 hiddenValue
 : 
-"https://cdn.bellarista.pe/productos/majirel7.jpg"
+"/uploads/ced47f1e50c249f4b377a290cd6b5696.jpg"
 [[Prototype]]
 : 
 Object
-cdn.bellarista.pe/pr…ctos/majirel7.jpg:1 
- GET https://cdn.bellarista.pe/productos/majirel7.jpg net::ERR_NAME_NOT_RESOLVED
-app.js?v=20260702-1:20 [CRUD] Campo img_url ya tiene valor antes de guardar https://cdn.bellarista.pe/productos/majirel7.jpg
-app.js?v=20260702-1:20 [CRUD] Enviando PUT a /api/productos/1 
-{editId: 1, pendingUploads: Array(0), payload: {…}}
-editId
-: 
-1
-payload
-: 
+app.js?v=20260702-1:20 [CRUD] Campo img_url ya tiene valor antes de guardar /uploads/ced47f1e50c249f4b377a290cd6b5696.jpg
+app.js?v=20260702-1:20 [CRUD] Enviando PUT a /api/productos/4 
+Object
+app.js?v=20260702-1:20 [CRUD] Guardado exitoso en /api/productos/4 
+Object
 codigo_barras
 : 
-"7501234560001"
+"7501234560007"
 codigo_interno
 : 
-"TIN-001"
+"EXA-003"
 contenido_neto
 : 
-"50ml"
+"269gr"
 descripcion
 : 
-"Tinte permanente rubio medio con cobertura 100%"
-estado
-: 
-1
-id_categorias_productos
-: 
-id_categorias_productos
-: 
-1
-[[Prototype]]
-: 
-Object
-id_marcas
-: 
-id_marcas
-: 
-1
-[[Prototype]]
-: 
-Object
-id_tenants
-: 
-id_tenants
-: 
-1
-[[Prototype]]
-: 
-Object
-img_url
-: 
-"https://cdn.bellarista.pe/productos/majirel7.jpg"
-nombre_producto
-: 
-"Tinte L'Oréal Majirel N°7"
-precio_costo
-: 
-20
-precio_venta
-: 
-35
-presentacion
-: 
-"tubo"
-stock_minimo
-: 
-10
-tipo_producto
-: 
-"tinte"
-[[Prototype]]
-: 
-Object
-pendingUploads
-: 
-Array(0)
-length
-: 
-0
-[[Prototype]]
-: 
-Array(0)
-[[Prototype]]
-: 
-Object
-app.js?v=20260702-1:20 [CRUD] Guardado exitoso en /api/productos/1 
-{id_productos: 1, id_tenants: {…}, id_categorias_productos: {…}, id_marcas: {…}, codigo_interno: 'TIN-001', …}
-codigo_barras
-: 
-"7501234560001"
-codigo_interno
-: 
-"TIN-001"
-contenido_neto
-: 
-"50ml"
-descripcion
-: 
-"Tinte permanente rubio medio con cobertura 100%"
+"holis"
 estado
 : 
 1
@@ -304,7 +49,7 @@ estado
 1
 id_categorias_productos
 : 
-1
+4
 id_tenants
 : 
 null
@@ -330,7 +75,7 @@ estado
 1
 id_marcas
 : 
-1
+3
 id_tenants
 : 
 null
@@ -348,7 +93,7 @@ null
 Object
 id_productos
 : 
-1
+4
 id_tenants
 : 
 correo
@@ -362,7 +107,7 @@ estado
 1
 fecha_registro
 : 
-"2026-07-02T23:53:01.5707308"
+"2026-07-03T00:16:44.7637902"
 id_tenants
 : 
 1
@@ -386,22 +131,22 @@ null
 Object
 img_url
 : 
-"https://cdn.bellarista.pe/productos/majirel7.jpg"
+"/uploads/ced47f1e50c249f4b377a290cd6b5696.jpg"
 margen_ganancia
 : 
 null
 nombre_producto
 : 
-"Tinte L'Oréal Majirel N°7"
+"Test"
 precio_costo
 : 
-20
+5
 precio_venta
 : 
-35
+10
 presentacion
 : 
-"tubo"
+"Caja"
 stock_critico
 : 
 5
@@ -410,7 +155,7 @@ stock_minimo
 10
 tipo_producto
 : 
-"tinte"
+"Cosmetico"
 visible_storefront
 : 
 1

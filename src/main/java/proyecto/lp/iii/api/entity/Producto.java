@@ -30,6 +30,7 @@ import org.hibernate.annotations.SQLRestriction;
         "margen_ganancia",
         "stock_minimo",
         "stock_critico",
+        "stock_actual",
         "visible_storefront",
         "etiqueta_especial",
         "estado"
@@ -72,6 +73,7 @@ public class Producto {
     private BigDecimal margen_ganancia;
     private Integer stock_minimo = 10;
     private Integer stock_critico = 5;
+    private Integer stock_actual = 0;
     private Integer visible_storefront = 1;
     private String etiqueta_especial;
     private Integer estado = 1;
@@ -189,6 +191,12 @@ public class Producto {
     public void setEtiqueta_especial(String etiqueta_especial) {
         this.etiqueta_especial = etiqueta_especial;
     }
+    public Integer getStock_actual() {
+        return stock_actual;
+    }
+    public void setStock_actual(Integer stock_actual) {
+        this.stock_actual = stock_actual;
+    }
     public Integer getEstado() {
         return estado;
     }
@@ -204,8 +212,9 @@ public class Producto {
                 + descripcion + ", tipo_producto=" + tipo_producto + ", presentacion=" + presentacion
                 + ", contenido_neto=" + contenido_neto + ", img_url=" + img_url + ", precio_costo=" + precio_costo
                 + ", precio_venta=" + precio_venta + ", margen_ganancia=" + margen_ganancia + ", stock_minimo="
-                + stock_minimo + ", stock_critico=" + stock_critico + ", visible_storefront=" + visible_storefront
-                + ", etiqueta_especial=" + etiqueta_especial + ", estado=" + estado + "]";
+                + stock_minimo + ", stock_critico=" + stock_critico + ", stock_actual=" + stock_actual
+                + ", visible_storefront=" + visible_storefront + ", etiqueta_especial=" + etiqueta_especial
+                + ", estado=" + estado + "]";
     }
 
     

@@ -621,8 +621,6 @@
             padding-top: 12px;
             margin-top: 12px;
             margin-bottom: 20px;
-        }
-
         .btn-checkout {
             display: flex;
             width: 100%;
@@ -651,6 +649,54 @@
             font-weight: 300;
             font-size: 14px;
         }
+
+        /* History Section Styling */
+        .card-history {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            padding: 30px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .history-item {
+            background: #fafafc;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            border-radius: 12px;
+            padding: 16px;
+            transition: var(--transition);
+        }
+
+        .history-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+            border-color: rgba(197, 168, 128, 0.2);
+        }
+
+        .status-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 99px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+        }
+
+        .status-badge-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-badge-pending {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .status-badge-danger {
+            background: #ffebee;
+            color: #c62828;
+        }
     </style>
 </head>
 
@@ -661,7 +707,9 @@
         <div class="nav-container">
             <a href="/" class="logo">Bella<span>rista</span></a>
             <ul class="nav-menu">
-                <li><a href="/" class="nav-link active">Tienda</a></li>
+                <li><a href="#" class="nav-link active" id="tab-store" onclick="switchTab('store', this)">Productos</a></li>
+                <li><a href="#" class="nav-link" id="tab-services" onclick="switchTab('services', this)">Servicios</a></li>
+                <li th:if="${cliente != null}"><a href="#" class="nav-link" id="tab-history" onclick="switchTab('history', this)">Mi Historial</a></li>
                 <li><a href="/admin/login" class="nav-link">Portal Admin</a></li>
             </ul>
             <div class="nav-actions">
@@ -694,14 +742,13 @@
     <section class="hero">
         <div class="hero-content">
             <p class="hero-subtitle">Bellarista Boutique</p>
-            <h1>Encuentra los mejores productos para tu estilo y cuidado personal</h1>
-            <p>Una cuidada selección de cremas, esmaltes, tratamientos y accesorios premium recomendados por nuestros
-                expertos.</p>
+            <h1 id="heroTitle">Encuentra los mejores productos para tu estilo y cuidado personal</h1>
+            <p id="heroDesc">Una cuidada selección de cremas, esmaltes, tratamientos y accesorios premium recomendados por nuestros expertos.</p>
         </div>
     </section>
 
     <!-- Store Section -->
-    <main class="store-container">
+    <main class="store-container" id="storeSection">
         <!-- Filters and search -->
         <div class="controls">
             <div class="filter-pills" id="categoryFilters">
@@ -719,6 +766,41 @@
         <!-- Grid of products -->
         <div class="product-grid" id="productGrid">
             <!-- Dynamically populated -->
+        </div>
+    </main>
+
+    <!-- Services Section -->
+    <main class="store-container" id="servicesSection" style="display: none; padding-top: 20px;">
+        <h2 style="font-size: 36px; font-weight: 400; margin-bottom: 12px; text-align: center; font-family: 'Playfair Display', serif;">Nuestros Servicios de Belleza</h2>
+        <p style="text-align: center; color: var(--text-muted); max-width: 600px; margin: 0 auto 40px; font-size: 15px; font-weight: 300; line-height: 1.6;">
+            Descubre nuestra gama de servicios exclusivos. Reserva tu cita online o visítanos en local.
+        </p>
+        <div class="product-grid" id="servicesGrid">
+            <!-- Dynamically populated -->
+        </div>
+    </main>
+
+    <!-- History Section -->
+    <main class="store-container" id="historySection" style="display: none; padding-top: 20px;">
+        <h2 style="font-size: 36px; font-weight: 400; margin-bottom: 12px; text-align: center; font-family: 'Playfair Display', serif;">Mi Historial Personal</h2>
+        <p style="text-align: center; color: var(--text-muted); max-width: 600px; margin: 0 auto 40px; font-size: 15px; font-weight: 300; line-height: 1.6;">
+            Consulta el estado de tus compras anteriores y las citas de belleza que tienes programadas.
+        </p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;">
+            <!-- Compras -->
+            <div class="card-history">
+                <h3 style="font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600; margin-bottom: 20px; border-bottom: 2px solid var(--primary-light); padding-bottom: 8px;">Mis Compras de Productos</h3>
+                <div id="ventasHistoryList" style="display: flex; flex-direction: column; gap: 16px;">
+                    <!-- Loading or purchases -->
+                </div>
+            </div>
+            <!-- Reservas/Citas -->
+            <div class="card-history">
+                <h3 style="font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600; margin-bottom: 20px; border-bottom: 2px solid var(--primary-light); padding-bottom: 8px;">Mis Reservas de Citas</h3>
+                <div id="citasHistoryList" style="display: flex; flex-direction: column; gap: 16px;">
+                    <!-- Loading or reservations -->
+                </div>
+            </div>
         </div>
     </main>
 
@@ -757,6 +839,7 @@
         let categories = [];
         let activeCategory = null;
         let cart = [];
+        let allServices = [];
 
         // Load Catalog
         document.addEventListener('DOMContentLoaded', () => {
@@ -775,6 +858,13 @@
                     filteredProducts = prods;
                     renderProducts();
                 });
+
+            fetch('/tienda/api/servicios')
+                .then(r => r.json())
+                .then(servs => {
+                    allServices = servs;
+                })
+                .catch(err => console.error("Error al cargar servicios:", err));
         });
 
         function renderCategoryFilters() {
@@ -832,6 +922,34 @@
                 const desc = p.descripcion || 'Sin descripción';
                 const price = p.precio_venta != null ? parseFloat(p.precio_venta).toFixed(2) : '0.00';
 
+                const stockAct = p.stock_actual != null ? Number(p.stock_actual) : 0;
+                const stockMin = p.stock_minimo != null ? Number(p.stock_minimo) : 10;
+                
+                let stockStatusHtml = '';
+                let cartBtnHtml = '';
+
+                if (stockAct <= 0) {
+                    stockStatusHtml = `<span style="font-size: 11px; font-weight: 700; color: #dc2626; margin-top: 4px; display: block;">⚠️ Agotado</span>`;
+                    cartBtnHtml = `
+                        <button class="add-to-cart-btn" style="background:#d1d5db;cursor:not-allowed;" disabled title="Sin stock disponible">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M18 6L6 18M6 6l12 12" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </button>`;
+                } else {
+                    if (stockAct <= stockMin) {
+                        stockStatusHtml = `<span style="font-size: 11px; font-weight: 600; color: #d97706; margin-top: 4px; display: block;">⚠️ ¡Pocas unidades! (Quedan ${stockAct})</span>`;
+                    } else {
+                        stockStatusHtml = `<span style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: block;">Stock disponible: ${stockAct}</span>`;
+                    }
+                    cartBtnHtml = `
+                        <button class="add-to-cart-btn" onclick="addToCart(${p.id_productos})">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 5v14M5 12h14" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>`;
+                }
+
                 card.innerHTML = `
                     <div class="product-img-wrap">
                         ${imageHtml}
@@ -841,13 +959,10 @@
                         <span class="product-brand">${brandName}</span>
                         <h3 class="product-title">${p.nombre_producto}</h3>
                         <p class="product-desc">${desc}</p>
-                        <div class="product-card-footer">
+                        ${stockStatusHtml}
+                        <div class="product-card-footer" style="margin-top: 12px;">
                             <span class="product-price">S/ ${price}</span>
-                            <button class="add-to-cart-btn" onclick="addToCart(${p.id_productos})">
-                                <svg viewBox="0 0 24 24">
-                                    <path d="M12 5v14M5 12h14" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </button>
+                            ${cartBtnHtml}
                         </div>
                     </div>
                 `;
@@ -879,6 +994,14 @@
             if (!prod) return;
 
             const existing = cart.find(item => item.id_productos === prodId);
+            const stockAct = prod.stock_actual != null ? Number(prod.stock_actual) : 0;
+            const currentQty = existing ? existing.cantidad : 0;
+
+            if (currentQty >= stockAct) {
+                alert(`Lo sentimos, no hay más unidades disponibles de ${prod.nombre_producto} (Stock actual: ${stockAct}).`);
+                return;
+            }
+
             if (existing) {
                 existing.cantidad += 1;
             } else {
@@ -897,6 +1020,15 @@
         function updateCartQuantity(prodId, delta) {
             const item = cart.find(i => i.id_productos === prodId);
             if (!item) return;
+
+            if (delta > 0) {
+                const prod = allProducts.find(p => p.id_productos === prodId);
+                const stockAct = prod && prod.stock_actual != null ? Number(prod.stock_actual) : 999;
+                if (item.cantidad >= stockAct) {
+                    alert(`No se pueden agregar más unidades. El stock máximo disponible es ${stockAct}.`);
+                    return;
+                }
+            }
 
             item.cantidad += delta;
             if (item.cantidad <= 0) {
@@ -966,6 +1098,196 @@
                 return;
             }
             window.location.href = '/tienda/checkout';
+        }
+
+        // Tab Switching
+        function switchTab(tab, element) {
+            // Remove active classes
+            document.querySelectorAll('.nav-menu .nav-link').forEach(l => l.classList.remove('active'));
+            // Add active class to clicked element
+            element.classList.add('active');
+
+            // Hide all sections
+            document.getElementById('storeSection').style.display = 'none';
+            document.getElementById('servicesSection').style.display = 'none';
+            const historySec = document.getElementById('historySection');
+            if (historySec) historySec.style.display = 'none';
+
+            // Show target section and update Hero text
+            const heroTitle = document.getElementById('heroTitle');
+            const heroDesc = document.getElementById('heroDesc');
+
+            if (tab === 'store') {
+                document.getElementById('storeSection').style.display = 'block';
+                heroTitle.textContent = 'Encuentra los mejores productos para tu estilo y cuidado personal';
+                heroDesc.textContent = 'Una cuidada selección de cremas, esmaltes, tratamientos y accesorios premium recomendados por nuestros expertos.';
+            } else if (tab === 'services') {
+                document.getElementById('servicesSection').style.display = 'block';
+                heroTitle.textContent = 'Tratamientos y Servicios de Belleza Exclusivos';
+                heroDesc.textContent = 'Reserva cortes de cabello, colorimetría, manicura y tratamientos capilares avanzados con nuestros estilistas certificados.';
+                renderServices();
+            } else if (tab === 'history') {
+                if (historySec) {
+                    historySec.style.display = 'block';
+                    heroTitle.textContent = 'Mi Actividad y Estado de Pedidos';
+                    heroDesc.textContent = 'Sigue el estado de tus compras y administra el calendario de tus próximas visitas al salón de belleza.';
+                    renderHistory();
+                }
+            }
+        }
+
+        // Render Services List
+        function renderServices() {
+            const grid = document.getElementById('servicesGrid');
+            grid.innerHTML = '';
+            if (allServices.length === 0) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 40px; color: var(--text-muted);">No hay servicios de belleza disponibles en este momento.</div>';
+                return;
+            }
+
+            allServices.forEach(s => {
+                const card = document.createElement('article');
+                card.className = 'product-card';
+
+                const desc = s.descripcion || 'Sin descripción';
+                const price = s.precio_base != null ? parseFloat(s.precio_base).toFixed(2) : '0.00';
+                const duration = s.duracion_minima ? `${s.duracion_minima} min` : '45 min';
+                
+                const fallbackChar = s.nombre_servicio_belleza.charAt(0).toUpperCase();
+
+                card.innerHTML = `
+                    <div class="product-img-wrap" style="background: linear-gradient(135deg, #fdfbf7 0%, #f5efe6 100%); aspect-ratio: 16/10;">
+                        <div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--primary-dark);font-family:'Playfair Display',serif;">
+                            <span style="font-size:36px;font-weight:600;opacity:0.8;">${fallbackChar}</span>
+                            <span style="font-size:10px;text-transform:uppercase;letter-spacing:2px;margin-top:6px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;opacity:0.6;">Estética</span>
+                        </div>
+                    </div>
+                    <div class="product-card-body" style="padding: 20px;">
+                        <span class="product-brand" style="color:var(--primary-dark);">Bellarista Spa</span>
+                        <h3 class="product-title" style="min-height:auto;margin-bottom:8px;font-size:16px;">${s.nombre_servicio_belleza}</h3>
+                        <p class="product-desc" style="margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">${desc}</p>
+                        
+                        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-muted);margin-bottom:16px;">
+                            <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            <span>Duración: ${duration}</span>
+                        </div>
+                        
+                        <div class="product-card-footer" style="margin-top:auto;border-top:1px solid rgba(0,0,0,0.04);padding-top:12px;">
+                            <div>
+                                <span style="font-size:9px;text-transform:uppercase;color:var(--text-muted);display:block;letter-spacing:0.5px;">Precio Base</span>
+                                <span class="product-price" style="font-size:16px;">S/ ${price}</span>
+                            </div>
+                            <a href="https://wa.me/51987654321?text=Hola,%20quisiera%20reservar%20una%20cita%20para%20el%20servicio%20de%20${encodeURIComponent(s.nombre_servicio_belleza)}" target="_blank" class="btn-filled" style="padding:6px 12px;font-size:11px;border-radius:99px;display:flex;align-items:center;gap:4px;text-decoration:none;">
+                                Reservar Cita
+                            </a>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Render History List
+        function renderHistory() {
+            const ventasList = document.getElementById('ventasHistoryList');
+            const citasList = document.getElementById('citasHistoryList');
+
+            ventasList.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;font-size:13px;">Cargando compras...</div>';
+            citasList.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;font-size:13px;">Cargando citas...</div>';
+
+            fetch('/tienda/api/historial')
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) {
+                        ventasList.innerHTML = `<div style="text-align:center;color:red;padding:20px;font-size:13px;">${data.error}</div>`;
+                        citasList.innerHTML = `<div style="text-align:center;color:red;padding:20px;font-size:13px;">${data.error}</div>`;
+                        return;
+                    }
+
+                    // Render Ventas
+                    ventasList.innerHTML = '';
+                    if (!data.ventas || data.ventas.length === 0) {
+                        ventasList.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;font-weight:300;font-size:13px;">No tienes compras registradas.</div>';
+                    } else {
+                        data.ventas.forEach(v => {
+                            const dateStr = v.fecha_venta ? new Date(v.fecha_venta).toLocaleDateString() : '-';
+                            const ticket = v.numero_ticket || v.comprobante_numero || 'T-N/A';
+                            const statusLabel = v.estado_sunat ? v.estado_sunat.toUpperCase() : 'PENDIENTE';
+                            const totalVal = v.total != null ? parseFloat(v.total).toFixed(2) : '0.00';
+
+                            let statusClass = 'status-badge-pending';
+                            if (v.estado_sunat === 'aceptada') statusClass = 'status-badge-success';
+                            else if (v.estado_sunat === 'rechazada') statusClass = 'status-badge-danger';
+
+                            const itemDiv = document.createElement('div');
+                            itemDiv.className = 'history-item';
+                            itemDiv.innerHTML = `
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                                    <div>
+                                        <strong style="font-size:14px;color:var(--dark);">${ticket}</strong>
+                                        <span style="font-size:12px;color:var(--text-muted);margin-left:8px;">${dateStr}</span>
+                                    </div>
+                                    <span class="status-badge ${statusClass}">${statusLabel}</span>
+                                </div>
+                                <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;">
+                                    <span style="color:var(--text-muted);">Comprobante: ${v.tipo_comprobante || 'boleta'}</span>
+                                    <strong style="font-size:15px;color:var(--dark);">S/ ${totalVal}</strong>
+                                </div>
+                            `;
+                            ventasList.appendChild(itemDiv);
+                        });
+                    }
+
+                    // Render Citas
+                    citasList.innerHTML = '';
+                    if (!data.citas || data.citas.length === 0) {
+                        citasList.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;font-weight:300;font-size:13px;">No tienes reservas de citas de belleza.</div>';
+                    } else {
+                        data.citas.forEach(c => {
+                            const dateStr = c.fecha_cita ? new Date(c.fecha_cita + 'T00:00:00').toLocaleDateString() : '-';
+                            const startStr = c.hora_inicio ? c.hora_inicio.substring(0, 5) : '';
+                            const endStr = c.hora_fin ? c.hora_fin.substring(0, 5) : '';
+                            const timeStr = `${startStr} - ${endStr}`;
+                            const duration = c.duracion_minutos ? `${c.duracion_minutos} min` : '60 min';
+                            const sedeName = c.id_sedes ? c.id_sedes.nombre_sede : 'Sede Principal';
+
+                            let statusLabel = 'CONFIRMADA';
+                            let statusClass = 'status-badge-success';
+                            if (c.estado === 0) {
+                                statusLabel = 'CANCELADA';
+                                statusClass = 'status-badge-danger';
+                            }
+
+                            const itemDiv = document.createElement('div');
+                            itemDiv.className = 'history-item';
+                            itemDiv.innerHTML = `
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                                    <div>
+                                        <strong style="font-size:14px;color:var(--dark);">${dateStr}</strong>
+                                        <span style="font-size:12px;color:var(--text-muted);margin-left:8px;">${timeStr}</span>
+                                    </div>
+                                    <span class="status-badge ${statusClass}">${statusLabel}</span>
+                                </div>
+                                <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:4px;">
+                                    <span style="color:var(--text-muted);">Sede: ${sedeName}</span>
+                                    <span style="color:var(--text-muted);">${duration}</span>
+                                </div>
+                                <div style="font-size:12px;color:var(--text-muted);font-style:italic;">
+                                    Obs: ${c.observaciones || 'Sin observaciones'}
+                                </div>
+                            `;
+                            citasList.appendChild(itemDiv);
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error('Error al cargar historial:', err);
+                    ventasList.innerHTML = '<div style="text-align:center;color:red;padding:20px;font-size:13px;">Error al cargar.</div>';
+                    citasList.innerHTML = '<div style="text-align:center;color:red;padding:20px;font-size:13px;">Error al cargar.</div>';
+                });
         }
     </script>
 </body>

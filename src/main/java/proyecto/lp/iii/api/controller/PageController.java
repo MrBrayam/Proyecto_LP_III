@@ -35,6 +35,12 @@ import proyecto.lp.iii.api.service.IDetalleVentaService;
 import proyecto.lp.iii.api.service.ISedeService;
 import proyecto.lp.iii.api.service.ISesionCajaService;
 import proyecto.lp.iii.api.service.ITenantsService;
+import proyecto.lp.iii.api.service.IServicioBellezaService;
+import proyecto.lp.iii.api.service.ICitaService;
+import proyecto.lp.iii.api.entity.ServicioBelleza;
+import proyecto.lp.iii.api.entity.Cita;
+import java.util.Map;
+import java.util.HashMap;
 
 @Controller
 public class PageController {
@@ -68,6 +74,12 @@ public class PageController {
 
     @Autowired
     private ITenantsService serviceTenants;
+
+    @Autowired
+    private IServicioBellezaService serviceServicioBelleza;
+
+    @Autowired
+    private ICitaService serviceCita;
 
     // Helper classes for Checkout request parsing
     public static class CheckoutRequest {
@@ -226,6 +238,41 @@ public class PageController {
             .collect(Collectors.toList());
     }
 
+    @GetMapping("/tienda/api/servicios")
+    @ResponseBody
+    public List<ServicioBelleza> getStorefrontServicios() {
+        return serviceServicioBelleza.buscarTodos().stream()
+            .filter(s -> s.getEstado() == null || s.getEstado() == 1)
+            .collect(Collectors.toList());
+    }
+
+    @GetMapping("/tienda/api/historial")
+    @ResponseBody
+    public Map<String, Object> getClienteHistorial(HttpSession session) {
+        Map<String, Object> res = new HashMap<>();
+        Cliente cliente = (Cliente) session.getAttribute("cliente");
+        if (cliente == null) {
+            res.put("success", false);
+            res.put("error", "No ha iniciado sesión");
+            return res;
+        }
+
+        // Obtener ventas asociadas al cliente
+        List<Venta> ventas = serviceVenta.buscarTodos().stream()
+            .filter(v -> v.getId_clientes() != null && v.getId_clientes().getId_clientes().equals(cliente.getId_clientes()))
+            .collect(Collectors.toList());
+
+        // Obtener citas/reservas asociadas al cliente
+        List<Cita> citas = serviceCita.buscarTodos().stream()
+            .filter(c -> c.getId_clientes() != null && c.getId_clientes().getId_clientes().equals(cliente.getId_clientes()))
+            .collect(Collectors.toList());
+
+        res.put("success", true);
+        res.put("ventas", ventas);
+        res.put("citas", citas);
+        return res;
+    }
+
     @GetMapping("/tienda/api/categorias")
     @ResponseBody
     public List<CategoriaProducto> getStorefrontCategorias() {
@@ -284,7 +331,7 @@ public class PageController {
             venta.setComprobante_numero("C-" + System.currentTimeMillis());
             venta.setTipo_comprobante("boleta");
             venta.setEstado(1);
-            venta.setEstado_sunat("Aceptado");
+            venta.setEstado_sunat("aceptada");
 
             // Calcular montos
             double total = 0.0;
@@ -295,14 +342,14 @@ public class PageController {
             venta.setSubtotal(BigDecimal.valueOf(total / 1.18));
             venta.setImpuesto(BigDecimal.valueOf(total - (total / 1.18)));
 
-            serviceVenta.guardar(venta);
+            Venta savedVenta = serviceVenta.guardar(venta);
 
             // 4. Crear DetalleVenta para cada producto
             for (CartItem item : request.getItems()) {
                 Producto prod = serviceProducto.buscarId(item.getId_productos()).orElse(null);
                 if (prod != null) {
                     DetalleVenta det = new DetalleVenta();
-                    det.setId_ventas(venta);
+                    det.setId_ventas(savedVenta);
                     det.setId_productos(prod);
                     det.setCantidad(item.getCantidad());
                     det.setPrecio_unitario(BigDecimal.valueOf(item.getPrecio_venta()));
@@ -316,7 +363,8 @@ public class PageController {
 
             return "{\"success\": true, \"ventaId\": " + venta.getId_ventas() + "}";
         } catch (Exception e) {
-            return "{\"success\": false, \"error\": \"" + e.getMessage() + "\"}";
+            e.printStackTrace();
+            return "{\"success\": false, \"error\": \"" + e.getMessage().replace("\"", "\\\"") + "\"}";
         }
     }
 

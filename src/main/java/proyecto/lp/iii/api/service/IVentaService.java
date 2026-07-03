@@ -7,7 +7,7 @@ import proyecto.lp.iii.api.entity.Venta;
 public interface IVentaService {
     List<Venta> buscarTodos();
 
-    void guardar(Venta venta);
+    Venta guardar(Venta venta);
 
     void modificar(Venta venta);
 
