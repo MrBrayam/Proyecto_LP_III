@@ -273,6 +273,43 @@ public class PageController {
         return res;
     }
 
+    @GetMapping("/tienda/api/detalles-venta/{ventaId}")
+    @ResponseBody
+    public List<Map<String, Object>> getDetallesVenta(@org.springframework.web.bind.annotation.PathVariable Integer ventaId) {
+        return serviceDetalleVenta.buscarTodos().stream()
+            .filter(d -> d.getId_ventas() != null && d.getId_ventas().getId_ventas().equals(ventaId))
+            .map(d -> {
+                Map<String, Object> item = new HashMap<>();
+                item.put("id_detalle_venta", d.getId_detalle_venta());
+                item.put("cantidad", d.getCantidad());
+                item.put("precio_unitario", d.getPrecio_unitario());
+                item.put("subtotal", d.getSubtotal());
+                // Force eager load of producto name to avoid LAZY proxy null in JSON
+                String nombreProducto = "Producto/Servicio";
+                if (d.getId_productos() != null) {
+                    try { nombreProducto = d.getId_productos().getNombre_producto(); } catch (Exception ignored) {}
+                }
+                item.put("nombre_producto", nombreProducto);
+                return item;
+            })
+            .collect(Collectors.toList());
+    }
+
+    @GetMapping("/tienda/api/venta/{ventaId}")
+    @ResponseBody
+    public Map<String, Object> getVentaById(@org.springframework.web.bind.annotation.PathVariable Integer ventaId, HttpSession session) {
+        Map<String, Object> res = new HashMap<>();
+        Venta venta = serviceVenta.buscarId(ventaId).orElse(null);
+        if (venta == null) {
+            res.put("success", false);
+            res.put("error", "Venta no encontrada");
+            return res;
+        }
+        res.put("success", true);
+        res.put("venta", venta);
+        return res;
+    }
+
     @GetMapping("/tienda/api/categorias")
     @ResponseBody
     public List<CategoriaProducto> getStorefrontCategorias() {
@@ -344,7 +381,8 @@ public class PageController {
 
             Venta savedVenta = serviceVenta.guardar(venta);
 
-            // 4. Crear DetalleVenta para cada producto
+            // 4. Crear DetalleVenta para cada producto (sin descontar stock todavía)
+            List<Object[]> stockUpdates = new java.util.ArrayList<>();
             for (CartItem item : request.getItems()) {
                 Producto prod = serviceProducto.buscarId(item.getId_productos()).orElse(null);
                 if (prod != null) {
@@ -355,18 +393,30 @@ public class PageController {
                     det.setPrecio_unitario(BigDecimal.valueOf(item.getPrecio_venta()));
                     det.setSubtotal(BigDecimal.valueOf(item.getCantidad() * item.getPrecio_venta()));
                     serviceDetalleVenta.guardar(det);
+                    // Guardar para descuento posterior (solo si todo fue bien)
+                    stockUpdates.add(new Object[]{ prod, item.getCantidad() });
                 }
             }
 
-            // Limpiar carrito o guardar datos de cliente en sesion
+            // 5. Descontar stock solo si TODOS los detalles se guardaron correctamente
+            for (Object[] update : stockUpdates) {
+                Producto prod = (Producto) update[0];
+                int qty = (int) update[1];
+                int nuevoStock = (prod.getStock_actual() != null ? prod.getStock_actual() : 0) - qty;
+                prod.setStock_actual(Math.max(nuevoStock, 0));
+                serviceProducto.modificar(prod);
+            }
+
+            // Actualizar sesion con datos frescos del cliente
             session.setAttribute("cliente", cliente);
 
-            return "{\"success\": true, \"ventaId\": " + venta.getId_ventas() + "}";
+            return "{\"success\": true, \"ventaId\": " + savedVenta.getId_ventas() + "}";
         } catch (Exception e) {
             e.printStackTrace();
             return "{\"success\": false, \"error\": \"" + e.getMessage().replace("\"", "\\\"") + "\"}";
         }
     }
+
 
     // ========== CONTROL DE ACCESO DE ADMINISTRACIÓN ==========
 

@@ -41,9 +41,10 @@ public Venta modificar(@PathVariable Integer id, @RequestBody Venta registro) {
 }
 
 @GetMapping("/ventas/{id}")
-public Optional<Venta> buscarId(@PathVariable("id") Integer id) {
-return serviceVenta.buscarId(id);
+public Venta buscarId(@PathVariable("id") Integer id) {
+    return serviceVenta.buscarId(id).orElse(null);
 }
+
 
 @DeleteMapping("/ventas/{id}")
 public String elminar(@PathVariable Integer id) {

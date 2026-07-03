@@ -6,6 +6,9 @@
     <title>¡Compra Completada! - Bellarista</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
     <link href="/css/tienda_success.css" rel="stylesheet">
+    <!-- jsPDF and AutoTable libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 
@@ -16,9 +19,41 @@
             </svg>
         </div>
         <h1>¡Compra Realizada!</h1>
-        <p>Tu orden ha sido registrada exitosamente en nuestro sistema de Bellarista Salon & Boutique. Recibirás un correo electrónico de confirmación con el detalle de la entrega.</p>
-        <a href="/" class="btn-home">Seguir comprando</a>
+        <p>Tu orden ha sido registrada exitosamente en nuestro sistema de Bellarista Salon &amp; Boutique. Recibirás un correo electrónico de confirmación con el detalle de la entrega.</p>
+
+        <div style="margin-bottom: 24px;">
+            <button id="btnDownload" class="btn-home"
+                    style="background: var(--primary); margin-right: 12px; display: none;"
+                    onclick="generarBoletaPDF()">
+                📄 Ver Boleta PDF
+            </button>
+            <a href="/" class="btn-home">Seguir comprando</a>
+        </div>
     </div>
+
+    <!-- Shared storefront JS (cart utils + PDF generator) -->
+    <script src="/js/tienda.js"></script>
+    <script>
+        // Parse ventaId from URL query param as integer
+        var ventaId = parseInt(new URLSearchParams(window.location.search).get('ventaId'), 10);
+        if (ventaId && !isNaN(ventaId)) {
+            document.getElementById('btnDownload').style.display = 'inline-flex';
+        }
+
+        function generarBoletaPDF() {
+            if (!ventaId || isNaN(ventaId)) return;
+            var btn = document.getElementById('btnDownload');
+            btn.textContent = '⏳ Generando...';
+            btn.disabled = true;
+
+            // 800ms delay so DB transaction is fully flushed before the fetch
+            setTimeout(function() {
+                generarBoletaPDFComun(ventaId);
+                btn.innerHTML = '📄 Ver Boleta PDF';
+                btn.disabled = false;
+            }, 800);
+        }
+    </script>
 
 </body>
 </html>

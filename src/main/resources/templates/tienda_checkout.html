@@ -246,8 +246,7 @@
                 if (data.success) {
                     // Clear cart
                     localStorage.removeItem('bellarista_cart');
-                    // Redirect to success page
-                    window.location.href = '/tienda/success';
+                    window.location.href = '/tienda/success?ventaId=' + data.ventaId;
                 } else {
                     console.error('Error detallado del servidor:', data.error);
                     alert('Error al registrar compra: ' + (data.error || 'Intente nuevamente'));
