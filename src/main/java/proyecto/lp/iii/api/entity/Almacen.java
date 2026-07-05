@@ -20,6 +20,7 @@ import org.hibernate.annotations.SQLRestriction;
 @SQLRestriction("estado=1")
 @JsonPropertyOrder({
         "id_almacenes",
+        "id_tenants",
         "id_sedes",
         "nombre_almacen",
         "ubicacion",
@@ -32,9 +33,15 @@ public class Almacen {
     private Integer id_almacenes;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_tenants", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private Tenants id_tenants;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_sedes", nullable = false)
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Sede id_sedes;
+
 
     @Column(name = "nombre_almacen", nullable = false, length = 100)
     private String nombre_almacen;
@@ -88,6 +95,14 @@ public class Almacen {
         this.capacidad = capacidad;
     }
 
+    public Tenants getId_tenants() {
+        return id_tenants;
+    }
+
+    public void setId_tenants(Tenants id_tenants) {
+        this.id_tenants = id_tenants;
+    }
+
     public Integer getEstado() {
         return estado;
     }
@@ -98,7 +113,7 @@ public class Almacen {
 
     @Override
     public String toString() {
-        return "Almacen [id_almacenes=" + id_almacenes + ", id_sedes=" + id_sedes + ", nombre_almacen="
+        return "Almacen [id_almacenes=" + id_almacenes + ", id_tenants=" + id_tenants + ", id_sedes=" + id_sedes + ", nombre_almacen="
                 + nombre_almacen + ", ubicacion=" + ubicacion + ", capacidad=" + capacidad + ", estado=" + estado
                 + "]";
     }

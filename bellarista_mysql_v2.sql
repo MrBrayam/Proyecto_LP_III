@@ -459,15 +459,19 @@ CREATE TABLE `permisos_rol` (
 DROP TABLE IF EXISTS `almacenes`;
 CREATE TABLE `almacenes` (
   `id_almacenes` int(11) NOT NULL AUTO_INCREMENT,
+  `id_tenants` int(11) NOT NULL,
   `id_sedes` int(11) NOT NULL,
   `nombre_almacen` varchar(100) NOT NULL,
   `ubicacion` varchar(255) DEFAULT NULL,
   `capacidad` int(11) DEFAULT NULL,
   `estado` tinyint(1) DEFAULT 1,
   PRIMARY KEY (`id_almacenes`),
+  KEY `idx_tenant_id` (`id_tenants`),
   KEY `idx_sede_id` (`id_sedes`),
+  CONSTRAINT `fk_almacenes_tenant` FOREIGN KEY (`id_tenants`) REFERENCES `tenants` (`id_tenants`) ON DELETE CASCADE,
   CONSTRAINT `fk_almacenes_1` FOREIGN KEY (`id_sedes`) REFERENCES `sedes` (`id_sedes`) ON DELETE CASCADE
 );
+
 
 
 DROP TABLE IF EXISTS `gastos_recurrentes`;

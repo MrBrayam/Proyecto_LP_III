@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bellarista - Tienda Virtual</title>
+    <title th:text="${tenant != null ? tenant.nombre_comercial : 'Bellarista'} + ' - Tienda Virtual'">Bellarista - Tienda Virtual</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..700;1,400..700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
@@ -19,7 +19,7 @@
     <!-- Header / Navbar -->
     <header>
         <div class="nav-container">
-            <a href="/" class="logo">Bella<span>rista</span></a>
+            <a th:href="'/tienda/' + ${tenantId}" class="logo" th:text="${tenant != null ? tenant.nombre_comercial : 'Bellarista'}">Bellarista</a>
             <ul class="nav-menu">
                 <li><a href="#" class="nav-link active" id="tab-store" onclick="switchTab('store', this)">Productos</a></li>
                 <li><a href="#" class="nav-link" id="tab-services" onclick="switchTab('services', this)">Servicios</a></li>
@@ -55,7 +55,7 @@
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-content">
-            <p class="hero-subtitle">Bellarista Boutique</p>
+            <p class="hero-subtitle" th:text="${tenant != null ? tenant.nombre_comercial : 'Bellarista Boutique'}">Bellarista Boutique</p>
             <h1 id="heroTitle">Encuentra los mejores productos para tu estilo y cuidado personal</h1>
             <p id="heroDesc">Una cuidada selección de cremas, esmaltes, tratamientos y accesorios premium recomendados por nuestros expertos.</p>
         </div>

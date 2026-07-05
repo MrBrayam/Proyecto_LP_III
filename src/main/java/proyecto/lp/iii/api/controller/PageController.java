@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,6 +26,7 @@ import proyecto.lp.iii.api.entity.DetalleVenta;
 import proyecto.lp.iii.api.entity.Sede;
 import proyecto.lp.iii.api.entity.SesionCaja;
 import proyecto.lp.iii.api.entity.Tenants;
+import proyecto.lp.iii.api.entity.Registros;
 import proyecto.lp.iii.api.service.IUsuariosService;
 import proyecto.lp.iii.api.service.IClienteService;
 import proyecto.lp.iii.api.service.IProductoService;
@@ -35,6 +37,7 @@ import proyecto.lp.iii.api.service.IDetalleVentaService;
 import proyecto.lp.iii.api.service.ISedeService;
 import proyecto.lp.iii.api.service.ISesionCajaService;
 import proyecto.lp.iii.api.service.ITenantsService;
+import proyecto.lp.iii.api.service.IRegistrosService;
 import proyecto.lp.iii.api.service.IServicioBellezaService;
 import proyecto.lp.iii.api.service.ICitaService;
 import proyecto.lp.iii.api.entity.ServicioBelleza;
@@ -80,6 +83,9 @@ public class PageController {
 
     @Autowired
     private ICitaService serviceCita;
+
+    @Autowired
+    private IRegistrosService serviceRegistros;
 
     // Helper classes for Checkout request parsing
     public static class CheckoutRequest {
@@ -129,19 +135,164 @@ public class PageController {
         public void setPrecio_venta(Double precio_venta) { this.precio_venta = precio_venta; }
     }
 
-    // ========== PORTAL PÚBLICO: TIENDA VIRTUAL ==========
+    // ========== LOGIN GENERAL (PÁGINA RAÍZ) ==========
 
     @GetMapping("/")
-    public String tienda(Model model, HttpSession session) {
+    public String loginGeneral(HttpSession session) {
+        if (session.getAttribute("superadmin") != null) {
+            return "redirect:/superadmin/dashboard";
+        }
+        return "login_general";
+    }
+
+    @PostMapping("/login-general")
+    public String loginGeneralPost(@RequestParam String email,
+                                   @RequestParam String accessToken,
+                                   HttpSession session, Model model) {
+        Optional<Registros> registro = serviceRegistros.buscarTodos().stream()
+            .filter(r -> r.getEmail() != null && r.getEmail().equalsIgnoreCase(email)
+                && r.getAccess_token() != null && r.getAccess_token().equals(accessToken))
+            .findFirst();
+
+        if (registro.isPresent()) {
+            session.setAttribute("superadmin", registro.get());
+            return "redirect:/superadmin/dashboard";
+        }
+
+        model.addAttribute("error", "Credenciales incorrectas. Verifique su email y access token.");
+        return "login_general";
+    }
+
+    @GetMapping("/superadmin/logout")
+    public String superadminLogout(HttpSession session) {
+        session.removeAttribute("superadmin");
+        return "redirect:/";
+    }
+
+    // ========== SUPERADMIN DASHBOARD ==========
+
+    @GetMapping("/superadmin/dashboard")
+    public String superadminDashboard(Model model, HttpSession session) {
+        if (session.getAttribute("superadmin") == null) {
+            return "redirect:/";
+        }
+        model.addAttribute("superadmin", session.getAttribute("superadmin"));
+        model.addAttribute("tenants", serviceTenants.buscarTodos());
+        model.addAttribute("usuarios", serviceUsuarios.buscarTodos());
+        return "superadmin_dashboard";
+    }
+
+    @PostMapping("/superadmin/tenants/crear")
+    @ResponseBody
+    public Map<String, Object> crearTenant(@RequestBody Map<String, String> datos, HttpSession session) {
+        Map<String, Object> res = new HashMap<>();
+        if (session.getAttribute("superadmin") == null) {
+            res.put("success", false);
+            res.put("error", "No autorizado");
+            return res;
+        }
+        try {
+            Tenants tenant = new Tenants();
+            tenant.setRazon_social(datos.get("razon_social"));
+            tenant.setRuc(datos.get("ruc"));
+            tenant.setDireccion_fiscal(datos.get("direccion_fiscal"));
+            tenant.setCorreo(datos.get("correo"));
+            tenant.setTelefono(datos.get("telefono"));
+            tenant.setNombre_comercial(datos.get("nombre_comercial"));
+            tenant.setTipo_negocio(datos.get("tipo_negocio"));
+            tenant.setEstado(1);
+            serviceTenants.guardar(tenant);
+
+            // Crear usuario admin por defecto
+            Usuarios admin = new Usuarios();
+            admin.setId_tenants(tenant);
+            String nombreLimpio = datos.get("nombre_comercial").replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
+            admin.setCorreo("admin@" + nombreLimpio + ".com");
+            admin.setNombre_usuario("Administrador");
+            admin.setApellidos_usuario(datos.get("nombre_comercial"));
+            admin.setContrasenia("123");
+            admin.setTipo_usuario("admin");
+            admin.setNumero_documento("00000000");
+            admin.setEstado(1);
+            serviceUsuarios.guardar(admin);
+
+            res.put("success", true);
+            res.put("tenantId", tenant.getId_tenants());
+            res.put("adminCorreo", admin.getCorreo());
+        } catch (Exception e) {
+            res.put("success", false);
+            res.put("error", e.getMessage());
+        }
+        return res;
+    }
+
+    @PostMapping("/superadmin/tenants/editar")
+    @ResponseBody
+    public Map<String, Object> editarTenant(@RequestBody Map<String, String> datos, HttpSession session) {
+        Map<String, Object> res = new HashMap<>();
+        if (session.getAttribute("superadmin") == null) {
+            res.put("success", false);
+            res.put("error", "No autorizado");
+            return res;
+        }
+        try {
+            Integer id = Integer.parseInt(datos.get("id_tenants"));
+            Tenants tenant = serviceTenants.buscarId(id).orElse(null);
+            if (tenant == null) {
+                res.put("success", false);
+                res.put("error", "Tenant no encontrado");
+                return res;
+            }
+            tenant.setRazon_social(datos.get("razon_social"));
+            tenant.setRuc(datos.get("ruc"));
+            tenant.setDireccion_fiscal(datos.get("direccion_fiscal"));
+            tenant.setCorreo(datos.get("correo"));
+            tenant.setTelefono(datos.get("telefono"));
+            tenant.setNombre_comercial(datos.get("nombre_comercial"));
+            tenant.setTipo_negocio(datos.get("tipo_negocio"));
+            serviceTenants.modificar(tenant);
+            res.put("success", true);
+        } catch (Exception e) {
+            res.put("success", false);
+            res.put("error", e.getMessage());
+        }
+        return res;
+    }
+
+    @GetMapping("/superadmin/api/tenants")
+    @ResponseBody
+    public List<Tenants> apiTenants(HttpSession session) {
+        return serviceTenants.buscarTodos();
+    }
+
+    @GetMapping("/superadmin/api/usuarios")
+    @ResponseBody
+    public List<Usuarios> apiUsuarios(HttpSession session) {
+        return serviceUsuarios.buscarTodos();
+    }
+
+    // ========== PORTAL PÚBLICO: TIENDA VIRTUAL MULTI-TENANT ==========
+
+    @GetMapping("/tienda/{tenantId}")
+    public String tiendaMultiTenant(@PathVariable Integer tenantId, Model model, HttpSession session) {
+        Tenants tenant = serviceTenants.buscarId(tenantId).orElse(null);
+        if (tenant == null) {
+            return "redirect:/";
+        }
+        session.setAttribute("tenantId", tenantId);
         model.addAttribute("cliente", session.getAttribute("cliente"));
+        model.addAttribute("tenant", tenant);
+        model.addAttribute("tenantId", tenantId);
         return "tienda";
     }
 
     @GetMapping("/tienda/login")
-    public String tiendaLogin(HttpSession session) {
-        if (session.getAttribute("cliente") != null) {
-            return "redirect:/";
+    public String tiendaLogin(HttpSession session, Model model) {
+        Integer tenantId = (Integer) session.getAttribute("tenantId");
+        if (session.getAttribute("cliente") != null && tenantId != null) {
+            return "redirect:/tienda/" + tenantId;
         }
+        model.addAttribute("tenantId", tenantId);
         return "tienda_login";
     }
 
@@ -149,25 +300,30 @@ public class PageController {
     public String tiendaLoginPost(@RequestParam String correo,
                                   @RequestParam String documento,
                                   HttpSession session, Model model) {
+        Integer tenantId = (Integer) session.getAttribute("tenantId");
         Optional<Cliente> client = serviceCliente.buscarTodos().stream()
             .filter(c -> c.getCorreo() != null && c.getCorreo().equalsIgnoreCase(correo)
-                && c.getNumero_documento() != null && c.getNumero_documento().equals(documento))
+                && c.getNumero_documento() != null && c.getNumero_documento().equals(documento)
+                && c.getId_tenants() != null && c.getId_tenants().getId_tenants().equals(tenantId))
             .findFirst();
 
         if (client.isPresent()) {
             session.setAttribute("cliente", client.get());
-            return "redirect:/";
+            return "redirect:/tienda/" + tenantId;
         }
 
         model.addAttribute("error", "Credenciales incorrectas (Verifique Correo y DNI/RUC)");
+        model.addAttribute("tenantId", tenantId);
         return "tienda_login";
     }
 
     @GetMapping("/tienda/registro")
-    public String tiendaRegistro(HttpSession session) {
-        if (session.getAttribute("cliente") != null) {
-            return "redirect:/";
+    public String tiendaRegistro(HttpSession session, Model model) {
+        Integer tenantId = (Integer) session.getAttribute("tenantId");
+        if (session.getAttribute("cliente") != null && tenantId != null) {
+            return "redirect:/tienda/" + tenantId;
         }
+        model.addAttribute("tenantId", tenantId);
         return "tienda_registro";
     }
 
@@ -181,12 +337,15 @@ public class PageController {
                                      @RequestParam String tipoDocumento,
                                      @RequestParam String numeroDocumento,
                                      HttpSession session, Model model) {
-        // Validar si ya existe
+        Integer tenantId = (Integer) session.getAttribute("tenantId");
+        // Validar si ya existe dentro del mismo tenant
         boolean existe = serviceCliente.buscarTodos().stream()
-            .anyMatch(c -> c.getCorreo() != null && c.getCorreo().equalsIgnoreCase(correo));
+            .anyMatch(c -> c.getCorreo() != null && c.getCorreo().equalsIgnoreCase(correo)
+                && c.getId_tenants() != null && c.getId_tenants().getId_tenants().equals(tenantId));
 
         if (existe) {
-            model.addAttribute("error", "El correo ya se encuentra registrado");
+            model.addAttribute("error", "El correo ya se encuentra registrado en esta tienda");
+            model.addAttribute("tenantId", tenantId);
             return "tienda_registro";
         }
 
@@ -202,47 +361,56 @@ public class PageController {
         cliente.setTipo_cliente("regular");
         cliente.setEstado(1);
 
-        Tenants tenant = serviceTenants.buscarId(1).orElse(null);
+        Tenants tenant = serviceTenants.buscarId(tenantId != null ? tenantId : 1).orElse(null);
         cliente.setId_tenants(tenant);
 
         serviceCliente.guardar(cliente);
         session.setAttribute("cliente", cliente);
 
-        return "redirect:/";
+        return "redirect:/tienda/" + (tenantId != null ? tenantId : 1);
     }
 
     @GetMapping("/tienda/logout")
     public String tiendaLogout(HttpSession session) {
+        Integer tenantId = (Integer) session.getAttribute("tenantId");
         session.removeAttribute("cliente");
-        return "redirect:/";
+        return "redirect:/tienda/" + (tenantId != null ? tenantId : 1);
     }
 
     @GetMapping("/tienda/checkout")
     public String tiendaCheckout(Model model, HttpSession session) {
+        Integer tenantId = (Integer) session.getAttribute("tenantId");
         model.addAttribute("cliente", session.getAttribute("cliente"));
+        model.addAttribute("tenantId", tenantId);
         return "tienda_checkout";
     }
 
     @GetMapping("/tienda/success")
     public String tiendaSuccess(Model model, HttpSession session) {
+        Integer tenantId = (Integer) session.getAttribute("tenantId");
+        model.addAttribute("tenantId", tenantId);
         return "tienda_success";
     }
 
-    // ========== API PÚBLICA TIENDA (JSON) ==========
+    // ========== API PÚBLICA TIENDA (JSON) - MULTI-TENANT ==========
 
     @GetMapping("/tienda/api/productos")
     @ResponseBody
-    public List<Producto> getStorefrontProductos() {
+    public List<Producto> getStorefrontProductos(HttpSession session) {
+        Integer tenantId = (Integer) session.getAttribute("tenantId");
         return serviceProducto.buscarTodos().stream()
-            .filter(p -> p.getVisible_storefront() != null && p.getVisible_storefront() == 1)
+            .filter(p -> p.getVisible_storefront() != null && p.getVisible_storefront() == 1
+                && (tenantId == null || (p.getId_tenants() != null && p.getId_tenants().getId_tenants().equals(tenantId))))
             .collect(Collectors.toList());
     }
 
     @GetMapping("/tienda/api/servicios")
     @ResponseBody
-    public List<ServicioBelleza> getStorefrontServicios() {
+    public List<ServicioBelleza> getStorefrontServicios(HttpSession session) {
+        Integer tenantId = (Integer) session.getAttribute("tenantId");
         return serviceServicioBelleza.buscarTodos().stream()
-            .filter(s -> s.getEstado() == null || s.getEstado() == 1)
+            .filter(s -> (s.getEstado() == null || s.getEstado() == 1)
+                && (tenantId == null || (s.getId_tenants() != null && s.getId_tenants().getId_tenants().equals(tenantId))))
             .collect(Collectors.toList());
     }
 
@@ -312,14 +480,20 @@ public class PageController {
 
     @GetMapping("/tienda/api/categorias")
     @ResponseBody
-    public List<CategoriaProducto> getStorefrontCategorias() {
-        return serviceCategoria.buscarTodos();
+    public List<CategoriaProducto> getStorefrontCategorias(HttpSession session) {
+        Integer tenantId = (Integer) session.getAttribute("tenantId");
+        return serviceCategoria.buscarTodos().stream()
+            .filter(c -> tenantId == null || (c.getId_tenants() != null && c.getId_tenants().getId_tenants().equals(tenantId)))
+            .collect(Collectors.toList());
     }
 
     @GetMapping("/tienda/api/marcas")
     @ResponseBody
-    public List<Marca> getStorefrontMarcas() {
-        return serviceMarca.buscarTodos();
+    public List<Marca> getStorefrontMarcas(HttpSession session) {
+        Integer tenantId = (Integer) session.getAttribute("tenantId");
+        return serviceMarca.buscarTodos().stream()
+            .filter(m -> tenantId == null || (m.getId_tenants() != null && m.getId_tenants().getId_tenants().equals(tenantId)))
+            .collect(Collectors.toList());
     }
 
     @PostMapping("/tienda/api/checkout")
@@ -346,13 +520,18 @@ public class PageController {
                 cliente.setNumero_documento(request.getNumeroDocumento());
                 cliente.setTipo_cliente("regular");
                 cliente.setEstado(1);
-                cliente.setId_tenants(serviceTenants.buscarId(1).orElse(null));
+                Integer sessTenantId = (Integer) session.getAttribute("tenantId");
+                cliente.setId_tenants(serviceTenants.buscarId(sessTenantId != null ? sessTenantId : 1).orElse(null));
                 serviceCliente.guardar(cliente);
             }
 
             // 2. Resolver dependencias de Sede, Tenant y SesionCaja
-            Tenants tenant = serviceTenants.buscarId(1).orElse(null);
-            Sede sede = serviceSede.buscarTodos().stream().findFirst().orElse(null);
+            Integer checkoutTenantId = (Integer) session.getAttribute("tenantId");
+            Tenants tenant = serviceTenants.buscarId(checkoutTenantId != null ? checkoutTenantId : 1).orElse(null);
+            final Integer finalTenantId = checkoutTenantId != null ? checkoutTenantId : 1;
+            Sede sede = serviceSede.buscarTodos().stream()
+                .filter(s -> s.getId_tenants() != null && s.getId_tenants().getId_tenants().equals(finalTenantId))
+                .findFirst().orElse(serviceSede.buscarTodos().stream().findFirst().orElse(null));
             SesionCaja sesion = serviceSesionCaja.buscarTodos().stream()
                 .filter(s -> s.getEstado() != null && s.getEstado() == 1)
                 .findFirst()
@@ -449,7 +628,7 @@ public class PageController {
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
-        return "redirect:/admin/login";
+        return "redirect:/";
     }
 
     @GetMapping("/dashboard")

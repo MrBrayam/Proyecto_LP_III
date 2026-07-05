@@ -16,11 +16,13 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable()).authorizeHttpRequests(auth -> 
             auth.requestMatchers(
                 "/",
+                "/login-general",
                 "/admin/login",
                 "/login",
                 "/logout",
                 "/dashboard",
                 "/modulos/**",
+                "/superadmin/**",
                 "/css/**",
                 "/js/**",
                 "/favicon.ico",
