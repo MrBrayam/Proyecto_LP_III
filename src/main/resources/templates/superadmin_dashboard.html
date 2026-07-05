@@ -716,6 +716,7 @@
                                 <th>Tipo</th>
                                 <th>Tenant</th>
                                 <th>Estado</th>
+                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="usuariosTableBody">
@@ -729,6 +730,9 @@
                                 <td>
                                     <span th:if="${u.estado == 1}" class="badge-active">Activo</span>
                                     <span th:if="${u.estado != 1}" class="badge-inactive">Inactivo</span>
+                                </td>
+                                <td>
+                                    <button class="btn-sm btn-edit" th:onclick="'openEditUserModal(' + ${u.id_usuarios} + ')'">Editar</button>
                                 </td>
                             </tr>
                         </tbody>
@@ -828,6 +832,62 @@
                     </div>
                 </div>
                 <button class="btn-primary-full" onclick="editarTenant()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div class="modal-overlay" id="editUserModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Editar Usuario</h3>
+                <button class="modal-close" onclick="closeModal('editUserModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="eu_id_usuarios">
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>Nombre *</label>
+                        <input type="text" id="eu_nombre_usuario">
+                    </div>
+                    <div class="form-group">
+                        <label>Apellidos *</label>
+                        <input type="text" id="eu_apellidos_usuario">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Correo Electrónico *</label>
+                    <input type="email" id="eu_correo">
+                </div>
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>Tipo de Usuario *</label>
+                        <select id="eu_tipo_usuario">
+                            <option value="admin">Administrador</option>
+                            <option value="cajero">Cajero</option>
+                            <option value="estilista">Estilista</option>
+                            <option value="repartidor">Repartidor</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Estado</label>
+                        <select id="eu_estado">
+                            <option value="1">Activo</option>
+                            <option value="0">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Tienda (Tenant) *</label>
+                    <select id="eu_id_tenants">
+                        <option th:each="t : ${tenants}" th:value="${t.id_tenants}" th:text="${t.nombre_comercial}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nueva Contraseña (Dejar en blanco para no cambiar)</label>
+                    <input type="password" id="eu_contrasenia" placeholder="Nueva contraseña">
+                </div>
+                <button class="btn-primary-full" onclick="editarUsuario()">Guardar Cambios</button>
             </div>
         </div>
     </div>
@@ -945,6 +1005,66 @@
             toast.textContent = msg;
             toast.className = 'toast toast-' + type + ' show';
             setTimeout(() => toast.classList.remove('show'), 4000);
+        }
+
+        // Edit User modal
+        function openEditUserModal(userId) {
+            fetch('/superadmin/api/usuarios')
+                .then(r => r.json())
+                .then(usuarios => {
+                    const u = usuarios.find(x => x.id_usuarios === userId);
+                    if (u) {
+                        document.getElementById('eu_id_usuarios').value = u.id_usuarios;
+                        document.getElementById('eu_nombre_usuario').value = u.nombre_usuario || '';
+                        document.getElementById('eu_apellidos_usuario').value = u.apellidos_usuario || '';
+                        document.getElementById('eu_correo').value = u.correo || '';
+                        document.getElementById('eu_tipo_usuario').value = u.tipo_usuario || 'admin';
+                        document.getElementById('eu_estado').value = u.estado !== undefined ? u.estado : '1';
+                        document.getElementById('eu_contrasenia').value = '';
+                        
+                        if (u.id_tenants) {
+                            document.getElementById('eu_id_tenants').value = u.id_tenants.id_tenants;
+                        }
+                        
+                        document.getElementById('editUserModal').classList.add('active');
+                    }
+                });
+        }
+
+        // Save User changes
+        function editarUsuario() {
+            const data = {
+                id_usuarios: document.getElementById('eu_id_usuarios').value,
+                nombre_usuario: document.getElementById('eu_nombre_usuario').value,
+                apellidos_usuario: document.getElementById('eu_apellidos_usuario').value,
+                correo: document.getElementById('eu_correo').value,
+                tipo_usuario: document.getElementById('eu_tipo_usuario').value,
+                estado: document.getElementById('eu_estado').value,
+                id_tenants: document.getElementById('eu_id_tenants').value,
+                contrasenia: document.getElementById('eu_contrasenia').value
+            };
+
+            if (!data.nombre_usuario || !data.apellidos_usuario || !data.correo) {
+                showToast('Complete los campos obligatorios (*)', 'error');
+                return;
+            }
+
+            fetch('/superadmin/usuarios/editar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) {
+                    showToast('Usuario actualizado exitosamente', 'success');
+                    closeModal('editUserModal');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showToast('Error: ' + res.error, 'error');
+                }
+            })
+            .catch(err => showToast('Error de conexión', 'error'));
         }
 
         // Close modal on overlay click

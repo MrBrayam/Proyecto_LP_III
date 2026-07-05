@@ -271,6 +271,48 @@ public class PageController {
         return serviceUsuarios.buscarTodos();
     }
 
+    @PostMapping("/superadmin/usuarios/editar")
+    @ResponseBody
+    public Map<String, Object> editarUsuario(@RequestBody Map<String, String> datos, HttpSession session) {
+        Map<String, Object> res = new HashMap<>();
+        if (session.getAttribute("superadmin") == null) {
+            res.put("success", false);
+            res.put("error", "No autorizado");
+            return res;
+        }
+        try {
+            Integer id = Integer.parseInt(datos.get("id_usuarios"));
+            Usuarios usuario = serviceUsuarios.buscarId(id).orElse(null);
+            if (usuario == null) {
+                res.put("success", false);
+                res.put("error", "Usuario no encontrado");
+                return res;
+            }
+            usuario.setNombre_usuario(datos.get("nombre_usuario"));
+            usuario.setApellidos_usuario(datos.get("apellidos_usuario"));
+            usuario.setCorreo(datos.get("correo"));
+            usuario.setTipo_usuario(datos.get("tipo_usuario"));
+            usuario.setEstado(Integer.parseInt(datos.get("estado")));
+
+            if (datos.get("id_tenants") != null && !datos.get("id_tenants").isEmpty()) {
+                Integer tenantId = Integer.parseInt(datos.get("id_tenants"));
+                Tenants tenant = serviceTenants.buscarId(tenantId).orElse(null);
+                usuario.setId_tenants(tenant);
+            }
+
+            if (datos.get("contrasenia") != null && !datos.get("contrasenia").trim().isEmpty()) {
+                usuario.setContrasenia(datos.get("contrasenia"));
+            }
+
+            serviceUsuarios.modificar(usuario);
+            res.put("success", true);
+        } catch (Exception e) {
+            res.put("success", false);
+            res.put("error", e.getMessage());
+        }
+        return res;
+    }
+
     // ========== PORTAL PÚBLICO: TIENDA VIRTUAL MULTI-TENANT ==========
 
     @GetMapping("/tienda/{tenantId}")
@@ -280,7 +322,14 @@ public class PageController {
             return "redirect:/";
         }
         session.setAttribute("tenantId", tenantId);
-        model.addAttribute("cliente", session.getAttribute("cliente"));
+        
+        Cliente cliente = (Cliente) session.getAttribute("cliente");
+        if (cliente != null && (cliente.getId_tenants() == null || !cliente.getId_tenants().getId_tenants().equals(tenantId))) {
+            session.removeAttribute("cliente");
+            cliente = null;
+        }
+        
+        model.addAttribute("cliente", cliente);
         model.addAttribute("tenant", tenant);
         model.addAttribute("tenantId", tenantId);
         return "tienda";
@@ -289,8 +338,13 @@ public class PageController {
     @GetMapping("/tienda/login")
     public String tiendaLogin(HttpSession session, Model model) {
         Integer tenantId = (Integer) session.getAttribute("tenantId");
-        if (session.getAttribute("cliente") != null && tenantId != null) {
-            return "redirect:/tienda/" + tenantId;
+        Cliente cliente = (Cliente) session.getAttribute("cliente");
+        if (cliente != null) {
+            if (tenantId != null && cliente.getId_tenants() != null && cliente.getId_tenants().getId_tenants().equals(tenantId)) {
+                return "redirect:/tienda/" + tenantId;
+            } else {
+                session.removeAttribute("cliente");
+            }
         }
         model.addAttribute("tenantId", tenantId);
         return "tienda_login";
@@ -320,8 +374,13 @@ public class PageController {
     @GetMapping("/tienda/registro")
     public String tiendaRegistro(HttpSession session, Model model) {
         Integer tenantId = (Integer) session.getAttribute("tenantId");
-        if (session.getAttribute("cliente") != null && tenantId != null) {
-            return "redirect:/tienda/" + tenantId;
+        Cliente cliente = (Cliente) session.getAttribute("cliente");
+        if (cliente != null) {
+            if (tenantId != null && cliente.getId_tenants() != null && cliente.getId_tenants().getId_tenants().equals(tenantId)) {
+                return "redirect:/tienda/" + tenantId;
+            } else {
+                session.removeAttribute("cliente");
+            }
         }
         model.addAttribute("tenantId", tenantId);
         return "tienda_registro";
@@ -380,7 +439,12 @@ public class PageController {
     @GetMapping("/tienda/checkout")
     public String tiendaCheckout(Model model, HttpSession session) {
         Integer tenantId = (Integer) session.getAttribute("tenantId");
-        model.addAttribute("cliente", session.getAttribute("cliente"));
+        Cliente cliente = (Cliente) session.getAttribute("cliente");
+        if (cliente != null && (cliente.getId_tenants() == null || !cliente.getId_tenants().getId_tenants().equals(tenantId))) {
+            session.removeAttribute("cliente");
+            cliente = null;
+        }
+        model.addAttribute("cliente", cliente);
         model.addAttribute("tenantId", tenantId);
         return "tienda_checkout";
     }
@@ -419,7 +483,9 @@ public class PageController {
     public Map<String, Object> getClienteHistorial(HttpSession session) {
         Map<String, Object> res = new HashMap<>();
         Cliente cliente = (Cliente) session.getAttribute("cliente");
-        if (cliente == null) {
+        Integer tenantId = (Integer) session.getAttribute("tenantId");
+        if (cliente == null || (tenantId != null && (cliente.getId_tenants() == null || !cliente.getId_tenants().getId_tenants().equals(tenantId)))) {
+            session.removeAttribute("cliente");
             res.put("success", false);
             res.put("error", "No ha iniciado sesión");
             return res;
@@ -500,10 +566,14 @@ public class PageController {
     @ResponseBody
     public String procesarCheckout(@RequestBody CheckoutRequest request, HttpSession session) {
         try {
-            // 1. Obtener o registrar al cliente
+            Integer checkoutTenantId = (Integer) session.getAttribute("tenantId");
+            final Integer finalTenantId = checkoutTenantId != null ? checkoutTenantId : 1;
+
+            // 1. Obtener o registrar al cliente filtrando por tenant
             Cliente cliente = null;
             Optional<Cliente> optCliente = serviceCliente.buscarTodos().stream()
-                .filter(c -> c.getCorreo() != null && c.getCorreo().equalsIgnoreCase(request.getCorreo()))
+                .filter(c -> c.getCorreo() != null && c.getCorreo().equalsIgnoreCase(request.getCorreo())
+                    && c.getId_tenants() != null && c.getId_tenants().getId_tenants().equals(finalTenantId))
                 .findFirst();
 
             if (optCliente.isPresent()) {
@@ -520,15 +590,12 @@ public class PageController {
                 cliente.setNumero_documento(request.getNumeroDocumento());
                 cliente.setTipo_cliente("regular");
                 cliente.setEstado(1);
-                Integer sessTenantId = (Integer) session.getAttribute("tenantId");
-                cliente.setId_tenants(serviceTenants.buscarId(sessTenantId != null ? sessTenantId : 1).orElse(null));
+                cliente.setId_tenants(serviceTenants.buscarId(finalTenantId).orElse(null));
                 serviceCliente.guardar(cliente);
             }
 
             // 2. Resolver dependencias de Sede, Tenant y SesionCaja
-            Integer checkoutTenantId = (Integer) session.getAttribute("tenantId");
-            Tenants tenant = serviceTenants.buscarId(checkoutTenantId != null ? checkoutTenantId : 1).orElse(null);
-            final Integer finalTenantId = checkoutTenantId != null ? checkoutTenantId : 1;
+            Tenants tenant = serviceTenants.buscarId(finalTenantId).orElse(null);
             Sede sede = serviceSede.buscarTodos().stream()
                 .filter(s -> s.getId_tenants() != null && s.getId_tenants().getId_tenants().equals(finalTenantId))
                 .findFirst().orElse(serviceSede.buscarTodos().stream().findFirst().orElse(null));

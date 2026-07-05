@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,29 +21,16 @@ public class UsuariosService implements IUsuariosService {
     @Autowired
     private EntityManager entityManager;
 
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
-
     public List<Usuarios> buscarTodos(){
         return repoUsuarios.findAll();
     }
 
     public void guardar(Usuarios usuario){
-        // Encriptar contraseña si viene en texto plano
-        if (usuario.getContrasenia() != null && !usuario.getContrasenia().isEmpty()
-                && !usuario.getContrasenia().startsWith("$2a$")) {
-            usuario.setContrasenia(passwordEncoder.encode(usuario.getContrasenia()));
-        }
         repoUsuarios.save(usuario);
     }
 
     @Transactional
     public void modificar(Usuarios usuario){
-        // Encriptar contraseña si viene en texto plano
-        if (usuario.getContrasenia() != null && !usuario.getContrasenia().isEmpty()
-                && !usuario.getContrasenia().startsWith("$2a$")) {
-            usuario.setContrasenia(passwordEncoder.encode(usuario.getContrasenia()));
-        }
         entityManager.merge(usuario);
     }
 
