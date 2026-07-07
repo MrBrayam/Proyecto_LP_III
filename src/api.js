@@ -40,8 +40,21 @@ export const api = {
     getVenta: (id) => apiFetch(`/tienda/api/venta/${id}`),
     getDetallesVenta: (id) => apiFetch(`/tienda/api/detalles-venta/${id}`),
     
-    // Set tenant scope in backend session
-    setTenantSession: (tenantId) => apiFetch(`/tienda/${tenantId}`),
+    // Set tenant scope in backend session (ignores template resolution errors in cPanel)
+    setTenantSession: async (tenantId) => {
+        try {
+            await fetch(`${API_BASE_URL}/tienda/${tenantId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${DEFAULT_API_TOKEN}`
+                },
+                credentials: 'include'
+            });
+        } catch (e) {
+            console.warn('View resolution bypassed:', e);
+        }
+        return true;
+    },
     
     // Auth
     login: async (correo, documento) => {
