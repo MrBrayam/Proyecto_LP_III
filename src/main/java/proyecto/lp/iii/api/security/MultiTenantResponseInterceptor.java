@@ -39,12 +39,10 @@ public class MultiTenantResponseInterceptor implements ResponseBodyAdvice<Object
             return body;
         }
 
-        Usuarios usuario = (Usuarios) session.getAttribute("usuario");
-        if (usuario == null || usuario.getId_tenants() == null) {
+        Integer userTenantId = (Integer) session.getAttribute("userTenantId");
+        if (userTenantId == null) {
             return body;
         }
-
-        Integer userTenantId = usuario.getId_tenants().getId_tenants();
 
         if (body instanceof List) {
             List<?> list = (List<?>) body;

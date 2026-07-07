@@ -36,14 +36,16 @@ public class MultiTenantRequestInterceptor extends RequestBodyAdviceAdapter {
             return body;
         }
 
-        Usuarios usuario = (Usuarios) session.getAttribute("usuario");
-        if (usuario == null || usuario.getId_tenants() == null) {
+        Integer userTenantId = (Integer) session.getAttribute("userTenantId");
+        if (userTenantId == null) {
             return body;
         }
 
         try {
+            Tenants tenant = new Tenants();
+            tenant.setId_tenants(userTenantId);
             Method method = body.getClass().getMethod("setId_tenants", Tenants.class);
-            method.invoke(body, usuario.getId_tenants());
+            method.invoke(body, tenant);
         } catch (Exception e) {
             // El objeto no soporta la relación id_tenants o es de tipo diferente
         }

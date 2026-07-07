@@ -684,7 +684,11 @@ public class PageController {
             .findFirst();
 
         if (user.isPresent()) {
-            session.setAttribute("usuario", user.get());
+            Usuarios u = user.get();
+            session.setAttribute("usuario", u);
+            if (u.getId_tenants() != null) {
+                session.setAttribute("userTenantId", u.getId_tenants().getId_tenants());
+            }
             return "redirect:/dashboard";
         }
 
