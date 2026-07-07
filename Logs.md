@@ -1,6 +1,0 @@
-Uncaught TypeError: Cannot set properties of null (setting 'textContent')
-    at updateCartUI (tienda.js:209:28)
-    at loadCart (tienda.js:143:5)
-    at HTMLDocument.<anonymous> (tienda.js:15:5)
-:8080/api/ventas/null:1  Failed to load resource: the server responded with a status of 403 ()
-:8080/tienda/api/detalles-venta/null:1  Failed to load resource: the server responded with a status of 400 ()
