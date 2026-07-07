@@ -62,17 +62,22 @@ export const api = {
         formData.append('correo', correo);
         formData.append('documento', documento);
         
-        const response = await fetch(`${API_BASE_URL}/tienda/login`, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'Authorization': `Bearer ${DEFAULT_API_TOKEN}`
-            },
-            credentials: 'include'
-        });
+        try {
+            await fetch(`${API_BASE_URL}/tienda/login`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Authorization': `Bearer ${DEFAULT_API_TOKEN}`
+                },
+                credentials: 'include'
+            });
+        } catch (e) {
+            // Ignore template resolution failure
+        }
         
-        if (!response.ok) {
-            throw new Error('Error al iniciar sesión');
+        const historyData = await apiFetch('/tienda/api/historial');
+        if (!historyData || !historyData.success) {
+            throw new Error('Credenciales incorrectas (Verifique Correo y DNI/RUC)');
         }
         return true;
     },
@@ -83,17 +88,22 @@ export const api = {
             formData.append(key, data[key]);
         });
         
-        const response = await fetch(`${API_BASE_URL}/tienda/registro`, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'Authorization': `Bearer ${DEFAULT_API_TOKEN}`
-            },
-            credentials: 'include'
-        });
+        try {
+            await fetch(`${API_BASE_URL}/tienda/registro`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Authorization': `Bearer ${DEFAULT_API_TOKEN}`
+                },
+                credentials: 'include'
+            });
+        } catch (e) {
+            // Ignore template resolution failure
+        }
         
-        if (!response.ok) {
-            throw new Error('Error al registrarse');
+        const historyData = await apiFetch('/tienda/api/historial');
+        if (!historyData || !historyData.success) {
+            throw new Error('Error al registrarse. Verifique los datos.');
         }
         return true;
     },
@@ -111,17 +121,26 @@ export const api = {
         formData.append('email', email);
         formData.append('accessToken', accessToken);
         
-        const response = await fetch(`${API_BASE_URL}/login-general`, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'Authorization': `Bearer ${DEFAULT_API_TOKEN}`
-            },
-            credentials: 'include'
-        });
+        try {
+            await fetch(`${API_BASE_URL}/login-general`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Authorization': `Bearer ${DEFAULT_API_TOKEN}`
+                },
+                credentials: 'include'
+            });
+        } catch (e) {
+            // Ignore template resolution failure
+        }
         
-        if (!response.ok) {
-            throw new Error('Error al iniciar sesión de SuperAdmin');
+        try {
+            const tenants = await apiFetch('/superadmin/api/tenants');
+            if (!tenants || !Array.isArray(tenants)) {
+                throw new Error('No autorizado');
+            }
+        } catch (err) {
+            throw new Error('Credenciales incorrectas. Verifique su email y access token.');
         }
         return true;
     },
@@ -147,16 +166,29 @@ export const api = {
         formData.append('correo', correo);
         formData.append('contrasenia', contrasenia);
         
-        const response = await fetch(`${API_BASE_URL}/admin/login`, {
-            method: 'POST',
-            body: formData,
+        try {
+            await fetch(`${API_BASE_URL}/admin/login`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Authorization': `Bearer ${DEFAULT_API_TOKEN}`
+                },
+                credentials: 'include'
+            });
+        } catch (e) {
+            // Ignore template resolution failure
+        }
+        
+        const checkRes = await fetch(`${API_BASE_URL}/dashboard`, {
+            method: 'GET',
             headers: {
                 'Authorization': `Bearer ${DEFAULT_API_TOKEN}`
             },
-            credentials: 'include'
+            credentials: 'include',
+            redirect: 'manual'
         });
         
-        if (!response.ok) {
+        if (checkRes.status === 302 || checkRes.status === 301 || checkRes.status === 307) {
             throw new Error('Credenciales de administrador incorrectas');
         }
         return true;
