@@ -187,7 +187,7 @@ function App() {
 
   // Load storefront client history
   useEffect(() => {
-    if (tab === 'history' && storeClient && getRouteParams().tenantId) {
+    if (storeTab === 'history' && storeClient && getRouteParams().tenantId) {
       (async () => {
         try {
           setLoadingHistory(true);
