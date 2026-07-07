@@ -855,7 +855,7 @@ function App() {
               <div className="logo-icon">
                 <Briefcase size={32} color="white" />
               </div>
-              <h1 style={{ color: 'white' }}>Bella<span>rista</span></h1>
+              <h1>Bella<span>rista</span></h1>
               <p>Panel de SuperAdministración</p>
             </div>
 
@@ -863,41 +863,39 @@ function App() {
 
             <form onSubmit={handleSuperadminLogin} autoComplete="off">
               <div className="form-group">
-                <label style={{ color: 'rgba(255,255,255,0.7)' }}>Correo Electrónico</label>
+                <label>Correo Electrónico</label>
                 <input 
                   type="email" 
                   required 
                   placeholder="ejemplo@correo.com"
                   value={superadminEmail}
                   onChange={(e) => setSuperadminEmail(e.target.value)}
-                  style={{ background: 'rgba(255,255,255,0.07)', color: 'white', borderColor: 'rgba(255,255,255,0.12)' }}
                 />
               </div>
               <div className="form-group">
-                <label style={{ color: 'rgba(255,255,255,0.7)' }}>Token de Acceso</label>
+                <label>Token de Acceso</label>
                 <input 
                   type="password" 
                   required 
                   placeholder="Ingrese su access token"
                   value={superadminToken}
                   onChange={(e) => setSuperadminToken(e.target.value)}
-                  style={{ background: 'rgba(255,255,255,0.07)', color: 'white', borderColor: 'rgba(255,255,255,0.12)' }}
                 />
               </div>
-              <button type="submit" className="btn-login" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', width: '100%', border: 'none', borderRadius: '12px', padding: '14px', color: 'white', fontWeight: '600', cursor: 'pointer' }}>
+              <button type="submit" className="btn-login">
                 Ingresar al Panel
               </button>
             </form>
 
             <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '12px', textAlign: 'center' }}>
-              <a href="#/admin/login" style={{ color: '#8b9cf7', textDecoration: 'underline' }}>
+              <a href="#/admin/login" style={{ color: 'var(--primary-dark)', textDecoration: 'underline' }}>
                 Acceder al Portal de Administración de Sede (Locales)
               </a>
-              <a href="#/tienda/1" style={{ color: '#c5a880', textDecoration: 'underline' }}>
+              <a href="#/tienda/1" style={{ color: 'var(--text-muted)', textDecoration: 'underline' }}>
                 Ver Tienda Online (Prueba - Sede 1)
               </a>
             </div>
-            <p className="footer-text" style={{ color: 'rgba(255,255,255,0.3)', marginTop: '24px', fontSize: '11px', textAlign: 'center' }}>Acceso exclusivo para administradores de plataforma</p>
+            <p className="footer-text" style={{ color: 'var(--text-muted)', marginTop: '24px', fontSize: '11px', textAlign: 'center' }}>Acceso exclusivo para administradores de plataforma</p>
           </div>
         </div>
       </div>
@@ -907,18 +905,18 @@ function App() {
   // 2. ROUTE: SuperAdmin Dashboard (`#/superadmin/dashboard`)
   if (route === '#/superadmin/dashboard') {
     return (
-      <div className="sa-layout" style={{ background: '#0f1117', color: '#e8e8f0', minHeight: '100vh', fontFamily: 'sans-serif' }}>
+      <div className="sa-layout">
         {/* SA Navbar */}
-        <div className="sa-navbar" style={{ background: '#1a1d27', display: 'flex', justifyContent: 'space-between', padding: '16px 32px', borderBottom: '1px solid rgba(255,255,255,0.08)', alignItems: 'center' }}>
-          <div style={{ fontSize: '20px', fontWeight: 'bold' }}>Bellarista <span>SuperAdmin</span></div>
+        <div className="sa-navbar" style={{ display: 'flex', justifyContent: 'space-between', padding: '16px 32px', alignItems: 'center' }}>
+          <div style={{ fontSize: '20px', fontWeight: 'bold' }} className="logo">Bellarista <span>SuperAdmin</span></div>
           <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-            <button className={`sa-nav-tab ${saTab === 'tenants' ? 'active' : ''}`} onClick={() => setSaTab('tenants')} style={{ background: 'none', border: 'none', color: saTab === 'tenants' ? '#667eea' : 'gray', cursor: 'pointer', fontWeight: 'bold' }}>
+            <button className={`sa-nav-tab ${saTab === 'tenants' ? 'active' : ''}`} onClick={() => setSaTab('tenants')}>
               Tenants
             </button>
-            <button className={`sa-nav-tab ${saTab === 'users' ? 'active' : ''}`} onClick={() => setSaTab('users')} style={{ background: 'none', border: 'none', color: saTab === 'users' ? '#667eea' : 'gray', cursor: 'pointer', fontWeight: 'bold' }}>
+            <button className={`sa-nav-tab ${saTab === 'users' ? 'active' : ''}`} onClick={() => setSaTab('users')}>
               Usuarios
             </button>
-            <button onClick={handleSuperadminLogoutClick} style={{ background: 'red', border: 'none', padding: '8px 16px', color: 'white', borderRadius: '8px', cursor: 'pointer' }}>
+            <button onClick={handleSuperadminLogoutClick} className="btn-logout-elegant">
               Cerrar Sesión
             </button>
           </div>
@@ -926,19 +924,20 @@ function App() {
 
         {/* SA Container */}
         <div className="sa-main" style={{ padding: '32px' }}>
-          {successMsg && <div style={{ background: '#064e3b', color: '#34d399', padding: '12px', borderRadius: '8px', marginBottom: '16px' }}>{successMsg}</div>}
-          {errorMsg && <div style={{ background: '#7f1d1d', color: '#f87171', padding: '12px', borderRadius: '8px', marginBottom: '16px' }}>{errorMsg}</div>}
+          {successMsg && <div style={{ background: '#d1fae5', color: '#065f46', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '13px', border: '1px solid #a7f3d0' }}>{successMsg}</div>}
+          {errorMsg && <div style={{ background: '#fee2e2', color: '#b85c5c', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '13px', border: '1px solid #fecaca' }}>{errorMsg}</div>}
 
           {saTab === 'tenants' ? (
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', alignItems: 'center' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', alignItems: 'center' }}>
                 <h2>Listado de Tenants (Boutiques / Salones)</h2>
                 <button 
                   onClick={() => {
                     setTenantForm({ razon_social: '', ruc: '', direccion_fiscal: '', correo: '', telefono: '', nombre_comercial: '', tipo_negocio: 'estetica' });
-                    setSaModal({ open: true, mode: 'create', type: 'sa-tenant', data: null });
+                    setSaModal({ open: true, mode: 'create', type: 'tenant', data: null });
                   }}
-                  style={{ background: '#667eea', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer' }}
+                  className="btn-filled"
+                  style={{ border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer' }}
                 >
                   + Crear Tenant
                 </button>
@@ -949,36 +948,29 @@ function App() {
                   <div 
                     key={t.id_tenants} 
                     onClick={() => { window.location.hash = `#/tienda/${t.id_tenants}`; }}
-                    style={{ 
-                      background: '#1a1d27', 
-                      border: '1px solid rgba(255,255,255,0.08)', 
-                      borderRadius: '12px', 
-                      padding: '20px',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease',
-                    }}
                     className="sa-tenant-card-interactive"
+                    style={{ padding: '20px' }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                      <div style={{ width: '40px', height: '40px', background: '#667eea', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{t.id_tenants}</div>
+                      <div style={{ width: '40px', height: '40px', background: 'var(--primary-light)', color: 'var(--primary-dark)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{t.id_tenants}</div>
                       <div>
-                        <h4 style={{ margin: 0 }}>{t.nombre_comercial}</h4>
-                        <span style={{ fontSize: '11px', color: 'gray' }}>{t.razon_social}</span>
+                        <h4 style={{ margin: 0, fontFamily: "'Playfair Display', serif", fontWeight: '700' }}>{t.nombre_comercial}</h4>
+                        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{t.razon_social}</span>
                       </div>
                     </div>
-                    <div style={{ fontSize: '12px', display: 'flex', flexDirection: 'column', gap: '4px', color: '#a0aec0' }}>
+                    <div style={{ fontSize: '12px', display: 'flex', flexDirection: 'column', gap: '4px', color: 'var(--text-muted)' }}>
                       <div><strong>RUC:</strong> {t.ruc}</div>
                       <div><strong>Correo:</strong> {t.correo}</div>
                       <div><strong>Teléfono:</strong> {t.telefono}</div>
                       <div><strong>Dirección:</strong> {t.direccion_fiscal}</div>
                     </div>
                     <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
-                      <span style={{ color: '#8b9cf7', fontSize: '11px', textDecoration: 'underline', alignSelf: 'center' }}>
+                      <span style={{ color: 'var(--primary-dark)', fontSize: '11px', textDecoration: 'underline', alignSelf: 'center' }}>
                         Ver Tienda →
                       </span>
                       <button 
                         onClick={(e) => { e.stopPropagation(); handleSAEditClick('tenant', t); }} 
-                        style={{ background: '#667eea', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '11px', cursor: 'pointer' }}
+                        className="btn-sa-action"
                       >
                         Editar
                       </button>
@@ -990,114 +982,124 @@ function App() {
           ) : (
             <div>
               <h2>Gestión de Usuarios Multi-Tenant</h2>
-              <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '16px', background: '#1a1d27', borderRadius: '8px', overflow: 'hidden' }}>
-                <thead>
-                  <tr style={{ background: '#22263a', textAlign: 'left', fontSize: '13px' }}>
-                    <th style={{ padding: '12px' }}>ID</th>
-                    <th style={{ padding: '12px' }}>Nombre</th>
-                    <th style={{ padding: '12px' }}>Correo</th>
-                    <th style={{ padding: '12px' }}>Tenant (Salon)</th>
-                    <th style={{ padding: '12px' }}>Rol</th>
-                    <th style={{ padding: '12px' }}>Estado</th>
-                    <th style={{ padding: '12px' }}>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {saUsers.map(u => (
-                    <tr key={u.id_usuarios} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '13px' }}>
-                      <td style={{ padding: '12px' }}>{u.id_usuarios}</td>
-                      <td style={{ padding: '12px' }}>{u.nombre_usuario} {u.apellidos_usuario}</td>
-                      <td style={{ padding: '12px' }}>{u.correo}</td>
-                      <td style={{ padding: '12px' }}>{u.id_tenants ? u.id_tenants.nombre_comercial : 'SuperAdmin'}</td>
-                      <td style={{ padding: '12px' }}><span style={{ background: u.tipo_usuario === 'admin' ? '#1e3a8a' : '#14532d', padding: '2px 8px', borderRadius: '4px', fontSize: '11px' }}>{u.tipo_usuario}</span></td>
-                      <td style={{ padding: '12px' }}>{u.estado === 1 ? 'Activo' : 'Inactivo'}</td>
-                      <td style={{ padding: '12px' }}>
-                        <button onClick={() => handleSAEditClick('user', u)} style={{ background: '#667eea', color: 'white', border: 'none', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer' }}>Editar</button>
-                      </td>
+              <div className="table-card" style={{ marginTop: '16px' }}>
+                <table>
+                  <thead>
+                    <tr>
+                      <th style={{ padding: '12px' }}>ID</th>
+                      <th style={{ padding: '12px' }}>Nombre</th>
+                      <th style={{ padding: '12px' }}>Correo</th>
+                      <th style={{ padding: '12px' }}>Tenant (Salon)</th>
+                      <th style={{ padding: '12px' }}>Rol</th>
+                      <th style={{ padding: '12px' }}>Estado</th>
+                      <th style={{ padding: '12px' }}>Acciones</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {saUsers.map(u => (
+                      <tr key={u.id_usuarios}>
+                        <td>{u.id_usuarios}</td>
+                        <td style={{ fontWeight: '600' }}>{u.nombre_usuario} {u.apellidos_usuario}</td>
+                        <td>{u.correo}</td>
+                        <td>{u.id_tenants ? u.id_tenants.nombre_comercial : 'SuperAdmin'}</td>
+                        <td>
+                          <span className={u.tipo_usuario === 'admin' ? 'badge-role badge-role-admin' : 'badge-role badge-role-employee'}>
+                            {u.tipo_usuario}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={u.estado === 1 ? 'badge-status-active' : 'badge-status-inactive'}>
+                            {u.estado === 1 ? 'Activo' : 'Inactivo'}
+                          </span>
+                        </td>
+                        <td>
+                          <button onClick={() => handleSAEditClick('user', u)} className="btn-sa-action">Editar</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </div>
 
         {/* SA Modal Dialog */}
         {saModal.open && (
-          <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-            <div style={{ background: '#1a1d27', padding: '32px', borderRadius: '12px', width: '90%', maxWidth: '500px', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <div className="modal-header">
                 <h3>{saModal.mode === 'create' ? 'Crear' : 'Editar'} {saModal.type === 'tenant' ? 'Tenant' : 'Usuario'}</h3>
-                <button onClick={() => setSaModal({ open: false })} style={{ background: 'none', border: 'none', color: 'white', fontSize: '20px', cursor: 'pointer' }}>&times;</button>
+                <button onClick={() => setSaModal({ open: false })} className="modal-close-btn">&times;</button>
               </div>
 
               {saModal.type === 'tenant' ? (
                 <form onSubmit={saModal.mode === 'create' ? handleCreateTenant : handleEditTenant}>
                   <div className="form-group">
                     <label>Nombre Comercial</label>
-                    <input type="text" required value={tenantForm.nombre_comercial} onChange={(e) => setTenantForm({ ...tenantForm, nombre_comercial: e.target.value })} style={{ background: '#22263a', color: 'white', border: '1px solid rgba(255,255,255,0.08)' }} />
+                    <input type="text" required value={tenantForm.nombre_comercial} onChange={(e) => setTenantForm({ ...tenantForm, nombre_comercial: e.target.value })} />
                   </div>
                   <div className="form-group">
                     <label>Razón Social</label>
-                    <input type="text" required value={tenantForm.razon_social} onChange={(e) => setTenantForm({ ...tenantForm, razon_social: e.target.value })} style={{ background: '#22263a', color: 'white', border: '1px solid rgba(255,255,255,0.08)' }} />
+                    <input type="text" required value={tenantForm.razon_social} onChange={(e) => setTenantForm({ ...tenantForm, razon_social: e.target.value })} />
                   </div>
                   <div className="form-group">
                     <label>RUC</label>
-                    <input type="text" required value={tenantForm.ruc} onChange={(e) => setTenantForm({ ...tenantForm, ruc: e.target.value })} style={{ background: '#22263a', color: 'white', border: '1px solid rgba(255,255,255,0.08)' }} />
+                    <input type="text" required value={tenantForm.ruc} onChange={(e) => setTenantForm({ ...tenantForm, ruc: e.target.value })} />
                   </div>
                   <div className="form-group">
                     <label>Dirección Fiscal</label>
-                    <input type="text" required value={tenantForm.direccion_fiscal} onChange={(e) => setTenantForm({ ...tenantForm, direccion_fiscal: e.target.value })} style={{ background: '#22263a', color: 'white', border: '1px solid rgba(255,255,255,0.08)' }} />
+                    <input type="text" required value={tenantForm.direccion_fiscal} onChange={(e) => setTenantForm({ ...tenantForm, direccion_fiscal: e.target.value })} />
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                     <div className="form-group">
                       <label>Correo</label>
-                      <input type="email" required value={tenantForm.correo} onChange={(e) => setTenantForm({ ...tenantForm, correo: e.target.value })} style={{ background: '#22263a', color: 'white', border: '1px solid rgba(255,255,255,0.08)' }} />
+                      <input type="email" required value={tenantForm.correo} onChange={(e) => setTenantForm({ ...tenantForm, correo: e.target.value })} />
                     </div>
                     <div className="form-group">
                       <label>Teléfono</label>
-                      <input type="text" value={tenantForm.telefono} onChange={(e) => setTenantForm({ ...tenantForm, telefono: e.target.value })} style={{ background: '#22263a', color: 'white', border: '1px solid rgba(255,255,255,0.08)' }} />
+                      <input type="text" value={tenantForm.telefono} onChange={(e) => setTenantForm({ ...tenantForm, telefono: e.target.value })} />
                     </div>
                   </div>
-                  <button type="submit" style={{ background: '#667eea', width: '100%', padding: '12px', border: 'none', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Guardar</button>
+                  <button type="submit">Guardar</button>
                 </form>
               ) : (
                 <form onSubmit={handleEditsaUser}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                     <div className="form-group">
                       <label>Nombres</label>
-                      <input type="text" required value={saUserForm.nombre_usuario} onChange={(e) => setSaUserForm({ ...saUserForm, nombre_usuario: e.target.value })} style={{ background: '#22263a', color: 'white', border: '1px solid rgba(255,255,255,0.08)' }} />
+                      <input type="text" required value={saUserForm.nombre_usuario} onChange={(e) => setSaUserForm({ ...saUserForm, nombre_usuario: e.target.value })} />
                     </div>
                     <div className="form-group">
                       <label>Apellidos</label>
-                      <input type="text" required value={saUserForm.apellidos_usuario} onChange={(e) => setSaUserForm({ ...saUserForm, apellidos_usuario: e.target.value })} style={{ background: '#22263a', color: 'white', border: '1px solid rgba(255,255,255,0.08)' }} />
+                      <input type="text" required value={saUserForm.apellidos_usuario} onChange={(e) => setSaUserForm({ ...saUserForm, apellidos_usuario: e.target.value })} />
                     </div>
                   </div>
                   <div className="form-group">
                     <label>Correo</label>
-                    <input type="email" required value={saUserForm.correo} onChange={(e) => setSaUserForm({ ...saUserForm, correo: e.target.value })} style={{ background: '#22263a', color: 'white', border: '1px solid rgba(255,255,255,0.08)' }} />
+                    <input type="email" required value={saUserForm.correo} onChange={(e) => setSaUserForm({ ...saUserForm, correo: e.target.value })} />
                   </div>
                   <div className="form-group">
                     <label>Contraseña (Opcional - dejar vacío para conservar)</label>
-                    <input type="password" value={saUserForm.contrasenia} onChange={(e) => setSaUserForm({ ...saUserForm, contrasenia: e.target.value })} style={{ background: '#22263a', color: 'white', border: '1px solid rgba(255,255,255,0.08)' }} />
+                    <input type="password" value={saUserForm.contrasenia} onChange={(e) => setSaUserForm({ ...saUserForm, contrasenia: e.target.value })} />
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                     <div className="form-group">
                       <label>Rol</label>
-                      <select value={saUserForm.tipo_usuario} onChange={(e) => setSaUserForm({ ...saUserForm, tipo_usuario: e.target.value })} style={{ background: '#22263a', color: 'white', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <select value={saUserForm.tipo_usuario} onChange={(e) => setSaUserForm({ ...saUserForm, tipo_usuario: e.target.value })}>
                         <option value="admin">Administrador Sede</option>
                         <option value="empleado">Empleado Estilista</option>
                       </select>
                     </div>
                     <div className="form-group">
                       <label>Estado</label>
-                      <select value={saUserForm.estado} onChange={(e) => setSaUserForm({ ...saUserForm, estado: Number(e.target.value) })} style={{ background: '#22263a', color: 'white', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <select value={saUserForm.estado} onChange={(e) => setSaUserForm({ ...saUserForm, estado: Number(e.target.value) })}>
                         <option value={1}>Activo</option>
                         <option value={0}>Inactivo</option>
                       </select>
                     </div>
                   </div>
-                  <button type="submit" style={{ background: '#667eea', width: '100%', padding: '12px', border: 'none', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Guardar Cambios</button>
+                  <button type="submit">Guardar Cambios</button>
                 </form>
               )}
             </div>
@@ -1110,14 +1112,14 @@ function App() {
   // 3. ROUTE: Tenant Admin Login (`#/admin/login`)
   if (route === '#/admin/login') {
     return (
-      <div className="login-page-bg" style={{ background: 'linear-gradient(135deg, #1e1e24 0%, #302d27 100%)' }}>
+      <div className="login-page-bg">
         <div className="login-container">
           <div className="login-card-dark">
             <div className="logo-section">
-              <div className="logo-icon" style={{ background: 'linear-gradient(135deg, #c5a880 0%, #b09168 100%)' }}>
+              <div className="logo-icon">
                 <User size={32} color="white" />
               </div>
-              <h1 style={{ color: 'white' }}>Bella<span>rista</span></h1>
+              <h1>Bella<span>rista</span></h1>
               <p>Portal de Administración de Sede</p>
             </div>
 
@@ -1125,38 +1127,36 @@ function App() {
 
             <form onSubmit={handleAdminLogin} autoComplete="off">
               <div className="form-group">
-                <label style={{ color: 'rgba(255,255,255,0.7)' }}>Correo Electrónico</label>
+                <label>Correo Electrónico</label>
                 <input 
                   type="email" 
                   required 
                   placeholder="admin@correo.com"
                   value={adminCorreo}
                   onChange={(e) => setAdminCorreo(e.target.value)}
-                  style={{ background: 'rgba(255,255,255,0.07)', color: 'white', borderColor: 'rgba(255,255,255,0.12)' }}
                 />
               </div>
               <div className="form-group">
-                <label style={{ color: 'rgba(255,255,255,0.7)' }}>Contraseña</label>
+                <label>Contraseña</label>
                 <input 
                   type="password" 
                   required 
                   placeholder="Ingrese su contraseña"
                   value={adminPassword}
                   onChange={(e) => setAdminPassword(e.target.value)}
-                  style={{ background: 'rgba(255,255,255,0.07)', color: 'white', borderColor: 'rgba(255,255,255,0.12)' }}
                 />
               </div>
-              <button type="submit" className="btn-login" style={{ background: 'linear-gradient(135deg, #c5a880 0%, #b09168 100%)', width: '100%', border: 'none', borderRadius: '12px', padding: '14px', color: 'white', fontWeight: '600', cursor: 'pointer' }}>
+              <button type="submit" className="btn-login">
                 Ingresar al Portal
               </button>
             </form>
 
             <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '12px', textAlign: 'center' }}>
-              <a href="#/" style={{ color: '#c5a880', textDecoration: 'underline' }}>
+              <a href="#/" style={{ color: 'var(--primary-dark)', textDecoration: 'underline' }}>
                 Regresar a Acceso SuperAdmin
               </a>
             </div>
-            <p className="footer-text" style={{ color: 'rgba(255,255,255,0.3)', marginTop: '24px', fontSize: '11px', textAlign: 'center' }}>Acceso restringido para personal autorizado</p>
+            <p className="footer-text" style={{ color: 'var(--text-muted)', marginTop: '24px', fontSize: '11px', textAlign: 'center' }}>Acceso restringido para personal autorizado</p>
           </div>
         </div>
       </div>
@@ -1167,12 +1167,12 @@ function App() {
   if (route === '#/dashboard') {
     const config = getModuleConfig(adminActiveModule);
     return (
-      <div className="admin-dashboard-layout" style={{ display: 'grid', gridTemplateColumns: '260px 1fr', minHeight: '100vh', background: '#f5f5f7' }}>
+      <div className="admin-dashboard-layout">
         {/* Admin Sidebar */}
-        <aside style={{ background: '#1e1e24', color: '#e6e6e9', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        <aside>
           <div>
             <div style={{ fontSize: '22px', fontWeight: 'bold', fontFamily: "'Playfair Display', serif", marginBottom: '32px', color: 'white' }}>
-              Bellarista <span style={{ color: '#c5a880' }}>Admin</span>
+              Bellarista <span style={{ color: 'var(--primary)' }}>Admin</span>
             </div>
             
             <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -1204,10 +1204,10 @@ function App() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <a href="#/tienda/1" target="_blank" rel="noreferrer" style={{ textDecoration: 'none', color: '#c5a880', fontSize: '13px', textAlign: 'center', fontWeight: 'bold' }}>
+            <a href="#/tienda/1" target="_blank" rel="noreferrer" style={{ textDecoration: 'none', color: 'var(--primary)', fontSize: '13px', textAlign: 'center', fontWeight: 'bold' }}>
               Ir a Tienda Cliente
             </a>
-            <button onClick={handleAdminLogoutClick} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#f87171', padding: '10px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+            <button onClick={handleAdminLogoutClick} className="aside-logout-btn">
               <LogOut size={16} /> Cerrar Sesión
             </button>
           </div>
@@ -1222,7 +1222,7 @@ function App() {
             </button>
           </div>
 
-          {successMsg && <div style={{ background: '#d1fae5', color: '#065f46', padding: '12px 16px', borderRadius: '8px', marginBottom: '20px', fontSize: '13px' }}>{successMsg}</div>}
+          {successMsg && <div style={{ background: '#d1fae5', color: '#065f46', padding: '12px 16px', borderRadius: '8px', marginBottom: '20px', fontSize: '13px', border: '1px solid #a7f3d0' }}>{successMsg}</div>}
           {errorMsg && <div className="error-alert">{errorMsg}</div>}
 
           {loadingAdminCrud ? (
@@ -1231,15 +1231,15 @@ function App() {
               <p style={{ marginTop: '16px', color: 'var(--text-muted)' }}>Cargando registros desde cPanel...</p>
             </div>
           ) : (
-            <div style={{ background: 'white', borderRadius: '16px', border: '1px solid var(--border)', overflow: 'hidden', boxShadow: 'var(--shadow-soft)' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
+            <div className="table-card">
+              <table>
                 <thead>
-                  <tr style={{ background: '#fafafc', borderBottom: '1px solid var(--border)' }}>
-                    <th style={{ padding: '16px' }}>Código ID</th>
+                  <tr>
+                    <th>Código ID</th>
                     {config.fields.slice(0, 4).map(f => (
-                      <th key={f.name} style={{ padding: '16px' }}>{f.label}</th>
+                      <th key={f.name}>{f.label}</th>
                     ))}
-                    <th style={{ padding: '16px', textAlign: 'right' }}>Acciones</th>
+                    <th style={{ textAlign: 'right' }}>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1251,20 +1251,20 @@ function App() {
                     adminCrudData.map(item => {
                       const id = item[config.primaryKey];
                       return (
-                        <tr key={id} style={{ borderBottom: '1px solid rgba(0,0,0,0.03)' }}>
-                          <td style={{ padding: '16px', fontWeight: 'bold' }}>{id}</td>
+                        <tr key={id}>
+                          <td style={{ fontWeight: 'bold' }}>{id}</td>
                           {config.fields.slice(0, 4).map(f => {
                             let value = item[f.name];
                             if (typeof value === 'object' && value !== null) {
                               value = value.nombre_marca || value.nombre_categoria_producto || JSON.stringify(value);
                             }
-                            return <td key={f.name} style={{ padding: '16px' }}>{value ?? '-'}</td>;
+                            return <td key={f.name}>{value ?? '-'}</td>;
                           })}
-                          <td style={{ padding: '16px', textAlign: 'right', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                            <button onClick={() => handleAdminEditClick(item)} style={{ background: '#e6e6e9', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '11px', fontWeight: '600' }}>
+                          <td style={{ textAlign: 'right', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                            <button onClick={() => handleAdminEditClick(item)} className="btn-sa-action">
                               Editar
                             </button>
-                            <button onClick={() => handleAdminCrudDelete(id)} style={{ background: '#fee2e2', color: '#991b1b', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '11px', fontWeight: '600' }}>
+                            <button onClick={() => handleAdminCrudDelete(id)} className="btn-sa-delete">
                               Eliminar
                             </button>
                           </td>
@@ -1280,11 +1280,11 @@ function App() {
 
         {/* Admin CRUD Modal */}
         {crudModal.open && (
-          <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.4)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-            <div style={{ background: 'white', padding: '32px', borderRadius: '16px', width: '90%', maxWidth: '500px', boxShadow: 'var(--shadow-soft)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', alignItems: 'center' }}>
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <div className="modal-header">
                 <h3>{crudModal.mode === 'create' ? 'Nuevo' : 'Editar'} {config.title}</h3>
-                <button onClick={() => setCrudModal({ open: false })} style={{ background: 'none', border: 'none', fontSize: '22px', cursor: 'pointer', color: 'var(--text-muted)' }}>&times;</button>
+                <button onClick={() => setCrudModal({ open: false })} className="modal-close-btn">&times;</button>
               </div>
 
               <form onSubmit={handleAdminCrudSave}>
@@ -1301,7 +1301,7 @@ function App() {
                     </div>
                   ))}
                 </div>
-                <button type="submit" className="btn-checkout" style={{ width: '100%' }}>
+                <button type="submit">
                   Guardar Registro
                 </button>
               </form>

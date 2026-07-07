@@ -1,0 +1,85 @@
+/* Success Page Layout & Components */
+
+.success-card {
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.03);
+    padding: 50px 40px;
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+    border: 1px solid rgba(197, 168, 128, 0.1);
+    margin: 40px auto;
+    animation: slideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.success-icon-wrap,
+.icon-wrap {
+    width: 80px;
+    height: 80px;
+    background: #ecfdf5 !important;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 30px;
+}
+
+.success-icon-wrap svg,
+.icon-wrap svg {
+    width: 40px;
+    height: 40px;
+    stroke: var(--success-muted) !important;
+    stroke-width: 2;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.success-card h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    margin-bottom: 16px;
+    font-weight: 600;
+    color: var(--dark);
+}
+
+.success-card p {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 30px;
+    font-weight: 300;
+}
+
+.btn-home {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 32px;
+    background: var(--dark);
+    color: white;
+    border: none;
+    border-radius: 99px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.btn-home:hover {
+    background: var(--primary);
+    box-shadow: 0 4px 15px rgba(197, 168, 128, 0.3);
+}
