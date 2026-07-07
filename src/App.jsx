@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { api } from './api';
+import { api, API_BASE_URL } from './api';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import { 
@@ -10,139 +10,171 @@ import {
   X, 
   Plus, 
   Minus, 
-  Trash2, 
   Scissors, 
   FileText, 
   CheckCircle, 
   Calendar, 
   ArrowLeft,
   Briefcase,
-  AlertCircle
+  AlertCircle,
+  Settings,
+  MapPin,
+  TrendingUp,
+  Tag,
+  Users,
+  ShieldAlert
 } from 'lucide-react';
 
 function App() {
-  // Navigation & View states
-  const [tab, setTab] = useState('store'); // 'store' | 'services' | 'history'
-  const [view, setView] = useState('catalog'); // 'catalog' | 'checkout' | 'success' | 'login' | 'register'
+  // Hash-based routing state
+  const [route, setRoute] = useState(window.location.hash || '#/');
   
-  // Data states
+  // Navigation & View states inside portals
+  const [storeTab, setStoreTab] = useState('store'); // 'store' | 'services' | 'history'
+  const [storeView, setStoreView] = useState('catalog'); // 'catalog' | 'checkout' | 'success' | 'store-login' | 'store-register'
+  
+  // Storefront Data states
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [services, setServices] = useState([]);
   const [brands, setBrands] = useState([]);
-  
-  // Interaction states
   const [activeCategory, setActiveCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [storeClient, setStoreClient] = useState(null);
   
-  // Auth state
-  const [client, setClient] = useState(null);
-  
-  // History states
+  // Customer Store History states
   const [historyVentas, setHistoryVentas] = useState([]);
   const [historyCitas, setHistoryCitas] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
-  const [historyError, setHistoryError] = useState('');
-
-  // Form states
+  
+  // Forms & Auth data
   const [checkoutForm, setCheckoutForm] = useState({
-    nombre: '',
-    apellidos: '',
-    correo: '',
-    telefono: '',
-    direccion: '',
-    distrito: '',
-    tipoDocumento: 'DNI',
-    numeroDocumento: '',
-    metodoPago: 'tarjeta'
+    nombre: '', apellidos: '', correo: '', telefono: '', direccion: '', distrito: '',
+    tipoDocumento: 'DNI', numeroDocumento: '', metodoPago: 'tarjeta'
   });
-  
-  const [loginForm, setLoginForm] = useState({
-    correo: '',
-    documento: ''
+  const [storeLoginForm, setStoreLoginForm] = useState({ correo: '', documento: '' });
+  const [storeRegisterForm, setStoreRegisterForm] = useState({
+    nombre: '', apellidos: '', correo: '', telefono: '', direccion: '', distrito: '',
+    tipoDocumento: 'DNI', numeroDocumento: ''
   });
-  
-  const [registerForm, setRegisterForm] = useState({
-    nombre: '',
-    apellidos: '',
-    correo: '',
-    telefono: '',
-    direccion: '',
-    distrito: '',
-    tipoDocumento: 'DNI',
-    numeroDocumento: ''
-  });
-
   const [lastVentaId, setLastVentaId] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState('');
 
-  // Initial Load
+  // --- PORTAL: SUPERADMIN STATE ---
+  const [superadminEmail, setSuperadminEmail] = useState('');
+  const [superadminToken, setSuperadminToken] = useState('');
+  const [isSuperadminLoggedIn, setIsSuperadminLoggedIn] = useState(false);
+  const [tenants, setTenants] = useState([]);
+  const [saUsers, setSaUsers] = useState([]);
+  const [saTab, setSaTab] = useState('tenants'); // 'tenants' | 'users'
+  const [saModal, setSaModal] = useState({ open: false, mode: 'create', type: 'tenant', data: null });
+  // Tenant Form
+  const [tenantForm, setTenantForm] = useState({
+    razon_social: '', ruc: '', direccion_fiscal: '', correo: '', telefono: '', nombre_comercial: '', tipo_negocio: 'estetica'
+  });
+  // User Form
+  const [saUserForm, setSaUserForm] = useState({
+    nombre_usuario: '', apellidos_usuario: '', correo: '', tipo_usuario: 'admin', numero_documento: '', contrasenia: '', estado: 1, id_tenants: ''
+  });
+
+  // --- PORTAL: TENANT ADMIN STATE ---
+  const [adminCorreo, setAdminCorreo] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  const [adminActiveModule, setAdminActiveModule] = useState('productos');
+  const [adminCrudData, setAdminCrudData] = useState([]);
+  const [loadingAdminCrud, setLoadingAdminCrud] = useState(false);
+  const [crudModal, setCrudModal] = useState({ open: false, mode: 'create', data: null });
+  // Dynamic generic form data state for admin CRUD panel
+  const [dynamicFormFields, setDynamicFormFields] = useState({});
+
+  // Loading & Global Errors
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
+
+  // Sync hash routing
   useEffect(() => {
-    // Load local storage items
+    const handleHashChange = () => {
+      setRoute(window.location.hash || '#/');
+      setErrorMsg('');
+      setSuccessMsg('');
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  // Parse path parameters (e.g., #/tienda/1)
+  const getRouteParams = () => {
+    if (route.startsWith('#/tienda/')) {
+      const parts = route.split('/');
+      return { tenantId: parts[parts.length - 1] };
+    }
+    return {};
+  };
+
+  // Route router effect
+  useEffect(() => {
+    const params = getRouteParams();
+    if (params.tenantId) {
+      loadStorefront(params.tenantId);
+    } else if (route === '#/superadmin/dashboard') {
+      loadSuperadminDashboard();
+    } else if (route === '#/dashboard') {
+      loadAdminDashboard();
+    }
+  }, [route]);
+
+  // Load client details and cart from localstorage on start
+  useEffect(() => {
     try {
       const savedCart = localStorage.getItem('bellarista_cart');
       if (savedCart) setCart(JSON.parse(savedCart));
       
       const savedClient = localStorage.getItem('bellarista_client');
-      if (savedClient) {
-        const parsed = JSON.parse(savedClient);
-        setClient(parsed);
-        // Pre-fill checkout form with logged-in client details
-        setCheckoutForm(prev => ({
-          ...prev,
-          nombre: parsed.nombre_cliente || '',
-          apellidos: parsed.apellidos_clientes || '',
-          correo: parsed.correo || '',
-          telefono: parsed.telefono || '',
-          direccion: parsed.direccion || '',
-          distrito: parsed.distrito || '',
-          tipoDocumento: parsed.tipo_documento || 'DNI',
-          numeroDocumento: parsed.numero_documento || ''
-        }));
-      }
+      if (savedClient) setStoreClient(JSON.parse(savedClient));
     } catch (e) {
-      console.error('Error al cargar datos de localStorage:', e);
+      console.error(e);
     }
-    
-    // Fetch initial API data
-    const fetchInitialData = async () => {
-      try {
-        setLoading(true);
-        const [prods, cats, servs, brnds] = await Promise.all([
-          api.getProductos().catch(e => { console.error(e); return []; }),
-          api.getCategorias().catch(e => { console.error(e); return []; }),
-          api.getServicios().catch(e => { console.error(e); return []; }),
-          api.getMarcas().catch(e => { console.error(e); return []; })
-        ]);
-        
-        setProducts(prods);
-        setFilteredProducts(prods);
-        setCategories(cats);
-        setServices(servs);
-        setBrands(brnds);
-      } catch (err) {
-        console.error('Error al cargar datos del backend:', err);
-        setErrorMsg('No se pudo conectar con el servidor cPanel. Inténtelo más tarde.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchInitialData();
   }, []);
 
-  // Filter products when activeCategory or searchQuery changes
+  // --- SUB-FLOW: CLIENT STOREFRONT ---
+  const loadStorefront = async (tenantId) => {
+    try {
+      setLoading(true);
+      setErrorMsg('');
+      // Set the session tenantId on cPanel backend
+      await api.setTenantSession(tenantId);
+      
+      // Load storefront data
+      const [prods, cats, servs, brnds] = await Promise.all([
+        api.getProductos().catch(e => { console.error(e); return []; }),
+        api.getCategorias().catch(e => { console.error(e); return []; }),
+        api.getServicios().catch(e => { console.error(e); return []; }),
+        api.getMarcas().catch(e => { console.error(e); return []; })
+      ]);
+      
+      setProducts(prods);
+      setFilteredProducts(prods);
+      setCategories(cats);
+      setServices(servs);
+      setBrands(brnds);
+    } catch (err) {
+      console.error(err);
+      setErrorMsg('No se pudo conectar con el servidor cPanel de la tienda.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Filter storefront products
   useEffect(() => {
     let result = products;
-    
     if (activeCategory !== null) {
       result = result.filter(p => p.id_categorias_productos && p.id_categorias_productos.id_categorias_productos === activeCategory);
     }
-    
     if (searchQuery.trim() !== '') {
       const q = searchQuery.toLowerCase().trim();
       result = result.filter(p => 
@@ -150,60 +182,53 @@ function App() {
         (p.descripcion && p.descripcion.toLowerCase().includes(q))
       );
     }
-    
     setFilteredProducts(result);
   }, [activeCategory, searchQuery, products]);
 
-  // Load client history when tab switches to 'history' or client logs in
+  // Load storefront client history
   useEffect(() => {
-    if (tab === 'history' && client) {
-      loadClientHistory();
+    if (tab === 'history' && storeClient && getRouteParams().tenantId) {
+      (async () => {
+        try {
+          setLoadingHistory(true);
+          const data = await api.getHistorial();
+          if (data && data.success) {
+            setHistoryVentas(data.ventas || []);
+            setHistoryCitas(data.citas || []);
+          }
+        } catch (e) {
+          console.error(e);
+        } finally {
+          setLoadingHistory(false);
+        }
+      })();
     }
-  }, [tab, client]);
-
-  const loadClientHistory = async () => {
-    try {
-      setLoadingHistory(true);
-      setHistoryError('');
-      const data = await api.getHistorial();
-      if (data && data.success) {
-        setHistoryVentas(data.ventas || []);
-        setHistoryCitas(data.citas || []);
-      } else {
-        setHistoryError(data.error || 'Error al obtener el historial');
-      }
-    } catch (err) {
-      console.error(err);
-      setHistoryError('Error de red al cargar historial.');
-    } finally {
-      setLoadingHistory(false);
-    }
-  };
+  }, [storeTab, storeClient, route]);
 
   // Cart operations
-  const saveCart = (newCart) => {
+  const updateCart = (newCart) => {
     setCart(newCart);
     localStorage.setItem('bellarista_cart', JSON.stringify(newCart));
   };
 
-  const addToCart = (product) => {
+  const handleAddToCart = (product) => {
     const existing = cart.find(item => item.id_productos === product.id_productos);
     const stockAct = product.stock_actual != null ? Number(product.stock_actual) : 0;
     const currentQty = existing ? existing.cantidad : 0;
 
     if (currentQty >= stockAct) {
-      alert(`Lo sentimos, no hay más unidades disponibles de ${product.nombre_producto} (Stock actual: ${stockAct}).`);
+      alert(`Lo sentimos, no hay más unidades de ${product.nombre_producto}. (Stock actual: ${stockAct}).`);
       return;
     }
 
     if (existing) {
-      saveCart(cart.map(item => 
+      updateCart(cart.map(item => 
         item.id_productos === product.id_productos 
           ? { ...item, cantidad: item.cantidad + 1 }
           : item
       ));
     } else {
-      saveCart([...cart, {
+      updateCart([...cart, {
         id_productos: product.id_productos,
         nombre_producto: product.nombre_producto,
         precio_venta: product.precio_venta,
@@ -214,76 +239,33 @@ function App() {
     setIsCartOpen(true);
   };
 
-  const updateCartQuantity = (productId, delta) => {
-    const item = cart.find(i => i.id_productos === productId);
-    if (!item) return;
-
-    if (delta > 0) {
-      const prod = products.find(p => p.id_productos === productId);
-      const stockAct = prod && prod.stock_actual != null ? Number(prod.stock_actual) : 999;
-      if (item.cantidad >= stockAct) {
-        alert(`No se pueden agregar más unidades. El stock máximo disponible es ${stockAct}.`);
-        return;
-      }
-    }
-
-    const newQty = item.cantidad + delta;
-    if (newQty <= 0) {
-      saveCart(cart.filter(i => i.id_productos !== productId));
-    } else {
-      saveCart(cart.map(i => 
-        i.id_productos === productId 
-          ? { ...i, cantidad: newQty }
-          : i
-      ));
-    }
-  };
-
-  const removeFromCart = (productId) => {
-    saveCart(cart.filter(i => i.id_productos !== productId));
-  };
-
-  const getCartTotal = () => {
-    return cart.reduce((sum, item) => sum + (item.cantidad * item.precio_venta), 0);
-  };
-
-  // Auth Operations
-  const handleLogin = async (e) => {
+  // Client login/register
+  const handleStoreClientLogin = async (e) => {
     e.preventDefault();
     try {
       setErrorMsg('');
-      await api.login(loginForm.correo, loginForm.documento);
-      
-      // Since MVC login redirects and saves to session, we simulate client retrieval
-      // Fetching historial acts as verification. If successful, we save locally.
+      await api.login(storeLoginForm.correo, storeLoginForm.documento);
       const historyData = await api.getHistorial();
       if (historyData && historyData.success) {
-        // We find the client details in the backend history response, or simulate it:
-        // Here we just save the basic info
         const clientObj = {
-          nombre_cliente: loginForm.correo.split('@')[0], // Fallback
-          correo: loginForm.correo,
-          numero_documento: loginForm.documento
+          nombre_cliente: storeLoginForm.correo.split('@')[0],
+          correo: storeLoginForm.correo,
+          numero_documento: storeLoginForm.documento
         };
-        
-        // Let's try to query products to see if we get customer details inside sale entities
-        if (historyData.ventas && historyData.ventas.length > 0) {
-          const matchedCli = historyData.ventas[0].id_clientes;
-          if (matchedCli) {
-            clientObj.nombre_cliente = matchedCli.nombre_cliente;
-            clientObj.apellidos_clientes = matchedCli.apellidos_clientes;
-            clientObj.telefono = matchedCli.telefono;
-            clientObj.direccion = matchedCli.direccion;
-            clientObj.distrito = matchedCli.distrito;
-            clientObj.tipo_documento = matchedCli.tipo_documento;
-            clientObj.id_clientes = matchedCli.id_clientes;
-          }
+        if (historyData.ventas && historyData.ventas.length > 0 && historyData.ventas[0].id_clientes) {
+          const c = historyData.ventas[0].id_clientes;
+          clientObj.nombre_cliente = c.nombre_cliente;
+          clientObj.apellidos_clientes = c.apellidos_clientes;
+          clientObj.telefono = c.telefono;
+          clientObj.direccion = c.direccion;
+          clientObj.distrito = c.distrito;
+          clientObj.tipo_documento = c.tipo_documento;
+          clientObj.id_clientes = c.id_clientes;
         }
-        
-        setClient(clientObj);
+        setStoreClient(clientObj);
         localStorage.setItem('bellarista_client', JSON.stringify(clientObj));
         
-        // Auto fill checkout form
+        // Fill checkout fields
         setCheckoutForm(prev => ({
           ...prev,
           nombre: clientObj.nombre_cliente || '',
@@ -295,128 +277,408 @@ function App() {
           tipoDocumento: clientObj.tipo_documento || 'DNI',
           numeroDocumento: clientObj.numero_documento || ''
         }));
-
-        setView('catalog');
-        setTab('store');
+        setStoreView('catalog');
       } else {
-        setErrorMsg('Credenciales incorrectas o cliente no encontrado en este tenant.');
+        setErrorMsg('No se pudo encontrar su historial. Verifique sus datos.');
       }
     } catch (err) {
-      console.error(err);
-      setErrorMsg('Error de red o credenciales incorrectas. Verifique DNI/RUC.');
+      setErrorMsg('Error de inicio de sesión. Verifique sus credenciales.');
     }
   };
 
-  const handleRegister = async (e) => {
+  const handleStoreClientRegister = async (e) => {
     e.preventDefault();
     try {
       setErrorMsg('');
-      await api.registro(registerForm);
-      
-      // Auto login by executing normal login call
-      await api.login(registerForm.correo, registerForm.numeroDocumento);
+      await api.registro(storeRegisterForm);
+      await api.login(storeRegisterForm.correo, storeRegisterForm.numeroDocumento);
       
       const clientObj = {
-        nombre_cliente: registerForm.nombre,
-        apellidos_clientes: registerForm.apellidos,
-        correo: registerForm.correo,
-        telefono: registerForm.telefono,
-        direccion: registerForm.direccion,
-        distrito: registerForm.distrito,
-        tipo_documento: registerForm.tipoDocumento,
-        numero_documento: registerForm.numeroDocumento
+        nombre_cliente: storeRegisterForm.nombre,
+        apellidos_clientes: storeRegisterForm.apellidos,
+        correo: storeRegisterForm.correo,
+        telefono: storeRegisterForm.telefono,
+        direccion: storeRegisterForm.direccion,
+        distrito: storeRegisterForm.distrito,
+        tipo_documento: storeRegisterForm.tipoDocumento,
+        numero_documento: storeRegisterForm.numeroDocumento
       };
       
-      setClient(clientObj);
+      setStoreClient(clientObj);
       localStorage.setItem('bellarista_client', JSON.stringify(clientObj));
-      
-      // Pre-fill checkout form
-      setCheckoutForm(prev => ({
-        ...prev,
-        ...registerForm
-      }));
-
-      setView('catalog');
-      setTab('store');
+      setCheckoutForm(prev => ({ ...prev, ...storeRegisterForm }));
+      setStoreView('catalog');
     } catch (err) {
-      console.error(err);
-      setErrorMsg('Error al registrarse. Posiblemente el correo ya esté registrado.');
+      setErrorMsg('Error en el registro. Posiblemente el correo ya existe.');
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await api.logout();
-    } catch (e) {
-      console.error(e);
-    }
-    setClient(null);
+  const handleStoreClientLogout = async () => {
+    try { await api.logout(); } catch(e) {}
+    setStoreClient(null);
     setHistoryVentas([]);
     setHistoryCitas([]);
     localStorage.removeItem('bellarista_client');
-    setTab('store');
-    setView('catalog');
+    setStoreTab('store');
+    setStoreView('catalog');
   };
 
-  // Checkout Operations
-  const handleCheckoutSubmit = async (e) => {
+  const handleStoreCheckout = async (e) => {
     e.preventDefault();
-    if (cart.length === 0) {
-      alert('Tu carrito está vacío.');
-      return;
-    }
+    if (cart.length === 0) return;
     
     const payload = {
-      nombre: checkoutForm.nombre,
-      apellidos: checkoutForm.apellidos,
-      correo: checkoutForm.correo,
-      telefono: checkoutForm.telefono,
-      direccion: checkoutForm.direccion,
-      distrito: checkoutForm.distrito,
-      tipoDocumento: checkoutForm.tipoDocumento,
-      numeroDocumento: checkoutForm.numeroDocumento,
-      metodoPago: checkoutForm.metodoPago,
+      ...checkoutForm,
       items: cart.map(i => ({
         id_productos: i.id_productos,
         cantidad: i.cantidad,
         precio_venta: i.precio_venta
       }))
     };
-
+    
     try {
       setErrorMsg('');
-      const response = await api.checkout(payload);
-      // Backend returns string "{"success": true, "ventaId": ...}"
-      const res = typeof response === 'string' ? JSON.parse(response) : response;
-      
+      const raw = await api.checkout(payload);
+      const res = typeof raw === 'string' ? JSON.parse(raw) : raw;
       if (res && res.success) {
         setLastVentaId(res.ventaId);
-        
-        // Refresh client object locally if checkout registered/updated it
-        if (!client) {
-          const guestCliObj = {
-            nombre_cliente: checkoutForm.nombre,
-            apellidos_clientes: checkoutForm.apellidos,
-            correo: checkoutForm.correo,
-            numero_documento: checkoutForm.numeroDocumento
-          };
-          setClient(guestCliObj);
-          localStorage.setItem('bellarista_client', JSON.stringify(guestCliObj));
-        }
-        
-        saveCart([]); // Clear cart
-        setView('success');
+        updateCart([]);
+        setStoreView('success');
       } else {
-        setErrorMsg(res.error || 'Ocurrió un error al procesar el pedido.');
+        setErrorMsg(res.error || 'Error al procesar la compra.');
       }
     } catch (err) {
-      console.error(err);
-      setErrorMsg('No se pudo procesar la compra. Inténtalo de nuevo.');
+      setErrorMsg('Error de red al procesar el checkout.');
     }
   };
 
-  // PDF Boleta generator
-  const downloadReceipt = async (ventaId) => {
+  // --- SUB-FLOW: SUPERADMIN ---
+  const handleSuperadminLogin = async (e) => {
+    e.preventDefault();
+    try {
+      setErrorMsg('');
+      await api.loginGeneral(superadminEmail, superadminToken);
+      setIsSuperadminLoggedIn(true);
+      window.location.hash = '#/superadmin/dashboard';
+    } catch (err) {
+      setErrorMsg('Credenciales incorrectas o error de conexión de SuperAdmin.');
+    }
+  };
+
+  const loadSuperadminDashboard = async () => {
+    try {
+      setLoading(true);
+      setErrorMsg('');
+      const [tList, uList] = await Promise.all([
+        api.getSuperadminTenants(),
+        api.getSuperadminUsuarios()
+      ]);
+      setTenants(tList);
+      setSaUsers(uList);
+      setIsSuperadminLoggedIn(true);
+    } catch (err) {
+      // If unauthorized, redirect to general login
+      setIsSuperadminLoggedIn(false);
+      window.location.hash = '#/';
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateTenant = async (e) => {
+    e.preventDefault();
+    try {
+      setErrorMsg('');
+      const res = await api.crearTenant(tenantForm);
+      if (res && res.success) {
+        setSuccessMsg(`Tenant creado. Admin temporal creado: ${res.adminCorreo}`);
+        setSaModal({ open: false, mode: 'create', type: 'tenant', data: null });
+        loadSuperadminDashboard();
+      } else {
+        setErrorMsg(res.error || 'Error al crear el Tenant.');
+      }
+    } catch (err) {
+      setErrorMsg('Error de red al crear Tenant.');
+    }
+  };
+
+  const handleEditTenant = async (e) => {
+    e.preventDefault();
+    try {
+      setErrorMsg('');
+      const res = await api.editarTenant(tenantForm);
+      if (res && res.success) {
+        setSuccessMsg('Tenant modificado con éxito.');
+        setSaModal({ open: false, mode: 'edit', type: 'tenant', data: null });
+        loadSuperadminDashboard();
+      } else {
+        setErrorMsg(res.error || 'Error al editar el Tenant.');
+      }
+    } catch (err) {
+      setErrorMsg('Error de red al modificar Tenant.');
+    }
+  };
+
+  const handleEditsaUser = async (e) => {
+    e.preventDefault();
+    try {
+      setErrorMsg('');
+      // Parse tenant object
+      const payload = {
+        ...saUserForm,
+        id_tenants: saUserForm.id_tenants ? { id_tenants: Number(saUserForm.id_tenants) } : null
+      };
+      const res = await api.editarUsuario(payload);
+      if (res && res.success) {
+        setSuccessMsg('Usuario guardado con éxito.');
+        setSaModal({ open: false, mode: 'edit', type: 'user', data: null });
+        loadSuperadminDashboard();
+      } else {
+        setErrorMsg(res.error || 'Error al editar usuario.');
+      }
+    } catch (err) {
+      setErrorMsg('Error de red al modificar usuario.');
+    }
+  };
+
+  const handleSAEditClick = (type, item) => {
+    if (type === 'tenant') {
+      setTenantForm(item);
+      setSaModal({ open: true, mode: 'edit', type: 'tenant', data: item });
+    } else {
+      setSaUserForm({
+        ...item,
+        contrasenia: '',
+        id_tenants: item.id_tenants ? item.id_tenants.id_tenants : ''
+      });
+      setSaModal({ open: true, mode: 'edit', type: 'user', data: item });
+    }
+  };
+
+  const handleSuperadminLogoutClick = async () => {
+    try { await api.superadminLogout(); } catch(e) {}
+    setIsSuperadminLoggedIn(false);
+    window.location.hash = '#/';
+  };
+
+
+  // --- SUB-FLOW: TENANT ADMIN ---
+  const handleAdminLogin = async (e) => {
+    e.preventDefault();
+    try {
+      setErrorMsg('');
+      await api.loginAdmin(adminCorreo, adminPassword);
+      setIsAdminLoggedIn(true);
+      window.location.hash = '#/dashboard';
+    } catch (err) {
+      setErrorMsg('Usuario o contraseña del local incorrectos.');
+    }
+  };
+
+  const loadAdminDashboard = async () => {
+    try {
+      setLoading(true);
+      setErrorMsg('');
+      // Test credentials loading active module
+      await loadCrudModule(adminActiveModule);
+      setIsAdminLoggedIn(true);
+    } catch (err) {
+      setIsAdminLoggedIn(false);
+      window.location.hash = '#/admin/login';
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Map modules to API endpoints
+  const getModuleEndpoint = (mod) => {
+    return `/api/${mod}`;
+  };
+
+  // Load Crud data from backend
+  const loadCrudModule = async (modName) => {
+    try {
+      setLoadingAdminCrud(true);
+      const data = await api.crudList(getModuleEndpoint(modName));
+      setAdminCrudData(data || []);
+    } catch (err) {
+      console.error(err);
+      throw err;
+    } finally {
+      setLoadingAdminCrud(false);
+    }
+  };
+
+  useEffect(() => {
+    if (route === '#/dashboard' && isAdminLoggedIn) {
+      loadCrudModule(adminActiveModule);
+    }
+  }, [adminActiveModule, route, isAdminLoggedIn]);
+
+  // Get module configuration (fields, labels) for automatic CRUD forms
+  const getModuleConfig = (mod) => {
+    switch (mod) {
+      case 'productos':
+        return {
+          title: 'Productos',
+          primaryKey: 'id_productos',
+          fields: [
+            { name: 'nombre_producto', label: 'Nombre Producto', type: 'text', required: true },
+            { name: 'precio_venta', label: 'Precio Venta (S/)', type: 'number', required: true },
+            { name: 'stock_actual', label: 'Stock Actual', type: 'number', required: true },
+            { name: 'stock_minimo', label: 'Stock Mínimo', type: 'number', required: true },
+            { name: 'descripcion', label: 'Descripción', type: 'text' },
+            { name: 'visible_storefront', label: 'Visible Tienda (1=Sí, 0=No)', type: 'number' },
+            { name: 'etiqueta_especial', label: 'Etiqueta Especial', type: 'text' }
+          ]
+        };
+      case 'categorias':
+        return {
+          title: 'Categorías',
+          primaryKey: 'id_categorias_productos',
+          fields: [
+            { name: 'nombre_categoria_producto', label: 'Nombre Categoría', type: 'text', required: true },
+            { name: 'descripcion', label: 'Descripción', type: 'text' }
+          ]
+        };
+      case 'marcas':
+        return {
+          title: 'Marcas',
+          primaryKey: 'id_marcas',
+          fields: [
+            { name: 'nombre_marca', label: 'Nombre Marca', type: 'text', required: true }
+          ]
+        };
+      case 'sedes':
+        return {
+          title: 'Sedes',
+          primaryKey: 'id_sedes',
+          fields: [
+            { name: 'nombre_sede', label: 'Nombre Sede', type: 'text', required: true },
+            { name: 'direccion', label: 'Dirección', type: 'text', required: true },
+            { name: 'telefono', label: 'Teléfono', type: 'text' }
+          ]
+        };
+      case 'servicios-belleza':
+        return {
+          title: 'Servicios de Belleza',
+          primaryKey: 'id_servicios_belleza',
+          fields: [
+            { name: 'nombre_servicio_belleza', label: 'Nombre Servicio', type: 'text', required: true },
+            { name: 'precio_base', label: 'Precio Base (S/)', type: 'number', required: true },
+            { name: 'duracion_minima', label: 'Duración (Minutos)', type: 'number', required: true },
+            { name: 'descripcion', label: 'Descripción', type: 'text' }
+          ]
+        };
+      case 'clientes':
+        return {
+          title: 'Clientes',
+          primaryKey: 'id_clientes',
+          fields: [
+            { name: 'nombre_cliente', label: 'Nombres', type: 'text', required: true },
+            { name: 'apellidos_clientes', label: 'Apellidos', type: 'text', required: true },
+            { name: 'correo', label: 'Correo Electrónico', type: 'email', required: true },
+            { name: 'telefono', label: 'Teléfono', type: 'text' },
+            { name: 'direccion', label: 'Dirección', type: 'text' },
+            { name: 'distrito', label: 'Distrito', type: 'text' },
+            { name: 'tipo_documento', label: 'Tipo Documento (DNI/RUC)', type: 'text', required: true },
+            { name: 'numero_documento', label: 'Número Documento', type: 'text', required: true }
+          ]
+        };
+      case 'citas':
+        return {
+          title: 'Reservas de Citas',
+          primaryKey: 'id_citas',
+          fields: [
+            { name: 'fecha_cita', label: 'Fecha Cita (YYYY-MM-DD)', type: 'text', required: true },
+            { name: 'hora_inicio', label: 'Hora Inicio (HH:MM)', type: 'text', required: true },
+            { name: 'hora_fin', label: 'Hora Fin (HH:MM)', type: 'text' },
+            { name: 'observaciones', label: 'Observaciones', type: 'text' },
+            { name: 'estado', label: 'Estado (1=Activa, 0=Cancelada)', type: 'number' }
+          ]
+        };
+      case 'ventas':
+        return {
+          title: 'Ventas Realizadas',
+          primaryKey: 'id_ventas',
+          fields: [
+            { name: 'numero_ticket', label: 'Número Ticket', type: 'text', required: true },
+            { name: 'tipo_comprobante', label: 'Tipo Comprobante (boleta/factura)', type: 'text', required: true },
+            { name: 'total', label: 'Total Cobrado (S/)', type: 'number', required: true },
+            { name: 'estado_sunat', label: 'Estado SUNAT (aceptada/rechazada)', type: 'text' }
+          ]
+        };
+      default:
+        return { title: 'Módulo', primaryKey: 'id', fields: [] };
+    }
+  };
+
+  const handleAdminCrudSave = async (e) => {
+    e.preventDefault();
+    const config = getModuleConfig(adminActiveModule);
+    const endpoint = getModuleEndpoint(adminActiveModule);
+    try {
+      setErrorMsg('');
+      if (crudModal.mode === 'create') {
+        await api.crudCreate(endpoint, dynamicFormFields);
+        setSuccessMsg('Registro creado con éxito.');
+      } else {
+        const id = crudModal.data[config.primaryKey];
+        await api.crudUpdate(endpoint, id, dynamicFormFields);
+        setSuccessMsg('Registro modificado con éxito.');
+      }
+      setCrudModal({ open: false, mode: 'create', data: null });
+      loadCrudModule(adminActiveModule);
+    } catch (err) {
+      setErrorMsg('No se pudo guardar el registro en cPanel.');
+    }
+  };
+
+  const handleAdminCrudDelete = async (id) => {
+    if (!confirm('¿Eliminar este registro permanentemente?')) return;
+    const endpoint = getModuleEndpoint(adminActiveModule);
+    try {
+      setErrorMsg('');
+      await api.crudDelete(endpoint, id);
+      setSuccessMsg('Registro eliminado con éxito.');
+      loadCrudModule(adminActiveModule);
+    } catch (err) {
+      setErrorMsg('Error al eliminar registro. Asegúrese de que no tenga relaciones activas.');
+    }
+  };
+
+  const handleAdminEditClick = (item) => {
+    const config = getModuleConfig(adminActiveModule);
+    const formFields = {};
+    config.fields.forEach(f => {
+      formFields[f.name] = item[f.name] ?? '';
+    });
+    setDynamicFormFields(formFields);
+    setCrudModal({ open: true, mode: 'edit', data: item });
+  };
+
+  const handleAdminCreateClick = () => {
+    const config = getModuleConfig(adminActiveModule);
+    const formFields = {};
+    config.fields.forEach(f => {
+      formFields[f.name] = f.type === 'number' ? 0 : '';
+    });
+    setDynamicFormFields(formFields);
+    setCrudModal({ open: true, mode: 'create', data: null });
+  };
+
+  const handleAdminLogoutClick = async () => {
+    try { await api.adminLogout(); } catch(e) {}
+    setIsAdminLoggedIn(false);
+    window.location.hash = '#/admin/login';
+  };
+
+  // Download Sunat invoice inside App (re-implemented)
+  const downloadReceipt = (ventaId) => {
+    downloadReceiptGlobal(ventaId);
+  };
+
+  const downloadReceiptGlobal = async (ventaId) => {
     if (!ventaId) return;
     try {
       const [ventaRes, detalles] = await Promise.all([
@@ -528,10 +790,467 @@ function App() {
       window.open(pdfUrl, '_blank');
     } catch (err) {
       console.error(err);
-      alert('Error al generar el archivo PDF de la boleta.');
+      alert('Error al generar el PDF de la boleta.');
     }
   };
 
+
+  // --- MAIN RENDER ROUTING FLOW ---
+  
+  // 1. ROUTE: SuperAdmin Login (Root `/` or `#/`)
+  if (route === '#/' || route === '') {
+    return (
+      <div className="login-page-bg">
+        <div className="login-container">
+          <div className="login-card">
+            <div className="logo-section">
+              <div className="logo-icon">
+                <Briefcase size={32} color="white" />
+              </div>
+              <h1 style={{ color: 'white' }}>Bella<span>rista</span></h1>
+              <p>Panel de SuperAdministración</p>
+            </div>
+
+            {errorMsg && <div className="alert-error">{errorMsg}</div>}
+
+            <form onSubmit={handleSuperadminLogin} autoComplete="off">
+              <div className="form-group">
+                <label style={{ color: 'rgba(255,255,255,0.7)' }}>Correo Electrónico</label>
+                <input 
+                  type="email" 
+                  required 
+                  placeholder="ejemplo@correo.com"
+                  value={superadminEmail}
+                  onChange={(e) => setSuperadminEmail(e.target.value)}
+                  style={{ background: 'rgba(255,255,255,0.07)', color: 'white', borderColor: 'rgba(255,255,255,0.12)' }}
+                />
+              </div>
+              <div className="form-group">
+                <label style={{ color: 'rgba(255,255,255,0.7)' }}>Token de Acceso</label>
+                <input 
+                  type="password" 
+                  required 
+                  placeholder="Ingrese su access token"
+                  value={superadminToken}
+                  onChange={(e) => setSuperadminToken(e.target.value)}
+                  style={{ background: 'rgba(255,255,255,0.07)', color: 'white', borderColor: 'rgba(255,255,255,0.12)' }}
+                />
+              </div>
+              <button type="submit" className="btn-login" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', width: '100%', border: 'none', borderRadius: '12px', padding: '14px', color: 'white', fontWeight: '600', cursor: 'pointer' }}>
+                Ingresar al Panel
+              </button>
+            </form>
+
+            <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '12px', textAlign: 'center' }}>
+              <a href="#/admin/login" style={{ color: '#8b9cf7', textDecoration: 'underline' }}>
+                Acceder al Portal de Administración de Sede (Locales)
+              </a>
+              <a href="#/tienda/1" style={{ color: '#c5a880', textDecoration: 'underline' }}>
+                Ver Tienda Online (Prueba - Sede 1)
+              </a>
+            </div>
+            <p className="footer-text" style={{ color: 'rgba(255,255,255,0.3)', marginTop: '24px', fontSize: '11px', textAlign: 'center' }}>Acceso exclusivo para administradores de plataforma</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. ROUTE: SuperAdmin Dashboard (`#/superadmin/dashboard`)
+  if (route === '#/superadmin/dashboard') {
+    return (
+      <div className="sa-layout" style={{ background: '#0f1117', color: '#e8e8f0', minHeight: '100vh', fontFamily: 'sans-serif' }}>
+        {/* SA Navbar */}
+        <div className="sa-navbar" style={{ background: '#1a1d27', display: 'flex', justifyContent: 'space-between', padding: '16px 32px', borderBottom: '1px solid rgba(255,255,255,0.08)', alignItems: 'center' }}>
+          <div style={{ fontSize: '20px', fontWeight: 'bold' }}>Bellarista <span>SuperAdmin</span></div>
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <button className={`sa-nav-tab ${saTab === 'tenants' ? 'active' : ''}`} onClick={() => setSaTab('tenants')} style={{ background: 'none', border: 'none', color: saTab === 'tenants' ? '#667eea' : 'gray', cursor: 'pointer', fontWeight: 'bold' }}>
+              Tenants
+            </button>
+            <button className={`sa-nav-tab ${saTab === 'users' ? 'active' : ''}`} onClick={() => setSaTab('users')} style={{ background: 'none', border: 'none', color: saTab === 'users' ? '#667eea' : 'gray', cursor: 'pointer', fontWeight: 'bold' }}>
+              Usuarios
+            </button>
+            <button onClick={handleSuperadminLogoutClick} style={{ background: 'red', border: 'none', padding: '8px 16px', color: 'white', borderRadius: '8px', cursor: 'pointer' }}>
+              Cerrar Sesión
+            </button>
+          </div>
+        </div>
+
+        {/* SA Container */}
+        <div className="sa-main" style={{ padding: '32px' }}>
+          {successMsg && <div style={{ background: '#064e3b', color: '#34d399', padding: '12px', borderRadius: '8px', marginBottom: '16px' }}>{successMsg}</div>}
+          {errorMsg && <div style={{ background: '#7f1d1d', color: '#f87171', padding: '12px', borderRadius: '8px', marginBottom: '16px' }}>{errorMsg}</div>}
+
+          {saTab === 'tenants' ? (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', alignItems: 'center' }}>
+                <h2>Listado de Tenants (Boutiques / Salones)</h2>
+                <button 
+                  onClick={() => {
+                    setTenantForm({ razon_social: '', ruc: '', direccion_fiscal: '', correo: '', telefono: '', nombre_comercial: '', tipo_negocio: 'estetica' });
+                    setSaModal({ open: true, mode: 'create', type: 'sa-tenant', data: null });
+                  }}
+                  style={{ background: '#667eea', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer' }}
+                >
+                  + Crear Tenant
+                </button>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+                {tenants.map(t => (
+                  <div key={t.id_tenants} style={{ background: '#1a1d27', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '20px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                      <div style={{ width: '40px', height: '40px', background: '#667eea', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{t.id_tenants}</div>
+                      <div>
+                        <h4 style={{ margin: 0 }}>{t.nombre_comercial}</h4>
+                        <span style={{ fontSize: '11px', color: 'gray' }}>{t.razon_social}</span>
+                      </div>
+                    </div>
+                    <div style={{ fontSize: '12px', display: 'flex', flexDirection: 'column', gap: '4px', color: '#a0aec0' }}>
+                      <div><strong>RUC:</strong> {t.ruc}</div>
+                      <div><strong>Correo:</strong> {t.correo}</div>
+                      <div><strong>Teléfono:</strong> {t.telefono}</div>
+                      <div><strong>Dirección:</strong> {t.direccion_fiscal}</div>
+                    </div>
+                    <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
+                      <a href={`#/tienda/${t.id_tenants}`} target="_blank" rel="noreferrer" style={{ background: '#4a5568', color: 'white', textDecoration: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '11px' }}>
+                        Ver Tienda
+                      </a>
+                      <button onClick={() => handleSAEditClick('tenant', t)} style={{ background: '#667eea', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '11px', cursor: 'pointer' }}>
+                        Editar
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div>
+              <h2>Gestión de Usuarios Multi-Tenant</h2>
+              <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '16px', background: '#1a1d27', borderRadius: '8px', overflow: 'hidden' }}>
+                <thead>
+                  <tr style={{ background: '#22263a', textAlign: 'left', fontSize: '13px' }}>
+                    <th style={{ padding: '12px' }}>ID</th>
+                    <th style={{ padding: '12px' }}>Nombre</th>
+                    <th style={{ padding: '12px' }}>Correo</th>
+                    <th style={{ padding: '12px' }}>Tenant (Salon)</th>
+                    <th style={{ padding: '12px' }}>Rol</th>
+                    <th style={{ padding: '12px' }}>Estado</th>
+                    <th style={{ padding: '12px' }}>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {saUsers.map(u => (
+                    <tr key={u.id_usuarios} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '13px' }}>
+                      <td style={{ padding: '12px' }}>{u.id_usuarios}</td>
+                      <td style={{ padding: '12px' }}>{u.nombre_usuario} {u.apellidos_usuario}</td>
+                      <td style={{ padding: '12px' }}>{u.correo}</td>
+                      <td style={{ padding: '12px' }}>{u.id_tenants ? u.id_tenants.nombre_comercial : 'SuperAdmin'}</td>
+                      <td style={{ padding: '12px' }}><span style={{ background: u.tipo_usuario === 'admin' ? '#1e3a8a' : '#14532d', padding: '2px 8px', borderRadius: '4px', fontSize: '11px' }}>{u.tipo_usuario}</span></td>
+                      <td style={{ padding: '12px' }}>{u.estado === 1 ? 'Activo' : 'Inactivo'}</td>
+                      <td style={{ padding: '12px' }}>
+                        <button onClick={() => handleSAEditClick('user', u)} style={{ background: '#667eea', color: 'white', border: 'none', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer' }}>Editar</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* SA Modal Dialog */}
+        {saModal.open && (
+          <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+            <div style={{ background: '#1a1d27', padding: '32px', borderRadius: '12px', width: '90%', maxWidth: '500px', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+                <h3>{saModal.mode === 'create' ? 'Crear' : 'Editar'} {saModal.type === 'tenant' ? 'Tenant' : 'Usuario'}</h3>
+                <button onClick={() => setSaModal({ open: false })} style={{ background: 'none', border: 'none', color: 'white', fontSize: '20px', cursor: 'pointer' }}>&times;</button>
+              </div>
+
+              {saModal.type === 'tenant' ? (
+                <form onSubmit={saModal.mode === 'create' ? handleCreateTenant : handleEditTenant}>
+                  <div className="form-group">
+                    <label>Nombre Comercial</label>
+                    <input type="text" required value={tenantForm.nombre_comercial} onChange={(e) => setTenantForm({ ...tenantForm, nombre_comercial: e.target.value })} style={{ background: '#22263a', color: 'white', border: '1px solid rgba(255,255,255,0.08)' }} />
+                  </div>
+                  <div className="form-group">
+                    <label>Razón Social</label>
+                    <input type="text" required value={tenantForm.razon_social} onChange={(e) => setTenantForm({ ...tenantForm, razon_social: e.target.value })} style={{ background: '#22263a', color: 'white', border: '1px solid rgba(255,255,255,0.08)' }} />
+                  </div>
+                  <div className="form-group">
+                    <label>RUC</label>
+                    <input type="text" required value={tenantForm.ruc} onChange={(e) => setTenantForm({ ...tenantForm, ruc: e.target.value })} style={{ background: '#22263a', color: 'white', border: '1px solid rgba(255,255,255,0.08)' }} />
+                  </div>
+                  <div className="form-group">
+                    <label>Dirección Fiscal</label>
+                    <input type="text" required value={tenantForm.direccion_fiscal} onChange={(e) => setTenantForm({ ...tenantForm, direccion_fiscal: e.target.value })} style={{ background: '#22263a', color: 'white', border: '1px solid rgba(255,255,255,0.08)' }} />
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div className="form-group">
+                      <label>Correo</label>
+                      <input type="email" required value={tenantForm.correo} onChange={(e) => setTenantForm({ ...tenantForm, correo: e.target.value })} style={{ background: '#22263a', color: 'white', border: '1px solid rgba(255,255,255,0.08)' }} />
+                    </div>
+                    <div className="form-group">
+                      <label>Teléfono</label>
+                      <input type="text" value={tenantForm.telefono} onChange={(e) => setTenantForm({ ...tenantForm, telefono: e.target.value })} style={{ background: '#22263a', color: 'white', border: '1px solid rgba(255,255,255,0.08)' }} />
+                    </div>
+                  </div>
+                  <button type="submit" style={{ background: '#667eea', width: '100%', padding: '12px', border: 'none', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Guardar</button>
+                </form>
+              ) : (
+                <form onSubmit={handleEditsaUser}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div className="form-group">
+                      <label>Nombres</label>
+                      <input type="text" required value={saUserForm.nombre_usuario} onChange={(e) => setSaUserForm({ ...saUserForm, nombre_usuario: e.target.value })} style={{ background: '#22263a', color: 'white', border: '1px solid rgba(255,255,255,0.08)' }} />
+                    </div>
+                    <div className="form-group">
+                      <label>Apellidos</label>
+                      <input type="text" required value={saUserForm.apellidos_usuario} onChange={(e) => setSaUserForm({ ...saUserForm, apellidos_usuario: e.target.value })} style={{ background: '#22263a', color: 'white', border: '1px solid rgba(255,255,255,0.08)' }} />
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <label>Correo</label>
+                    <input type="email" required value={saUserForm.correo} onChange={(e) => setSaUserForm({ ...saUserForm, correo: e.target.value })} style={{ background: '#22263a', color: 'white', border: '1px solid rgba(255,255,255,0.08)' }} />
+                  </div>
+                  <div className="form-group">
+                    <label>Contraseña (Opcional - dejar vacío para conservar)</label>
+                    <input type="password" value={saUserForm.contrasenia} onChange={(e) => setSaUserForm({ ...saUserForm, contrasenia: e.target.value })} style={{ background: '#22263a', color: 'white', border: '1px solid rgba(255,255,255,0.08)' }} />
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div className="form-group">
+                      <label>Rol</label>
+                      <select value={saUserForm.tipo_usuario} onChange={(e) => setSaUserForm({ ...saUserForm, tipo_usuario: e.target.value })} style={{ background: '#22263a', color: 'white', border: '1px solid rgba(255,255,255,0.08)' }}>
+                        <option value="admin">Administrador Sede</option>
+                        <option value="empleado">Empleado Estilista</option>
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label>Estado</label>
+                      <select value={saUserForm.estado} onChange={(e) => setSaUserForm({ ...saUserForm, estado: Number(e.target.value) })} style={{ background: '#22263a', color: 'white', border: '1px solid rgba(255,255,255,0.08)' }}>
+                        <option value={1}>Activo</option>
+                        <option value={0}>Inactivo</option>
+                      </select>
+                    </div>
+                  </div>
+                  <button type="submit" style={{ background: '#667eea', width: '100%', padding: '12px', border: 'none', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Guardar Cambios</button>
+                </form>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // 3. ROUTE: Tenant Admin Login (`#/admin/login`)
+  if (route === '#/admin/login') {
+    return (
+      <div className="login-page-bg" style={{ background: 'linear-gradient(135deg, #1e1e24 0%, #302d27 100%)' }}>
+        <div className="login-container">
+          <div className="login-card">
+            <div className="logo-section">
+              <div className="logo-icon" style={{ background: 'linear-gradient(135deg, #c5a880 0%, #b09168 100%)' }}>
+                <User size={32} color="white" />
+              </div>
+              <h1 style={{ color: 'white' }}>Bella<span>rista</span></h1>
+              <p>Portal de Administración de Sede</p>
+            </div>
+
+            {errorMsg && <div className="alert-error">{errorMsg}</div>}
+
+            <form onSubmit={handleAdminLogin} autoComplete="off">
+              <div className="form-group">
+                <label style={{ color: 'rgba(255,255,255,0.7)' }}>Correo Electrónico</label>
+                <input 
+                  type="email" 
+                  required 
+                  placeholder="admin@correo.com"
+                  value={adminCorreo}
+                  onChange={(e) => setAdminCorreo(e.target.value)}
+                  style={{ background: 'rgba(255,255,255,0.07)', color: 'white', borderColor: 'rgba(255,255,255,0.12)' }}
+                />
+              </div>
+              <div className="form-group">
+                <label style={{ color: 'rgba(255,255,255,0.7)' }}>Contraseña</label>
+                <input 
+                  type="password" 
+                  required 
+                  placeholder="Ingrese su contraseña"
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  style={{ background: 'rgba(255,255,255,0.07)', color: 'white', borderColor: 'rgba(255,255,255,0.12)' }}
+                />
+              </div>
+              <button type="submit" className="btn-login" style={{ background: 'linear-gradient(135deg, #c5a880 0%, #b09168 100%)', width: '100%', border: 'none', borderRadius: '12px', padding: '14px', color: 'white', fontWeight: '600', cursor: 'pointer' }}>
+                Ingresar al Portal
+              </button>
+            </form>
+
+            <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '12px', textAlign: 'center' }}>
+              <a href="#/" style={{ color: '#c5a880', textDecoration: 'underline' }}>
+                Regresar a Acceso SuperAdmin
+              </a>
+            </div>
+            <p className="footer-text" style={{ color: 'rgba(255,255,255,0.3)', marginTop: '24px', fontSize: '11px', textAlign: 'center' }}>Acceso restringido para personal autorizado</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 4. ROUTE: Tenant Admin Dashboard (`#/dashboard`)
+  if (route === '#/dashboard') {
+    const config = getModuleConfig(adminActiveModule);
+    return (
+      <div className="admin-dashboard-layout" style={{ display: 'grid', gridTemplateColumns: '260px 1fr', minHeight: '100vh', background: '#f5f5f7' }}>
+        {/* Admin Sidebar */}
+        <aside style={{ background: '#1e1e24', color: '#e6e6e9', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ fontSize: '22px', fontWeight: 'bold', fontFamily: "'Playfair Display', serif", marginBottom: '32px', color: 'white' }}>
+              Bellarista <span style={{ color: '#c5a880' }}>Admin</span>
+            </div>
+            
+            <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <button className={`aside-nav-btn ${adminActiveModule === 'productos' ? 'active' : ''}`} onClick={() => setAdminActiveModule('productos')}>
+                <Tag size={16} /> Productos
+              </button>
+              <button className={`aside-nav-btn ${adminActiveModule === 'categorias' ? 'active' : ''}`} onClick={() => setAdminActiveModule('categorias')}>
+                <Settings size={16} /> Categorías
+              </button>
+              <button className={`aside-nav-btn ${adminActiveModule === 'marcas' ? 'active' : ''}`} onClick={() => setAdminActiveModule('marcas')}>
+                <Settings size={16} /> Marcas
+              </button>
+              <button className={`aside-nav-btn ${adminActiveModule === 'sedes' ? 'active' : ''}`} onClick={() => setAdminActiveModule('sedes')}>
+                <MapPin size={16} /> Sedes
+              </button>
+              <button className={`aside-nav-btn ${adminActiveModule === 'servicios-belleza' ? 'active' : ''}`} onClick={() => setAdminActiveModule('servicios-belleza')}>
+                <Scissors size={16} /> Servicios
+              </button>
+              <button className={`aside-nav-btn ${adminActiveModule === 'clientes' ? 'active' : ''}`} onClick={() => setAdminActiveModule('clientes')}>
+                <Users size={16} /> Clientes
+              </button>
+              <button className={`aside-nav-btn ${adminActiveModule === 'citas' ? 'active' : ''}`} onClick={() => setAdminActiveModule('citas')}>
+                <Calendar size={16} /> Reservas/Citas
+              </button>
+              <button className={`aside-nav-btn ${adminActiveModule === 'ventas' ? 'active' : ''}`} onClick={() => setAdminActiveModule('ventas')}>
+                <TrendingUp size={16} /> Ventas SUNAT
+              </button>
+            </nav>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <a href="#/tienda/1" target="_blank" rel="noreferrer" style={{ textDecoration: 'none', color: '#c5a880', fontSize: '13px', textAlign: 'center', fontWeight: 'bold' }}>
+              Ir a Tienda Cliente
+            </a>
+            <button onClick={handleAdminLogoutClick} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#f87171', padding: '10px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+              <LogOut size={16} /> Cerrar Sesión
+            </button>
+          </div>
+        </aside>
+
+        {/* Admin Content */}
+        <main style={{ padding: '40px', overflowY: 'auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', alignItems: 'center' }}>
+            <h2>Panel de {config.title}</h2>
+            <button onClick={handleAdminCreateClick} className="btn-filled" style={{ border: 'none', padding: '10px 20px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+              <Plus size={16} /> Nuevo Registro
+            </button>
+          </div>
+
+          {successMsg && <div style={{ background: '#d1fae5', color: '#065f46', padding: '12px 16px', borderRadius: '8px', marginBottom: '20px', fontSize: '13px' }}>{successMsg}</div>}
+          {errorMsg && <div className="error-alert">{errorMsg}</div>}
+
+          {loadingAdminCrud ? (
+            <div style={{ textAlign: 'center', padding: '80px' }}>
+              <div className="loading-spinner"></div>
+              <p style={{ marginTop: '16px', color: 'var(--text-muted)' }}>Cargando registros desde cPanel...</p>
+            </div>
+          ) : (
+            <div style={{ background: 'white', borderRadius: '16px', border: '1px solid var(--border)', overflow: 'hidden', boxShadow: 'var(--shadow-soft)' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
+                <thead>
+                  <tr style={{ background: '#fafafc', borderBottom: '1px solid var(--border)' }}>
+                    <th style={{ padding: '16px' }}>Código ID</th>
+                    {config.fields.slice(0, 4).map(f => (
+                      <th key={f.name} style={{ padding: '16px' }}>{f.label}</th>
+                    ))}
+                    <th style={{ padding: '16px', textAlign: 'right' }}>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {adminCrudData.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)' }}>No hay registros disponibles.</td>
+                    </tr>
+                  ) : (
+                    adminCrudData.map(item => {
+                      const id = item[config.primaryKey];
+                      return (
+                        <tr key={id} style={{ borderBottom: '1px solid rgba(0,0,0,0.03)' }}>
+                          <td style={{ padding: '16px', fontWeight: 'bold' }}>{id}</td>
+                          {config.fields.slice(0, 4).map(f => {
+                            let value = item[f.name];
+                            if (typeof value === 'object' && value !== null) {
+                              value = value.nombre_marca || value.nombre_categoria_producto || JSON.stringify(value);
+                            }
+                            return <td key={f.name} style={{ padding: '16px' }}>{value ?? '-'}</td>;
+                          })}
+                          <td style={{ padding: '16px', textAlign: 'right', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                            <button onClick={() => handleAdminEditClick(item)} style={{ background: '#e6e6e9', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '11px', fontWeight: '600' }}>
+                              Editar
+                            </button>
+                            <button onClick={() => handleAdminCrudDelete(id)} style={{ background: '#fee2e2', color: '#991b1b', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '11px', fontWeight: '600' }}>
+                              Eliminar
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </main>
+
+        {/* Admin CRUD Modal */}
+        {crudModal.open && (
+          <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.4)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+            <div style={{ background: 'white', padding: '32px', borderRadius: '16px', width: '90%', maxWidth: '500px', boxShadow: 'var(--shadow-soft)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', alignItems: 'center' }}>
+                <h3>{crudModal.mode === 'create' ? 'Nuevo' : 'Editar'} {config.title}</h3>
+                <button onClick={() => setCrudModal({ open: false })} style={{ background: 'none', border: 'none', fontSize: '22px', cursor: 'pointer', color: 'var(--text-muted)' }}>&times;</button>
+              </div>
+
+              <form onSubmit={handleAdminCrudSave}>
+                <div style={{ maxHeight: '400px', overflowY: 'auto', paddingRight: '6px', marginBottom: '20px' }}>
+                  {config.fields.map(f => (
+                    <div className="form-group" key={f.name}>
+                      <label>{f.label}</label>
+                      <input 
+                        type={f.type} 
+                        required={f.required}
+                        value={dynamicFormFields[f.name] ?? ''}
+                        onChange={(e) => setDynamicFormFields({ ...dynamicFormFields, [f.name]: e.target.value })}
+                      />
+                    </div>
+                  ))}
+                </div>
+                <button type="submit" className="btn-checkout" style={{ width: '100%' }}>
+                  Guardar Registro
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // 5. ROUTE: Customer Storefront (`#/tienda/:tenantId`)
+  const { tenantId } = getRouteParams();
   return (
     <div className="app-layout">
       {/* Header / Navbar */}
@@ -540,7 +1259,7 @@ function App() {
           <button 
             className="logo" 
             style={{ background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
-            onClick={() => { setTab('store'); setView('catalog'); }}
+            onClick={() => { setStoreTab('store'); setStoreView('catalog'); }}
           >
             Bellarista<span>Salon</span>
           </button>
@@ -548,59 +1267,52 @@ function App() {
           <ul className="nav-menu">
             <li>
               <button 
-                className={`nav-link-btn ${tab === 'store' && view === 'catalog' ? 'active' : ''}`}
-                onClick={() => { setTab('store'); setView('catalog'); }}
+                className={`nav-link-btn ${storeTab === 'store' && storeView === 'catalog' ? 'active' : ''}`}
+                onClick={() => { setStoreTab('store'); setStoreView('catalog'); }}
               >
                 Productos
               </button>
             </li>
             <li>
               <button 
-                className={`nav-link-btn ${tab === 'services' && view === 'catalog' ? 'active' : ''}`}
-                onClick={() => { setTab('services'); setView('catalog'); }}
+                className={`nav-link-btn ${storeTab === 'services' && storeView === 'catalog' ? 'active' : ''}`}
+                onClick={() => { setStoreTab('services'); setStoreView('catalog'); }}
               >
                 Servicios
               </button>
             </li>
-            {client && (
+            {storeClient && (
               <li>
                 <button 
-                  className={`nav-link-btn ${tab === 'history' && view === 'catalog' ? 'active' : ''}`}
-                  onClick={() => { setTab('history'); setView('catalog'); }}
+                  className={`nav-link-btn ${storeTab === 'history' && storeView === 'catalog' ? 'active' : ''}`}
+                  onClick={() => { setStoreTab('history'); setStoreView('catalog'); }}
                 >
                   Mi Historial
                 </button>
               </li>
             )}
             <li>
-              <a 
-                href="http://belleza.spring.informaticapp.com:2451/admin/login" 
-                target="_blank" 
-                rel="noreferrer" 
-                className="nav-link-btn"
-              >
-                Portal Admin
-              </a>
+              <a href="#/admin/login" className="nav-link-btn">Portal Admin</a>
             </li>
           </ul>
           
           <div className="nav-actions">
             <div className="auth-links">
-              {client ? (
+              {storeClient ? (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                   <span style={{ fontSize: '13px', fontWeight: '500' }}>
-                    Hola, <strong>{client.nombre_cliente}</strong>
+                    Hola, <strong>{storeClient.nombre_cliente}</strong>
                   </span>
-                  <button onClick={handleLogout} className="btn-logout-icon" title="Cerrar Sesión">
+                  <button onClick={handleStoreClientLogout} className="btn-logout-icon" title="Cerrar Sesión">
                     <LogOut size={16} />
                   </button>
                 </div>
               ) : (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <button onClick={() => setView('login')} className="btn-outline">
+                  <button onClick={() => setStoreView('store-login')} className="btn-outline">
                     Iniciar Sesión
                   </button>
-                  <button onClick={() => setView('register')} className="btn-filled">
+                  <button onClick={() => setStoreView('store-register')} className="btn-filled">
                     Registrarse
                   </button>
                 </div>
@@ -616,23 +1328,23 @@ function App() {
       </header>
 
       {/* Hero Section */}
-      {view === 'catalog' && (
+      {storeView === 'catalog' && (
         <section className="hero">
           <div className="hero-content">
-            <p className="hero-subtitle">Bellarista Boutique</p>
-            {tab === 'store' && (
+            <p className="hero-subtitle">Tienda Virtual - Sede {tenantId || '1'}</p>
+            {storeTab === 'store' && (
               <>
                 <h1>Encuentra los mejores productos para tu cuidado personal</h1>
                 <p>Una cuidada selección de cremas, esmaltes, tratamientos y accesorios premium recomendados por nuestros expertos.</p>
               </>
             )}
-            {tab === 'services' && (
+            {storeTab === 'services' && (
               <>
                 <h1>Tratamientos y Servicios de Belleza Exclusivos</h1>
                 <p>Reserva cortes de cabello, colorimetría, manicura y tratamientos capilares avanzados con nuestros estilistas certificados.</p>
               </>
             )}
-            {tab === 'history' && (
+            {storeTab === 'history' && (
               <>
                 <h1>Mi Actividad y Estado de Pedidos</h1>
                 <p>Sigue el estado de tus compras y administra el calendario de tus próximas visitas al salón de belleza.</p>
@@ -658,7 +1370,7 @@ function App() {
           )}
 
           {/* VIEW: CATALOG -> STORE TAB */}
-          {view === 'catalog' && tab === 'store' && (
+          {storeView === 'catalog' && storeTab === 'store' && (
             <main className="store-container">
               <div className="controls">
                 <div className="filter-pills">
@@ -731,7 +1443,7 @@ function App() {
                             <span className="product-price">S/ {price}</span>
                             <button 
                               className="add-to-cart-btn"
-                              onClick={() => addToCart(p)}
+                              onClick={() => handleAddToCart(p)}
                               disabled={stockAct <= 0}
                               style={{ opacity: stockAct <= 0 ? 0.4 : 1, cursor: stockAct <= 0 ? 'not-allowed' : 'pointer' }}
                             >
@@ -748,7 +1460,7 @@ function App() {
           )}
 
           {/* VIEW: CATALOG -> SERVICES TAB */}
-          {view === 'catalog' && tab === 'services' && (
+          {storeView === 'catalog' && storeTab === 'services' && (
             <main className="store-container">
               <div className="services-intro">
                 <h2>Nuestros Servicios de Belleza</h2>
@@ -810,7 +1522,7 @@ function App() {
           )}
 
           {/* VIEW: CATALOG -> HISTORY TAB */}
-          {view === 'catalog' && tab === 'history' && (
+          {storeView === 'catalog' && storeTab === 'history' && (
             <main className="store-container">
               <div className="services-intro">
                 <h2>Mi Historial Personal</h2>
@@ -822,13 +1534,11 @@ function App() {
                   <div className="loading-spinner"></div>
                   <p style={{ marginTop: '12px', fontSize: '13px', color: 'var(--text-muted)' }}>Cargando actividad...</p>
                 </div>
-              ) : historyError ? (
-                <div style={{ textAlign: 'center', color: '#dc2626', padding: '20px' }}>{historyError}</div>
               ) : (
                 <div className="history-grid">
                   {/* Compras */}
-                  <div className="card-history">
-                    <h3>Mis Compras de Productos</h3>
+                  <div className="sa-card" style={{ background: 'white', padding: '24px', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                    <h3 style={{ borderBottom: '2px solid var(--primary-light)', paddingBottom: '8px', marginBottom: '16px', fontFamily: "'Playfair Display', serif" }}>Mis Compras de Productos</h3>
                     {historyVentas.length === 0 ? (
                       <div className="empty-history">No tienes compras registradas.</div>
                     ) : (
@@ -855,11 +1565,8 @@ function App() {
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
                                 <span style={{ color: 'var(--text-muted)' }}>Comprobante: {v.tipo_comprobante || 'boleta'}</span>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                  <button 
-                                    onClick={() => downloadReceipt(v.id_ventas)} 
-                                    className="btn-pdf-receipt"
-                                  >
-                                    <FileText size={12} /> PDF
+                                  <button onClick={() => downloadReceipt(v.id_ventas)} className="btn-pdf-receipt">
+                                    📄 PDF
                                   </button>
                                   <strong style={{ fontSize: '15px', color: 'var(--dark)' }}>S/ {totalVal}</strong>
                                 </div>
@@ -872,8 +1579,8 @@ function App() {
                   </div>
                   
                   {/* Citas */}
-                  <div className="card-history">
-                    <h3>Mis Reservas de Citas</h3>
+                  <div className="sa-card" style={{ background: 'white', padding: '24px', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                    <h3 style={{ borderBottom: '2px solid var(--primary-light)', paddingBottom: '8px', marginBottom: '16px', fontFamily: "'Playfair Display', serif" }}>Mis Reservas de Citas</h3>
                     {historyCitas.length === 0 ? (
                       <div className="empty-history">No tienes reservas de citas de belleza.</div>
                     ) : (
@@ -920,36 +1627,32 @@ function App() {
             </main>
           )}
 
-          {/* VIEW: LOGIN */}
-          {view === 'login' && (
+          {/* VIEW: CLIENT STORE LOGIN */}
+          {storeView === 'store-login' && (
             <div className="auth-container">
               <div className="auth-card">
-                <button onClick={() => setView('catalog')} className="auth-close-btn">
+                <button onClick={() => setStoreView('catalog')} className="auth-close-btn">
                   <X size={20} />
                 </button>
                 <h2>Iniciar Sesión</h2>
                 <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: '20px' }}>Ingresa tus datos del portal de clientes de Bellarista.</p>
                 
-                <form onSubmit={handleLogin}>
+                <form onSubmit={handleStoreClientLogin}>
                   <div className="form-group">
                     <label>Correo Electrónico</label>
                     <input 
-                      type="email" 
-                      required
-                      placeholder="nombre@ejemplo.com"
-                      value={loginForm.correo}
-                      onChange={(e) => setLoginForm({ ...loginForm, correo: e.target.value })}
+                      type="email" required placeholder="nombre@ejemplo.com"
+                      value={storeLoginForm.correo}
+                      onChange={(e) => setStoreLoginForm({ ...storeLoginForm, correo: e.target.value })}
                     />
                   </div>
                   
                   <div className="form-group">
-                    <label>DNI / RUC (Número de Documento)</label>
+                    <label>DNI / RUC</label>
                     <input 
-                      type="text" 
-                      required
-                      placeholder="Ingrese su documento de identidad"
-                      value={loginForm.documento}
-                      onChange={(e) => setLoginForm({ ...loginForm, documento: e.target.value })}
+                      type="text" required placeholder="Ingrese su documento de identidad"
+                      value={storeLoginForm.documento}
+                      onChange={(e) => setStoreLoginForm({ ...storeLoginForm, documento: e.target.value })}
                     />
                   </div>
                   
@@ -959,8 +1662,8 @@ function App() {
                 </form>
                 
                 <div className="auth-footer">
-                  ¿No tienes una cuenta?{' '}
-                  <button onClick={() => setView('register')} className="auth-link-toggle">
+                  ¿No tienes cuenta?{' '}
+                  <button onClick={() => setStoreView('store-register')} className="auth-link-toggle">
                     Regístrate aquí
                   </button>
                 </div>
@@ -968,248 +1671,153 @@ function App() {
             </div>
           )}
 
-          {/* VIEW: REGISTER */}
-          {view === 'register' && (
-            <div className="auth-container" style={{ padding: '40px 24px' }}>
+          {/* VIEW: CLIENT STORE REGISTER */}
+          {storeView === 'store-register' && (
+            <div className="auth-container">
               <div className="auth-card" style={{ maxWidth: '500px' }}>
-                <button onClick={() => setView('catalog')} className="auth-close-btn">
+                <button onClick={() => setStoreView('catalog')} className="auth-close-btn">
                   <X size={20} />
                 </button>
                 <h2>Registrar Cliente</h2>
-                <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: '24px' }}>Crea tu cuenta para guardar historial y agilizar tus compras.</p>
+                <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: '24px' }}>Crea tu cuenta de cliente en Bellarista.</p>
                 
-                <form onSubmit={handleRegister}>
+                <form onSubmit={handleStoreClientRegister}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                     <div className="form-group">
                       <label>Nombres</label>
-                      <input 
-                        type="text" required
-                        value={registerForm.nombre}
-                        onChange={(e) => setRegisterForm({ ...registerForm, nombre: e.target.value })}
-                      />
+                      <input type="text" required value={storeRegisterForm.nombre} onChange={(e) => setStoreRegisterForm({ ...storeRegisterForm, nombre: e.target.value })} />
                     </div>
                     <div className="form-group">
                       <label>Apellidos</label>
-                      <input 
-                        type="text" required
-                        value={registerForm.apellidos}
-                        onChange={(e) => setRegisterForm({ ...registerForm, apellidos: e.target.value })}
-                      />
+                      <input type="text" required value={storeRegisterForm.apellidos} onChange={(e) => setStoreRegisterForm({ ...storeRegisterForm, apellidos: e.target.value })} />
                     </div>
                   </div>
-                  
                   <div className="form-group">
                     <label>Correo Electrónico</label>
-                    <input 
-                      type="email" required
-                      value={registerForm.correo}
-                      onChange={(e) => setRegisterForm({ ...registerForm, correo: e.target.value })}
-                    />
+                    <input type="email" required value={storeRegisterForm.correo} onChange={(e) => setStoreRegisterForm({ ...storeRegisterForm, correo: e.target.value })} />
                   </div>
-                  
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                     <div className="form-group">
                       <label>Teléfono</label>
-                      <input 
-                        type="text" required
-                        value={registerForm.telefono}
-                        onChange={(e) => setRegisterForm({ ...registerForm, telefono: e.target.value })}
-                      />
+                      <input type="text" required value={storeRegisterForm.telefono} onChange={(e) => setStoreRegisterForm({ ...storeRegisterForm, telefono: e.target.value })} />
                     </div>
                     <div className="form-group">
                       <label>Distrito</label>
-                      <input 
-                        type="text" required
-                        value={registerForm.distrito}
-                        onChange={(e) => setRegisterForm({ ...registerForm, distrito: e.target.value })}
-                      />
+                      <input type="text" required value={storeRegisterForm.distrito} onChange={(e) => setStoreRegisterForm({ ...storeRegisterForm, distrito: e.target.value })} />
                     </div>
                   </div>
-                  
                   <div className="form-group">
                     <label>Dirección</label>
-                    <input 
-                      type="text" required
-                      value={registerForm.direccion}
-                      onChange={(e) => setRegisterForm({ ...registerForm, direccion: e.target.value })}
-                    />
+                    <input type="text" required value={storeRegisterForm.direccion} onChange={(e) => setStoreRegisterForm({ ...storeRegisterForm, direccion: e.target.value })} />
                   </div>
-
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                     <div className="form-group">
                       <label>Tipo Documento</label>
-                      <select 
-                        value={registerForm.tipoDocumento}
-                        onChange={(e) => setRegisterForm({ ...registerForm, tipoDocumento: e.target.value })}
-                      >
+                      <select value={storeRegisterForm.tipoDocumento} onChange={(e) => setStoreRegisterForm({ ...storeRegisterForm, tipoDocumento: e.target.value })}>
                         <option value="DNI">DNI (Persona Física)</option>
-                        <option value="RUC">RUC (Empresas)</option>
+                        <option value="RUC">RUC (Factura Comercial)</option>
                         <option value="CE">C.E. (Extranjería)</option>
                         <option value="PASAPORTE">Pasaporte</option>
                       </select>
                     </div>
                     <div className="form-group">
                       <label>Número Documento</label>
-                      <input 
-                        type="text" required
-                        value={registerForm.numeroDocumento}
-                        onChange={(e) => setRegisterForm({ ...registerForm, numeroDocumento: e.target.value })}
-                      />
+                      <input type="text" required value={storeRegisterForm.numeroDocumento} onChange={(e) => setStoreRegisterForm({ ...storeRegisterForm, numeroDocumento: e.target.value })} />
                     </div>
                   </div>
-                  
                   <button type="submit" className="btn-checkout" style={{ marginTop: '16px' }}>
                     Registrar y Entrar
                   </button>
                 </form>
-                
-                <div className="auth-footer">
-                  ¿Ya tienes una cuenta?{' '}
-                  <button onClick={() => setView('login')} className="auth-link-toggle">
-                    Inicia sesión aquí
-                  </button>
-                </div>
               </div>
             </div>
           )}
 
-          {/* VIEW: CHECKOUT */}
-          {view === 'checkout' && (
-            <main className="store-container checkout-page">
-              <button onClick={() => setView('catalog')} className="btn-back">
+          {/* VIEW: CLIENT CHECKOUT */}
+          {storeView === 'checkout' && (
+            <main className="store-container">
+              <button onClick={() => setStoreView('catalog')} className="btn-back">
                 <ArrowLeft size={16} /> Volver a la Tienda
               </button>
               
               <div className="checkout-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '40px', marginTop: '20px' }}>
-                {/* Formulario */}
                 <div className="checkout-form-card" style={{ background: 'white', padding: '32px', borderRadius: '16px', border: '1px solid var(--border)' }}>
                   <h2>Detalles de Facturación</h2>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: '24px' }}>Completa los datos para generar tu comprobante SUNAT.</p>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: '24px' }}>Completa los datos para generar tu comprobante.</p>
                   
-                  <form onSubmit={handleCheckoutSubmit}>
+                  <form onSubmit={handleStoreCheckout}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                       <div className="form-group">
                         <label>Nombre</label>
-                        <input 
-                          type="text" required
-                          value={checkoutForm.nombre}
-                          onChange={(e) => setCheckoutForm({ ...checkoutForm, nombre: e.target.value })}
-                        />
+                        <input type="text" required value={checkoutForm.nombre} onChange={(e) => setCheckoutForm({ ...checkoutForm, nombre: e.target.value })} />
                       </div>
                       <div className="form-group">
                         <label>Apellidos</label>
-                        <input 
-                          type="text" required
-                          value={checkoutForm.apellidos}
-                          onChange={(e) => setCheckoutForm({ ...checkoutForm, apellidos: e.target.value })}
-                        />
+                        <input type="text" required value={checkoutForm.apellidos} onChange={(e) => setCheckoutForm({ ...checkoutForm, apellidos: e.target.value })} />
                       </div>
                     </div>
                     
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                       <div className="form-group">
                         <label>Correo Electrónico</label>
-                        <input 
-                          type="email" required
-                          value={checkoutForm.correo}
-                          onChange={(e) => setCheckoutForm({ ...checkoutForm, correo: e.target.value })}
-                        />
+                        <input type="email" required value={checkoutForm.correo} onChange={(e) => setCheckoutForm({ ...checkoutForm, correo: e.target.value })} />
                       </div>
                       <div className="form-group">
                         <label>Teléfono</label>
-                        <input 
-                          type="text" required
-                          value={checkoutForm.telefono}
-                          onChange={(e) => setCheckoutForm({ ...checkoutForm, telefono: e.target.value })}
-                        />
+                        <input type="text" required value={checkoutForm.telefono} onChange={(e) => setCheckoutForm({ ...checkoutForm, telefono: e.target.value })} />
                       </div>
                     </div>
                     
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                       <div className="form-group">
-                        <label>Dirección de Entrega</label>
-                        <input 
-                          type="text" required
-                          value={checkoutForm.direccion}
-                          onChange={(e) => setCheckoutForm({ ...checkoutForm, direccion: e.target.value })}
-                        />
+                        <label>Dirección</label>
+                        <input type="text" required value={checkoutForm.direccion} onChange={(e) => setCheckoutForm({ ...checkoutForm, direccion: e.target.value })} />
                       </div>
                       <div className="form-group">
                         <label>Distrito</label>
-                        <input 
-                          type="text" required
-                          value={checkoutForm.distrito}
-                          onChange={(e) => setCheckoutForm({ ...checkoutForm, distrito: e.target.value })}
-                        />
+                        <input type="text" required value={checkoutForm.distrito} onChange={(e) => setCheckoutForm({ ...checkoutForm, distrito: e.target.value })} />
                       </div>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                       <div className="form-group">
-                        <label>Tipo Comprobante (Documento)</label>
-                        <select 
-                          value={checkoutForm.tipoDocumento}
-                          onChange={(e) => setCheckoutForm({ ...checkoutForm, tipoDocumento: e.target.value })}
-                        >
-                          <option value="DNI">DNI (Boleta de Venta)</option>
+                        <label>Comprobante</label>
+                        <select value={checkoutForm.tipoDocumento} onChange={(e) => setCheckoutForm({ ...checkoutForm, tipoDocumento: e.target.value })}>
+                          <option value="DNI">DNI (Boleta)</option>
                           <option value="RUC">RUC (Factura)</option>
-                          <option value="CE">C.E. (Extranjería)</option>
-                          <option value="PASAPORTE">Pasaporte</option>
                         </select>
                       </div>
                       <div className="form-group">
                         <label>Número Documento</label>
-                        <input 
-                          type="text" required
-                          value={checkoutForm.numeroDocumento}
-                          onChange={(e) => setCheckoutForm({ ...checkoutForm, numeroDocumento: e.target.value })}
-                        />
+                        <input type="text" required value={checkoutForm.numeroDocumento} onChange={(e) => setCheckoutForm({ ...checkoutForm, numeroDocumento: e.target.value })} />
                       </div>
                     </div>
                     
                     <div className="form-group" style={{ marginTop: '12px' }}>
                       <label>Método de Pago</label>
-                      <div className="payment-options" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginTop: '8px' }}>
+                      <div className="payment-options">
                         <label className={`payment-label ${checkoutForm.metodoPago === 'tarjeta' ? 'active' : ''}`}>
-                          <input 
-                            type="radio" 
-                            name="metodoPago" 
-                            value="tarjeta"
-                            checked={checkoutForm.metodoPago === 'tarjeta'}
-                            onChange={() => setCheckoutForm({ ...checkoutForm, metodoPago: 'tarjeta' })}
-                          />
+                          <input type="radio" name="metodoPago" value="tarjeta" checked={checkoutForm.metodoPago === 'tarjeta'} onChange={() => setCheckoutForm({ ...checkoutForm, metodoPago: 'tarjeta' })} />
                           <span>💳 Tarjeta</span>
                         </label>
                         <label className={`payment-label ${checkoutForm.metodoPago === 'yape_plin' ? 'active' : ''}`}>
-                          <input 
-                            type="radio" 
-                            name="metodoPago" 
-                            value="yape_plin"
-                            checked={checkoutForm.metodoPago === 'yape_plin'}
-                            onChange={() => setCheckoutForm({ ...checkoutForm, metodoPago: 'yape_plin' })}
-                          />
+                          <input type="radio" name="metodoPago" value="yape_plin" checked={checkoutForm.metodoPago === 'yape_plin'} onChange={() => setCheckoutForm({ ...checkoutForm, metodoPago: 'yape_plin' })} />
                           <span>📱 Yape / Plin</span>
                         </label>
                         <label className={`payment-label ${checkoutForm.metodoPago === 'transferencia' ? 'active' : ''}`}>
-                          <input 
-                            type="radio" 
-                            name="metodoPago" 
-                            value="transferencia"
-                            checked={checkoutForm.metodoPago === 'transferencia'}
-                            onChange={() => setCheckoutForm({ ...checkoutForm, metodoPago: 'transferencia' })}
-                          />
+                          <input type="radio" name="metodoPago" value="transferencia" checked={checkoutForm.metodoPago === 'transferencia'} onChange={() => setCheckoutForm({ ...checkoutForm, metodoPago: 'transferencia' })} />
                           <span>🏦 Transf.</span>
                         </label>
                       </div>
                     </div>
                     
                     <button type="submit" className="btn-checkout" style={{ width: '100%', marginTop: '24px' }}>
-                      Confirmar y Pagar Compra
+                      Confirmar Compra (S/ {getCartTotal().toFixed(2)})
                     </button>
                   </form>
                 </div>
                 
-                {/* Resumen del Carrito */}
+                {/* Checkout Summary Card */}
                 <div className="checkout-summary-card" style={{ background: '#fafafc', padding: '30px', borderRadius: '16px', border: '1px solid var(--border)', height: 'fit-content' }}>
                   <h3>Resumen del Pedido</h3>
                   <div className="summary-items" style={{ margin: '20px 0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -1220,7 +1828,6 @@ function App() {
                       </div>
                     ))}
                   </div>
-                  
                   <div style={{ borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '13px' }}>
                       <span>Subtotal (sin IGV)</span>
@@ -1240,8 +1847,8 @@ function App() {
             </main>
           )}
 
-          {/* VIEW: SUCCESS */}
-          {view === 'success' && (
+          {/* VIEW: SUCCESS STORE */}
+          {storeView === 'success' && (
             <main className="store-container" style={{ textAlign: 'center', padding: '80px 24px', maxWidth: '600px', margin: '40px auto' }}>
               <div className="success-icon-wrap" style={{ display: 'inline-flex', background: '#e8f5e9', color: '#2e7d32', padding: '20px', borderRadius: '50%', marginBottom: '24px' }}>
                 <CheckCircle size={48} />
@@ -1250,20 +1857,11 @@ function App() {
               <p style={{ color: 'var(--text-muted)', marginBottom: '32px', fontSize: '15px' }}>
                 Su comprobante ha sido registrado y aceptado por SUNAT. Ya puede descargar su boleta en PDF.
               </p>
-              
               <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
-                <button 
-                  onClick={() => downloadReceipt(lastVentaId)}
-                  className="btn-filled"
-                  style={{ padding: '12px 24px', fontSize: '14px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
-                >
-                  <FileText size={16} /> Descargar Boleta PDF
+                <button onClick={() => downloadReceipt(lastVentaId)} className="btn-filled" style={{ padding: '12px 24px', fontSize: '14px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                  Descargar Boleta PDF
                 </button>
-                <button 
-                  onClick={() => { setTab('store'); setView('catalog'); }}
-                  className="btn-outline"
-                  style={{ padding: '12px 24px', fontSize: '14px' }}
-                >
+                <button onClick={() => { setStoreTab('store'); setStoreView('catalog'); }} className="btn-outline" style={{ padding: '12px 24px', fontSize: '14px' }}>
                   Seguir Comprando
                 </button>
               </div>
@@ -1272,14 +1870,12 @@ function App() {
         </div>
       )}
 
-      {/* Cart Slider Drawer Overlay */}
+      {/* Cart Drawer */}
       <div className={`cart-overlay ${isCartOpen ? 'open' : ''}`} onClick={() => setIsCartOpen(false)}>
         <div className="cart-drawer" onClick={(e) => e.stopPropagation()}>
           <div className="cart-header">
             <h3>Mi Carrito</h3>
-            <button className="close-cart-btn" onClick={() => setIsCartOpen(false)}>
-              <X size={20} />
-            </button>
+            <button className="close-cart-btn" onClick={() => setIsCartOpen(false)}>&times;</button>
           </div>
           
           <div className="cart-items-list">
@@ -1297,24 +1893,16 @@ function App() {
                         {initials}
                       </div>
                     )}
-                    
                     <div className="cart-item-info">
                       <h4>{item.nombre_producto}</h4>
                       <p>S/ {parseFloat(item.precio_venta).toFixed(2)} c/u</p>
-                      
                       <div className="cart-item-actions">
                         <div className="quantity-control">
-                          <button onClick={() => updateCartQuantity(item.id_productos, -1)}>
-                            <Minus size={12} />
-                          </button>
+                          <button onClick={() => updateCartQuantity(item.id_productos, -1)}>-</button>
                           <span>{item.cantidad}</span>
-                          <button onClick={() => updateCartQuantity(item.id_productos, 1)}>
-                            <Plus size={12} />
-                          </button>
+                          <button onClick={() => updateCartQuantity(item.id_productos, 1)}>+</button>
                         </div>
-                        <button className="remove-item-btn" onClick={() => removeFromCart(item.id_productos)}>
-                          Quitar
-                        </button>
+                        <button className="remove-item-btn" onClick={() => removeFromCart(item.id_productos)}>Quitar</button>
                       </div>
                     </div>
                   </div>
@@ -1322,7 +1910,6 @@ function App() {
               })
             )}
           </div>
-          
           <div className="cart-footer">
             <div className="cart-summary-line">
               <span>Subtotal</span>
@@ -1336,12 +1923,7 @@ function App() {
               <span>Total</span>
               <span>S/ {getCartTotal().toFixed(2)}</span>
             </div>
-            <button 
-              className="btn-checkout" 
-              onClick={() => { setIsCartOpen(false); setView('checkout'); }}
-              disabled={cart.length === 0}
-              style={{ opacity: cart.length === 0 ? 0.5 : 1, cursor: cart.length === 0 ? 'not-allowed' : 'pointer' }}
-            >
+            <button className="btn-checkout" onClick={() => { setIsCartOpen(false); setStoreView('checkout'); }} disabled={cart.length === 0} style={{ opacity: cart.length === 0 ? 0.5 : 1, cursor: cart.length === 0 ? 'not-allowed' : 'pointer' }}>
               Proceder al Pago
             </button>
           </div>

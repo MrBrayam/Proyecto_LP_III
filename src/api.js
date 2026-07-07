@@ -40,6 +40,9 @@ export const api = {
     getVenta: (id) => apiFetch(`/tienda/api/venta/${id}`),
     getDetallesVenta: (id) => apiFetch(`/tienda/api/detalles-venta/${id}`),
     
+    // Set tenant scope in backend session
+    setTenantSession: (tenantId) => apiFetch(`/tienda/${tenantId}`),
+    
     // Auth
     login: async (correo, documento) => {
         const formData = new URLSearchParams();
@@ -87,5 +90,77 @@ export const api = {
     checkout: (checkoutData) => apiFetch('/tienda/api/checkout', {
         method: 'POST',
         body: JSON.stringify(checkoutData)
+    }),
+
+    // SuperAdmin Auth & Operations
+    loginGeneral: async (email, accessToken) => {
+        const formData = new URLSearchParams();
+        formData.append('email', email);
+        formData.append('accessToken', accessToken);
+        
+        const response = await fetch(`${API_BASE_URL}/login-general`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Authorization': `Bearer ${DEFAULT_API_TOKEN}`
+            },
+            credentials: 'include'
+        });
+        
+        if (!response.ok) {
+            throw new Error('Error al iniciar sesión de SuperAdmin');
+        }
+        return true;
+    },
+    getSuperadminTenants: () => apiFetch('/superadmin/api/tenants'),
+    getSuperadminUsuarios: () => apiFetch('/superadmin/api/usuarios'),
+    crearTenant: (data) => apiFetch('/superadmin/tenants/crear', {
+        method: 'POST',
+        body: JSON.stringify(data)
+    }),
+    editarTenant: (data) => apiFetch('/superadmin/tenants/editar', {
+        method: 'POST',
+        body: JSON.stringify(data)
+    }),
+    editarUsuario: (data) => apiFetch('/superadmin/usuarios/editar', {
+        method: 'POST',
+        body: JSON.stringify(data)
+    }),
+    superadminLogout: () => apiFetch('/superadmin/logout'),
+
+    // Admin Auth
+    loginAdmin: async (correo, contrasenia) => {
+        const formData = new URLSearchParams();
+        formData.append('correo', correo);
+        formData.append('contrasenia', contrasenia);
+        
+        const response = await fetch(`${API_BASE_URL}/admin/login`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Authorization': `Bearer ${DEFAULT_API_TOKEN}`
+            },
+            credentials: 'include'
+        });
+        
+        if (!response.ok) {
+            throw new Error('Credenciales de administrador incorrectas');
+        }
+        return true;
+    },
+    adminLogout: () => apiFetch('/logout'),
+
+    // Generic REST API CRUD (replaces app.js crud actions)
+    crudList: (endpoint) => apiFetch(endpoint),
+    crudCreate: (endpoint, data) => apiFetch(endpoint, {
+        method: 'POST',
+        body: JSON.stringify(data)
+    }),
+    crudUpdate: (endpoint, id, data) => apiFetch(`${endpoint}/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data)
+    }),
+    crudDelete: (endpoint, id) => apiFetch(`${endpoint}/${id}`, {
+        method: 'DELETE'
     })
 };
