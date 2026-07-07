@@ -850,7 +850,7 @@ function App() {
     return (
       <div className="login-page-bg">
         <div className="login-container">
-          <div className="login-card">
+          <div className="login-card-dark">
             <div className="logo-section">
               <div className="logo-icon">
                 <Briefcase size={32} color="white" />
@@ -1112,7 +1112,7 @@ function App() {
     return (
       <div className="login-page-bg" style={{ background: 'linear-gradient(135deg, #1e1e24 0%, #302d27 100%)' }}>
         <div className="login-container">
-          <div className="login-card">
+          <div className="login-card-dark">
             <div className="logo-section">
               <div className="logo-icon" style={{ background: 'linear-gradient(135deg, #c5a880 0%, #b09168 100%)' }}>
                 <User size={32} color="white" />
