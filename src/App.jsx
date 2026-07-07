@@ -239,6 +239,39 @@ function App() {
     setIsCartOpen(true);
   };
 
+  const updateCartQuantity = (productId, delta) => {
+    const item = cart.find(i => i.id_productos === productId);
+    if (!item) return;
+
+    if (delta > 0) {
+      const prod = products.find(p => p.id_productos === productId);
+      const stockAct = prod && prod.stock_actual != null ? Number(prod.stock_actual) : 999;
+      if (item.cantidad >= stockAct) {
+        alert(`No se pueden agregar más unidades. El stock máximo disponible es ${stockAct}.`);
+        return;
+      }
+    }
+
+    const newQty = item.cantidad + delta;
+    if (newQty <= 0) {
+      updateCart(cart.filter(i => i.id_productos !== productId));
+    } else {
+      updateCart(cart.map(i => 
+        i.id_productos === productId 
+          ? { ...i, cantidad: newQty }
+          : i
+      ));
+    }
+  };
+
+  const removeFromCart = (productId) => {
+    updateCart(cart.filter(i => i.id_productos !== productId));
+  };
+
+  const getCartTotal = () => {
+    return cart.reduce((sum, item) => sum + (item.cantidad * item.precio_venta), 0);
+  };
+
   // Client login/register
   const handleStoreClientLogin = async (e) => {
     e.preventDefault();
