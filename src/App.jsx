@@ -140,11 +140,23 @@ function App() {
     }
   }, []);
 
-  // --- SUB-FLOW: CLIENT STOREFRONT ---
   const loadStorefront = async (tenantId) => {
     try {
       setLoading(true);
       setErrorMsg('');
+      
+      // Tenant scope isolation check (prevent sharing login or cart across stores)
+      const savedClient = localStorage.getItem('bellarista_client');
+      if (savedClient) {
+        const parsed = JSON.parse(savedClient);
+        if (parsed.storefrontTenantId && Number(parsed.storefrontTenantId) !== Number(tenantId)) {
+          localStorage.removeItem('bellarista_client');
+          localStorage.removeItem('bellarista_cart');
+          setStoreClient(null);
+          setCart([]);
+        }
+      }
+      
       // Set the session tenantId on cPanel backend
       await api.setTenantSession(tenantId);
       
@@ -283,7 +295,8 @@ function App() {
         const clientObj = {
           nombre_cliente: storeLoginForm.correo.split('@')[0],
           correo: storeLoginForm.correo,
-          numero_documento: storeLoginForm.documento
+          numero_documento: storeLoginForm.documento,
+          storefrontTenantId: Number(getRouteParams().tenantId)
         };
         if (historyData.ventas && historyData.ventas.length > 0 && historyData.ventas[0].id_clientes) {
           const c = historyData.ventas[0].id_clientes;
@@ -294,6 +307,7 @@ function App() {
           clientObj.distrito = c.distrito;
           clientObj.tipo_documento = c.tipo_documento;
           clientObj.id_clientes = c.id_clientes;
+          clientObj.id_tenants = c.id_tenants;
         }
         setStoreClient(clientObj);
         localStorage.setItem('bellarista_client', JSON.stringify(clientObj));
@@ -334,7 +348,8 @@ function App() {
         direccion: storeRegisterForm.direccion,
         distrito: storeRegisterForm.distrito,
         tipo_documento: storeRegisterForm.tipoDocumento,
-        numero_documento: storeRegisterForm.numeroDocumento
+        numero_documento: storeRegisterForm.numeroDocumento,
+        storefrontTenantId: Number(getRouteParams().tenantId)
       };
       
       setStoreClient(clientObj);
@@ -931,7 +946,19 @@ function App() {
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
                 {tenants.map(t => (
-                  <div key={t.id_tenants} style={{ background: '#1a1d27', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '20px' }}>
+                  <div 
+                    key={t.id_tenants} 
+                    onClick={() => { window.location.hash = `#/tienda/${t.id_tenants}`; }}
+                    style={{ 
+                      background: '#1a1d27', 
+                      border: '1px solid rgba(255,255,255,0.08)', 
+                      borderRadius: '12px', 
+                      padding: '20px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                    }}
+                    className="sa-tenant-card-interactive"
+                  >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
                       <div style={{ width: '40px', height: '40px', background: '#667eea', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{t.id_tenants}</div>
                       <div>
@@ -946,10 +973,13 @@ function App() {
                       <div><strong>Dirección:</strong> {t.direccion_fiscal}</div>
                     </div>
                     <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
-                      <a href={`#/tienda/${t.id_tenants}`} target="_blank" rel="noreferrer" style={{ background: '#4a5568', color: 'white', textDecoration: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '11px' }}>
-                        Ver Tienda
-                      </a>
-                      <button onClick={() => handleSAEditClick('tenant', t)} style={{ background: '#667eea', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '11px', cursor: 'pointer' }}>
+                      <span style={{ color: '#8b9cf7', fontSize: '11px', textDecoration: 'underline', alignSelf: 'center' }}>
+                        Ver Tienda →
+                      </span>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleSAEditClick('tenant', t); }} 
+                        style={{ background: '#667eea', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '11px', cursor: 'pointer' }}
+                      >
                         Editar
                       </button>
                     </div>
