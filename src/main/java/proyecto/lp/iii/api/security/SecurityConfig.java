@@ -16,6 +16,10 @@ public class SecurityConfig {
     {
         http.cors(Customizer.withDefaults())
             .csrf(csrf -> csrf.disable())
+            .logout(logout -> logout
+                .logoutSuccessUrl("/")
+                .permitAll()
+            )
             .authorizeHttpRequests(auth -> 
                 auth.requestMatchers(
                     "/",
