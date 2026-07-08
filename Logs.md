@@ -1,36 +1,19 @@
-main.js?attr=VTs1iRK…m5Fgf5-wnlZyoa:3487 
- GET http://belleza.spring.informaticapp.com:2451/admin/login 500 (Internal Server Error)
-
-react-dom-client.development.js:6099 Uncaught Error: Objects are not valid as a React child (found: object with keys {id_categorias_productos, id_tenants, nombre_categoria_producto, descripcion, imagen_url, orden, estado}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectTypeImpl (react-dom-client.development.js:6099:13)
-    at throwOnInvalidObjectType (react-dom-client.development.js:6113:11)
-    at reconcileChildFibersImpl (react-dom-client.development.js:7058:11)
-    at react-dom-client.development.js:7098:33
-    at reconcileChildren (react-dom-client.development.js:9701:13)
-    at beginWork (react-dom-client.development.js:12049:13)
-    at runWithFiberInDEV (react-dom-client.development.js:871:30)
-    at performUnitOfWork (react-dom-client.development.js:17641:22)
-    at workLoopSync (react-dom-client.development.js:17469:41)
-    at renderRootSync (react-dom-client.development.js:17450:11)
-throwOnInvalidObjectTypeImpl @ react-dom-client.development.js:6099
-throwOnInvalidObjectType @ react-dom-client.development.js:6113
-reconcileChildFibersImpl @ react-dom-client.development.js:7058
-(anonymous) @ react-dom-client.development.js:7098
-reconcileChildren @ react-dom-client.development.js:9701
-beginWork @ react-dom-client.development.js:12049
+main.js?attr=0pQ9pW5mrIXIjaUDpo_ri1zhdj3KYFJYXJHTAiW8r9V9TJpTkU7CPF3wwHXVkKkr:3487  GET http://belleza.spring.informaticapp.com:2451/ net::ERR_ABORTED 500 (Internal Server Error)
+fetchCallImpl @ main.js?attr=0pQ9pW5mrIXIjaUDpo_ri1zhdj3KYFJYXJHTAiW8r9V9TJpTkU7CPF3wwHXVkKkr:3487
+fetch @ main.js?attr=0pQ9pW5mrIXIjaUDpo_ri1zhdj3KYFJYXJHTAiW8r9V9TJpTkU7CPF3wwHXVkKkr:3493
+(anonymous) @ api.js:119
+(anonymous) @ App.jsx:405
+executeDispatch @ react-dom-client.development.js:19116
 runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16583
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(anonymous) @ react-dom-client.development.js:18991
-<td>
+processDispatchQueue @ react-dom-client.development.js:19166
+(anonymous) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+<form>
 (anonymous) @ react-jsx-dev-runtime.development.js:335
-(anonymous) @ App.jsx:1352
-App @ App.jsx:1347
+(anonymous) @ SuperAdminPortal.jsx:50
 react_stack_bottom_frame @ react-dom-client.development.js:25904
 renderWithHooksAgain @ react-dom-client.development.js:7762
 renderWithHooks @ react-dom-client.development.js:7674
@@ -40,50 +23,12 @@ runWithFiberInDEV @ react-dom-client.development.js:871
 performUnitOfWork @ react-dom-client.development.js:17641
 workLoopSync @ react-dom-client.development.js:17469
 renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16583
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(anonymous) @ react-dom-client.development.js:18991
-<App>
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
+<SuperAdminPortal>
 (anonymous) @ react-jsx-dev-runtime.development.js:335
-(anonymous) @ main.jsx:13
-App.jsx:1352 An error occurred in the <td> component.
-
-Consider adding an error boundary to your tree to customize error handling behavior.
-Visit https://react.dev/link/error-boundaries to learn more about error boundaries.
-
---------
-react-dom-client.development.js:6099 Uncaught Error: Objects are not valid as a React child (found: object with keys {id_marcas, id_tenants, nombre_marca, pais_origen, logo_url, descripcion, estado}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectTypeImpl (react-dom-client.development.js:6099:13)
-    at throwOnInvalidObjectType (react-dom-client.development.js:6113:11)
-    at reconcileChildFibersImpl (react-dom-client.development.js:7058:11)
-    at react-dom-client.development.js:7098:33
-    at reconcileChildren (react-dom-client.development.js:9701:13)
-    at beginWork (react-dom-client.development.js:12049:13)
-    at runWithFiberInDEV (react-dom-client.development.js:871:30)
-    at performUnitOfWork (react-dom-client.development.js:17641:22)
-    at workLoopSync (react-dom-client.development.js:17469:41)
-    at renderRootSync (react-dom-client.development.js:17450:11)
-throwOnInvalidObjectTypeImpl @ react-dom-client.development.js:6099
-throwOnInvalidObjectType @ react-dom-client.development.js:6113
-reconcileChildFibersImpl @ react-dom-client.development.js:7058
-(anonymous) @ react-dom-client.development.js:7098
-reconcileChildren @ react-dom-client.development.js:9701
-beginWork @ react-dom-client.development.js:12049
-runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16583
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(anonymous) @ react-dom-client.development.js:18991
-<td>
-(anonymous) @ react-jsx-dev-runtime.development.js:335
-(anonymous) @ App.jsx:1352
-App @ App.jsx:1347
+App @ App.jsx:763
 react_stack_bottom_frame @ react-dom-client.development.js:25904
 renderWithHooksAgain @ react-dom-client.development.js:7762
 renderWithHooks @ react-dom-client.development.js:7674
@@ -93,49 +38,28 @@ runWithFiberInDEV @ react-dom-client.development.js:871
 performUnitOfWork @ react-dom-client.development.js:17641
 workLoopSync @ react-dom-client.development.js:17469
 renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16583
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-(anonymous) @ react-dom-client.development.js:18991
+performWorkOnRoot @ react-dom-client.development.js:16504
+performWorkOnRootViaSchedulerTask @ react-dom-client.development.js:18957
+performWorkUntilDeadline @ scheduler.development.js:45
 <App>
 (anonymous) @ react-jsx-dev-runtime.development.js:335
 (anonymous) @ main.jsx:13
-App.jsx:1352 An error occurred in the <td> component.
-
-Consider adding an error boundary to your tree to customize error handling behavior.
-Visit https://react.dev/link/error-boundaries to learn more about error boundaries.
----------
-react-dom-client.development.js:6099 Uncaught Error: Objects are not valid as a React child (found: object with keys {id_clientes, id_tenants, nombre_cliente, apellidos_clientes, tipo_documento, numero_documento, telefono, correo, direccion, distrito, tipo_cliente, estado, fecha_registro}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectTypeImpl (react-dom-client.development.js:6099:13)
-    at throwOnInvalidObjectType (react-dom-client.development.js:6113:11)
-    at reconcileChildFibersImpl (react-dom-client.development.js:7058:11)
-    at react-dom-client.development.js:7098:33
-    at reconcileChildren (react-dom-client.development.js:9701:13)
-    at beginWork (react-dom-client.development.js:12049:13)
-    at runWithFiberInDEV (react-dom-client.development.js:871:30)
-    at performUnitOfWork (react-dom-client.development.js:17641:22)
-    at workLoopSync (react-dom-client.development.js:17469:41)
-    at renderRootSync (react-dom-client.development.js:17450:11)
-throwOnInvalidObjectTypeImpl @ react-dom-client.development.js:6099
-throwOnInvalidObjectType @ react-dom-client.development.js:6113
-reconcileChildFibersImpl @ react-dom-client.development.js:7058
-anonymousFunction @ react-dom-client.development.js:7098
-reconcileChildren @ react-dom-client.development.js:9701
-beginWork @ react-dom-client.development.js:12049
+main.js?attr=0pQ9pW5mrIXIjaUDpo_ri1zhdj3KYFJYXJHTAiW8r9V9TJpTkU7CPF3wwHXVkKkr:3487  GET http://belleza.spring.informaticapp.com:2451/admin/login net::ERR_ABORTED 500 (Internal Server Error)
+fetchCallImpl @ main.js?attr=0pQ9pW5mrIXIjaUDpo_ri1zhdj3KYFJYXJHTAiW8r9V9TJpTkU7CPF3wwHXVkKkr:3487
+fetch @ main.js?attr=0pQ9pW5mrIXIjaUDpo_ri1zhdj3KYFJYXJHTAiW8r9V9TJpTkU7CPF3wwHXVkKkr:3493
+(anonymous) @ api.js:155
+(anonymous) @ App.jsx:515
+executeDispatch @ react-dom-client.development.js:19116
 runWithFiberInDEV @ react-dom-client.development.js:871
-performUnitOfWork @ react-dom-client.development.js:17641
-workLoopSync @ react-dom-client.development.js:17469
-renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16583
-performSyncWorkOnRoot @ react-dom-client.development.js:18972
-flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
-processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-anonymousCallbackTo: scheduleMicrotask @ react-dom-client.development.js:18991
-<td>
-(anonymous) @ react-jsx-dev-runtime.development.js:335
-(anonymous) @ App.jsx:1352
-App @ App.jsx:1347
+processDispatchQueue @ react-dom-client.development.js:19166
+(anonymous) @ react-dom-client.development.js:19767
+batchedUpdates$1 @ react-dom-client.development.js:3255
+dispatchEventForPluginEventSystem @ react-dom-client.development.js:19320
+dispatchEvent @ react-dom-client.development.js:23585
+dispatchDiscreteEvent @ react-dom-client.development.js:23553
+<form>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+(anonymous) @ SedeAdminPortal.jsx:101
 react_stack_bottom_frame @ react-dom-client.development.js:25904
 renderWithHooksAgain @ react-dom-client.development.js:7762
 renderWithHooks @ react-dom-client.development.js:7674
@@ -145,15 +69,57 @@ runWithFiberInDEV @ react-dom-client.development.js:871
 performUnitOfWork @ react-dom-client.development.js:17641
 workLoopSync @ react-dom-client.development.js:17469
 renderRootSync @ react-dom-client.development.js:17450
-performWorkOnRoot @ react-dom-client.development.js:16583
+performWorkOnRoot @ react-dom-client.development.js:16504
 performSyncWorkOnRoot @ react-dom-client.development.js:18972
 flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
 processRootScheduleInMicrotask @ react-dom-client.development.js:18853
-anonymousCallbackTo: scheduleMicrotask @ react-dom-client.development.js:18991
+(anonymous) @ react-dom-client.development.js:18991
+<SedeAdminPortal>
+exports.jsxDEV @ react-jsx-dev-runtime.development.js:335
+App @ App.jsx:796
+react_stack_bottom_frame @ react-dom-client.development.js:25904
+renderWithHooksAgain @ react-dom-client.development.js:7762
+renderWithHooks @ react-dom-client.development.js:7674
+updateFunctionComponent @ react-dom-client.development.js:10166
+beginWork @ react-dom-client.development.js:11778
+runWithFiberInDEV @ react-dom-client.development.js:871
+performUnitOfWork @ react-dom-client.development.js:17641
+workLoopSync @ react-dom-client.development.js:17469
+renderRootSync @ react-dom-client.development.js:17450
+performWorkOnRoot @ react-dom-client.development.js:16504
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(anonymous) @ react-dom-client.development.js:18991
 <App>
 (anonymous) @ react-jsx-dev-runtime.development.js:335
 (anonymous) @ main.jsx:13
-App.jsx:1352 An error occurred in the <td> component.
-
-Consider adding an error boundary to your tree to customize error handling behavior.
-Visit https://react.dev/link/error-boundaries to learn more about error boundaries.
+main.js?attr=0pQ9pW5mrIXIjaUDpo_ri1zhdj3KYFJYXJHTAiW8r9V9TJpTkU7CPF3wwHXVkKkr:3487  GET http://belleza.spring.informaticapp.com:2451/tienda/1 500 (Internal Server Error)
+fetchCallImpl @ main.js?attr=0pQ9pW5mrIXIjaUDpo_ri1zhdj3KYFJYXJHTAiW8r9V9TJpTkU7CPF3wwHXVkKkr:3487
+fetch @ main.js?attr=0pQ9pW5mrIXIjaUDpo_ri1zhdj3KYFJYXJHTAiW8r9V9TJpTkU7CPF3wwHXVkKkr:3493
+(anonymous) @ api.js:46
+(anonymous) @ App.jsx:145
+(anonymous) @ App.jsx:106
+react_stack_bottom_frame @ react-dom-client.development.js:25989
+runWithFiberInDEV @ react-dom-client.development.js:871
+commitHookEffectListMount @ react-dom-client.development.js:13249
+commitHookPassiveMountEffects @ react-dom-client.development.js:13336
+commitPassiveMountOnFiber @ react-dom-client.development.js:15484
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15718
+recursivelyTraversePassiveMountEffects @ react-dom-client.development.js:15439
+commitPassiveMountOnFiber @ react-dom-client.development.js:15519
+flushPassiveEffects @ react-dom-client.development.js:18432
+flushPendingEffects @ react-dom-client.development.js:18358
+flushSpawnedWork @ react-dom-client.development.js:18323
+commitRoot @ react-dom-client.development.js:17955
+commitRootWhenReady @ react-dom-client.development.js:16824
+performWorkOnRoot @ react-dom-client.development.js:16722
+performSyncWorkOnRoot @ react-dom-client.development.js:18972
+flushSyncWorkAcrossRoots_impl @ react-dom-client.development.js:18814
+processRootScheduleInMicrotask @ react-dom-client.development.js:18853
+(anonymous) @ react-dom-client.development.js:18991
+<App>
+(anonymous) @ react-jsx-dev-runtime.development.js:335
+(anonymous) @ main.jsx:13
+main.js?attr=0pQ9pW5mrIXIjaUDpo_ri1zhdj3KYFJYXJHTAiW8r9V9TJpTkU7CPF3wwHXVkKkr:3487  POST http://belleza.spring.informaticapp.com:2451/tienda/login 500 (Internal Server Error)

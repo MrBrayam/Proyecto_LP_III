@@ -62,22 +62,17 @@ export const api = {
         formData.append('correo', correo);
         formData.append('documento', documento);
         
-        try {
-            await fetch(`${API_BASE_URL}/tienda/login`, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'Authorization': `Bearer ${DEFAULT_API_TOKEN}`
-                },
-                credentials: 'include'
-            });
-        } catch (e) {
-            // Ignore template resolution failure
-        }
+        const loginRes = await fetch(`${API_BASE_URL}/tienda/login`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Authorization': `Bearer ${DEFAULT_API_TOKEN}`
+            },
+            credentials: 'include'
+        });
         
-        const historyData = await apiFetch('/tienda/api/historial');
-        if (!historyData || !historyData.success) {
-            throw new Error('Credenciales incorrectas (Verifique Correo y DNI/RUC)');
+        if (!loginRes.url.includes('/tienda/')) {
+            throw new Error('Credenciales de cliente incorrectas. Verifique su Correo y Documento.');
         }
         return true;
     },
@@ -121,26 +116,17 @@ export const api = {
         formData.append('email', email);
         formData.append('accessToken', accessToken);
         
-        try {
-            await fetch(`${API_BASE_URL}/login-general`, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'Authorization': `Bearer ${DEFAULT_API_TOKEN}`
-                },
-                credentials: 'include'
-            });
-        } catch (e) {
-            // Ignore template resolution failure
-        }
+        const loginRes = await fetch(`${API_BASE_URL}/login-general`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Authorization': `Bearer ${DEFAULT_API_TOKEN}`
+            },
+            credentials: 'include'
+        });
         
-        try {
-            const tenants = await apiFetch('/superadmin/api/tenants');
-            if (!tenants || !Array.isArray(tenants)) {
-                throw new Error('No autorizado');
-            }
-        } catch (err) {
-            throw new Error('Credenciales incorrectas. Verifique su email y access token.');
+        if (!loginRes.url.includes('/superadmin/dashboard')) {
+            throw new Error('Credenciales de SuperAdmin incorrectas. Verifique su correo y token.');
         }
         return true;
     },
@@ -166,30 +152,17 @@ export const api = {
         formData.append('correo', correo);
         formData.append('contrasenia', contrasenia);
         
-        try {
-            await fetch(`${API_BASE_URL}/admin/login`, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'Authorization': `Bearer ${DEFAULT_API_TOKEN}`
-                },
-                credentials: 'include'
-            });
-        } catch (e) {
-            // Ignore template resolution failure
-        }
-        
-        const checkRes = await fetch(`${API_BASE_URL}/dashboard`, {
-            method: 'GET',
+        const loginRes = await fetch(`${API_BASE_URL}/admin/login`, {
+            method: 'POST',
+            body: formData,
             headers: {
                 'Authorization': `Bearer ${DEFAULT_API_TOKEN}`
             },
-            credentials: 'include',
-            redirect: 'manual'
+            credentials: 'include'
         });
         
-        if (checkRes.status === 302 || checkRes.status === 301 || checkRes.status === 307) {
-            throw new Error('Credenciales de administrador incorrectas');
+        if (!loginRes.url.includes('/dashboard')) {
+            throw new Error('Usuario o contraseña del local incorrectos.');
         }
         return true;
     },
