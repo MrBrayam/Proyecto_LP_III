@@ -44,6 +44,13 @@ import proyecto.lp.iii.api.entity.ServicioBelleza;
 import proyecto.lp.iii.api.entity.Cita;
 import java.util.Map;
 import java.util.HashMap;
+import proyecto.lp.iii.api.entity.Suscripcion;
+import proyecto.lp.iii.api.service.ISuscripcionService;
+import proyecto.lp.iii.api.entity.PermisoRol;
+import proyecto.lp.iii.api.entity.RolPersonalizado;
+import proyecto.lp.iii.api.service.IPermisoRolService;
+import proyecto.lp.iii.api.service.IRolPersonalizadoService;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 @Controller
 public class PageController {
@@ -87,6 +94,15 @@ public class PageController {
     @Autowired
     private IRegistrosService serviceRegistros;
 
+    @Autowired
+    private ISuscripcionService serviceSuscripcion;
+
+    @Autowired
+    private IPermisoRolService servicePermisoRol;
+
+    @Autowired
+    private IRolPersonalizadoService serviceRolPersonalizado;
+
     // Helper classes for Checkout request parsing
     public static class CheckoutRequest {
         private String nombre;
@@ -100,26 +116,85 @@ public class PageController {
         private String metodoPago;
         private List<CartItem> items;
 
-        public String getNombre() { return nombre; }
-        public void setNombre(String nombre) { this.nombre = nombre; }
-        public String getApellidos() { return apellidos; }
-        public void setApellidos(String apellidos) { this.apellidos = apellidos; }
-        public String getCorreo() { return correo; }
-        public void setCorreo(String correo) { this.correo = correo; }
-        public String getTelefono() { return telefono; }
-        public void setTelefono(String telefono) { this.telefono = telefono; }
-        public String getDireccion() { return direccion; }
-        public void setDireccion(String direccion) { this.direccion = direccion; }
-        public String getDistrito() { return distrito; }
-        public void setDistrito(String distrito) { this.distrito = distrito; }
-        public String getTipoDocumento() { return tipoDocumento; }
-        public void setTipoDocumento(String tipoDocumento) { this.tipoDocumento = tipoDocumento; }
-        public String getNumeroDocumento() { return numeroDocumento; }
-        public void setNumeroDocumento(String numeroDocumento) { this.numeroDocumento = numeroDocumento; }
-        public String getMetodoPago() { return metodoPago; }
-        public void setMetodoPago(String metodoPago) { this.metodoPago = metodoPago; }
-        public List<CartItem> getItems() { return items; }
-        public void setItems(List<CartItem> items) { this.items = items; }
+        public String getNombre() {
+            return nombre;
+        }
+
+        public void setNombre(String nombre) {
+            this.nombre = nombre;
+        }
+
+        public String getApellidos() {
+            return apellidos;
+        }
+
+        public void setApellidos(String apellidos) {
+            this.apellidos = apellidos;
+        }
+
+        public String getCorreo() {
+            return correo;
+        }
+
+        public void setCorreo(String correo) {
+            this.correo = correo;
+        }
+
+        public String getTelefono() {
+            return telefono;
+        }
+
+        public void setTelefono(String telefono) {
+            this.telefono = telefono;
+        }
+
+        public String getDireccion() {
+            return direccion;
+        }
+
+        public void setDireccion(String direccion) {
+            this.direccion = direccion;
+        }
+
+        public String getDistrito() {
+            return distrito;
+        }
+
+        public void setDistrito(String distrito) {
+            this.distrito = distrito;
+        }
+
+        public String getTipoDocumento() {
+            return tipoDocumento;
+        }
+
+        public void setTipoDocumento(String tipoDocumento) {
+            this.tipoDocumento = tipoDocumento;
+        }
+
+        public String getNumeroDocumento() {
+            return numeroDocumento;
+        }
+
+        public void setNumeroDocumento(String numeroDocumento) {
+            this.numeroDocumento = numeroDocumento;
+        }
+
+        public String getMetodoPago() {
+            return metodoPago;
+        }
+
+        public void setMetodoPago(String metodoPago) {
+            this.metodoPago = metodoPago;
+        }
+
+        public List<CartItem> getItems() {
+            return items;
+        }
+
+        public void setItems(List<CartItem> items) {
+            this.items = items;
+        }
     }
 
     public static class CartItem {
@@ -127,12 +202,95 @@ public class PageController {
         private Integer cantidad;
         private Double precio_venta;
 
-        public Integer getId_productos() { return id_productos; }
-        public void setId_productos(Integer id_productos) { this.id_productos = id_productos; }
-        public Integer getCantidad() { return cantidad; }
-        public void setCantidad(Integer cantidad) { this.cantidad = cantidad; }
-        public Double getPrecio_venta() { return precio_venta; }
-        public void setPrecio_venta(Double precio_venta) { this.precio_venta = precio_venta; }
+        public Integer getId_productos() {
+            return id_productos;
+        }
+
+        public void setId_productos(Integer id_productos) {
+            this.id_productos = id_productos;
+        }
+
+        public Integer getCantidad() {
+            return cantidad;
+        }
+
+        public void setCantidad(Integer cantidad) {
+            this.cantidad = cantidad;
+        }
+
+        public Double getPrecio_venta() {
+            return precio_venta;
+        }
+
+        public void setPrecio_venta(Double precio_venta) {
+            this.precio_venta = precio_venta;
+        }
+    }
+
+    private boolean verificarContrasenia(String ingresada, String almacenada) {
+        if (ingresada == null || almacenada == null) return false;
+        if (almacenada.startsWith("$2a$") || almacenada.startsWith("$2b$") || almacenada.startsWith("$2y$")) {
+            try {
+                return org.springframework.security.crypto.bcrypt.BCrypt.checkpw(ingresada, almacenada);
+            } catch (Exception e) {
+                return ingresada.equals(almacenada);
+            }
+        }
+        return ingresada.equals(almacenada);
+    }
+
+    private List<String> obtenerModulosPermitidos(HttpSession session) {
+        Usuarios usuario = (Usuarios) session.getAttribute("usuario");
+        if (usuario == null)
+            return java.util.Collections.emptyList();
+
+        String tipo = usuario.getTipo_usuario();
+        if (tipo == null)
+            return java.util.Collections.emptyList();
+
+        List<String> todosLosModulos = List.of(
+                "usuarios", "tenants", "roles", "permisos", "usuario-sedes", "preferencias", "auditoria",
+                "clientes", "citas", "repartidores", "sedes", "horarios-operacion", "zonas-delivery", "notificaciones",
+                "ventas", "pedidos", "devoluciones-venta", "formas-pago-venta", "comprobantes-electronicos",
+                "series-comprobantes",
+                "ordenes-compra", "proveedores", "proveedores-categorias", "devoluciones-proveedor",
+                "cuentas-por-pagar", "pagos-proveedor",
+                "caja-chica", "sesiones-caja", "metodos-pago", "gastos-operativos", "gastos-recurrentes",
+                "productos", "categorias", "marcas", "almacenes", "lotes", "movimientos", "combos", "promociones");
+
+        if ("superadmin".equalsIgnoreCase(tipo) || "admin".equalsIgnoreCase(tipo)) {
+            return todosLosModulos;
+        }
+
+        Integer tenantId = (Integer) session.getAttribute("userTenantId");
+
+        Optional<RolPersonalizado> rolOpt = serviceRolPersonalizado.buscarTodos().stream()
+                .filter(r -> r.getId_tenants() != null && tenantId != null 
+                        && r.getId_tenants().getId_tenants().equals(tenantId)
+                        && r.getNombre_rol_personalizado() != null
+                        && r.getNombre_rol_personalizado().equalsIgnoreCase(tipo)
+                        && r.getEstado() != null && r.getEstado() == 1)
+                .findFirst();
+
+        if (rolOpt.isPresent()) {
+            Integer idRol = rolOpt.get().getId_roles_personalizados();
+            return servicePermisoRol.buscarTodos().stream()
+                    .filter(p -> p.getId_roles_personalizados() != null
+                            && p.getId_roles_personalizados().getId_roles_personalizados().equals(idRol)
+                            && p.getModulo() != null
+                            && p.getEstado() != null && p.getEstado() == 1)
+                    .map(p -> p.getModulo().toLowerCase())
+                    .collect(Collectors.toList());
+        }
+
+        return java.util.Collections.emptyList();
+    }
+
+    @ModelAttribute
+    public void addAllowedModules(Model model, HttpSession session) {
+        if (session.getAttribute("usuario") != null) {
+            model.addAttribute("allowedModules", obtenerModulosPermitidos(session));
+        }
     }
 
     // ========== LOGIN GENERAL (PÁGINA RAÍZ) ==========
@@ -147,12 +305,12 @@ public class PageController {
 
     @PostMapping("/login-general")
     public String loginGeneralPost(@RequestParam String email,
-                                   @RequestParam String accessToken,
-                                   HttpSession session, Model model) {
+            @RequestParam String accessToken,
+            HttpSession session, Model model) {
         Optional<Registros> registro = serviceRegistros.buscarTodos().stream()
-            .filter(r -> r.getEmail() != null && r.getEmail().equalsIgnoreCase(email)
-                && r.getAccess_token() != null && r.getAccess_token().equals(accessToken))
-            .findFirst();
+                .filter(r -> r.getEmail() != null && r.getEmail().equalsIgnoreCase(email)
+                        && r.getAccess_token() != null && r.getAccess_token().equals(accessToken))
+                .findFirst();
 
         if (registro.isPresent()) {
             session.setAttribute("superadmin", registro.get());
@@ -322,13 +480,14 @@ public class PageController {
             return "redirect:/";
         }
         session.setAttribute("tenantId", tenantId);
-        
+
         Cliente cliente = (Cliente) session.getAttribute("cliente");
-        if (cliente != null && (cliente.getId_tenants() == null || !cliente.getId_tenants().getId_tenants().equals(tenantId))) {
+        if (cliente != null
+                && (cliente.getId_tenants() == null || !cliente.getId_tenants().getId_tenants().equals(tenantId))) {
             session.removeAttribute("cliente");
             cliente = null;
         }
-        
+
         model.addAttribute("cliente", cliente);
         model.addAttribute("tenant", tenant);
         model.addAttribute("tenantId", tenantId);
@@ -340,7 +499,8 @@ public class PageController {
         Integer tenantId = (Integer) session.getAttribute("tenantId");
         Cliente cliente = (Cliente) session.getAttribute("cliente");
         if (cliente != null) {
-            if (tenantId != null && cliente.getId_tenants() != null && cliente.getId_tenants().getId_tenants().equals(tenantId)) {
+            if (tenantId != null && cliente.getId_tenants() != null
+                    && cliente.getId_tenants().getId_tenants().equals(tenantId)) {
                 return "redirect:/tienda/" + tenantId;
             } else {
                 session.removeAttribute("cliente");
@@ -352,14 +512,14 @@ public class PageController {
 
     @PostMapping("/tienda/login")
     public String tiendaLoginPost(@RequestParam String correo,
-                                  @RequestParam String documento,
-                                  HttpSession session, Model model) {
+            @RequestParam String documento,
+            HttpSession session, Model model) {
         Integer tenantId = (Integer) session.getAttribute("tenantId");
         Optional<Cliente> client = serviceCliente.buscarTodos().stream()
-            .filter(c -> c.getCorreo() != null && c.getCorreo().equalsIgnoreCase(correo)
-                && c.getNumero_documento() != null && c.getNumero_documento().equals(documento)
-                && c.getId_tenants() != null && c.getId_tenants().getId_tenants().equals(tenantId))
-            .findFirst();
+                .filter(c -> c.getCorreo() != null && c.getCorreo().equalsIgnoreCase(correo)
+                        && c.getNumero_documento() != null && c.getNumero_documento().equals(documento)
+                        && c.getId_tenants() != null && c.getId_tenants().getId_tenants().equals(tenantId))
+                .findFirst();
 
         if (client.isPresent()) {
             session.setAttribute("cliente", client.get());
@@ -376,7 +536,8 @@ public class PageController {
         Integer tenantId = (Integer) session.getAttribute("tenantId");
         Cliente cliente = (Cliente) session.getAttribute("cliente");
         if (cliente != null) {
-            if (tenantId != null && cliente.getId_tenants() != null && cliente.getId_tenants().getId_tenants().equals(tenantId)) {
+            if (tenantId != null && cliente.getId_tenants() != null
+                    && cliente.getId_tenants().getId_tenants().equals(tenantId)) {
                 return "redirect:/tienda/" + tenantId;
             } else {
                 session.removeAttribute("cliente");
@@ -388,19 +549,19 @@ public class PageController {
 
     @PostMapping("/tienda/registro")
     public String tiendaRegistroPost(@RequestParam String nombre,
-                                     @RequestParam String apellidos,
-                                     @RequestParam String correo,
-                                     @RequestParam String telefono,
-                                     @RequestParam String direccion,
-                                     @RequestParam String distrito,
-                                     @RequestParam String tipoDocumento,
-                                     @RequestParam String numeroDocumento,
-                                     HttpSession session, Model model) {
+            @RequestParam String apellidos,
+            @RequestParam String correo,
+            @RequestParam String telefono,
+            @RequestParam String direccion,
+            @RequestParam String distrito,
+            @RequestParam String tipoDocumento,
+            @RequestParam String numeroDocumento,
+            HttpSession session, Model model) {
         Integer tenantId = (Integer) session.getAttribute("tenantId");
         // Validar si ya existe dentro del mismo tenant
         boolean existe = serviceCliente.buscarTodos().stream()
-            .anyMatch(c -> c.getCorreo() != null && c.getCorreo().equalsIgnoreCase(correo)
-                && c.getId_tenants() != null && c.getId_tenants().getId_tenants().equals(tenantId));
+                .anyMatch(c -> c.getCorreo() != null && c.getCorreo().equalsIgnoreCase(correo)
+                        && c.getId_tenants() != null && c.getId_tenants().getId_tenants().equals(tenantId));
 
         if (existe) {
             model.addAttribute("error", "El correo ya se encuentra registrado en esta tienda");
@@ -440,7 +601,8 @@ public class PageController {
     public String tiendaCheckout(Model model, HttpSession session) {
         Integer tenantId = (Integer) session.getAttribute("tenantId");
         Cliente cliente = (Cliente) session.getAttribute("cliente");
-        if (cliente != null && (cliente.getId_tenants() == null || !cliente.getId_tenants().getId_tenants().equals(tenantId))) {
+        if (cliente != null
+                && (cliente.getId_tenants() == null || !cliente.getId_tenants().getId_tenants().equals(tenantId))) {
             session.removeAttribute("cliente");
             cliente = null;
         }
@@ -463,9 +625,10 @@ public class PageController {
     public List<Producto> getStorefrontProductos(HttpSession session) {
         Integer tenantId = (Integer) session.getAttribute("tenantId");
         return serviceProducto.buscarTodos().stream()
-            .filter(p -> p.getVisible_storefront() != null && p.getVisible_storefront() == 1
-                && (tenantId == null || (p.getId_tenants() != null && p.getId_tenants().getId_tenants().equals(tenantId))))
-            .collect(Collectors.toList());
+                .filter(p -> p.getVisible_storefront() != null && p.getVisible_storefront() == 1
+                        && (tenantId == null
+                                || (p.getId_tenants() != null && p.getId_tenants().getId_tenants().equals(tenantId))))
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/tienda/api/servicios")
@@ -473,9 +636,10 @@ public class PageController {
     public List<ServicioBelleza> getStorefrontServicios(HttpSession session) {
         Integer tenantId = (Integer) session.getAttribute("tenantId");
         return serviceServicioBelleza.buscarTodos().stream()
-            .filter(s -> (s.getEstado() == null || s.getEstado() == 1)
-                && (tenantId == null || (s.getId_tenants() != null && s.getId_tenants().getId_tenants().equals(tenantId))))
-            .collect(Collectors.toList());
+                .filter(s -> (s.getEstado() == null || s.getEstado() == 1)
+                        && (tenantId == null
+                                || (s.getId_tenants() != null && s.getId_tenants().getId_tenants().equals(tenantId))))
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/tienda/api/historial")
@@ -484,7 +648,8 @@ public class PageController {
         Map<String, Object> res = new HashMap<>();
         Cliente cliente = (Cliente) session.getAttribute("cliente");
         Integer tenantId = (Integer) session.getAttribute("tenantId");
-        if (cliente == null || (tenantId != null && (cliente.getId_tenants() == null || !cliente.getId_tenants().getId_tenants().equals(tenantId)))) {
+        if (cliente == null || (tenantId != null
+                && (cliente.getId_tenants() == null || !cliente.getId_tenants().getId_tenants().equals(tenantId)))) {
             session.removeAttribute("cliente");
             res.put("success", false);
             res.put("error", "No ha iniciado sesión");
@@ -493,13 +658,15 @@ public class PageController {
 
         // Obtener ventas asociadas al cliente
         List<Venta> ventas = serviceVenta.buscarTodos().stream()
-            .filter(v -> v.getId_clientes() != null && v.getId_clientes().getId_clientes().equals(cliente.getId_clientes()))
-            .collect(Collectors.toList());
+                .filter(v -> v.getId_clientes() != null
+                        && v.getId_clientes().getId_clientes().equals(cliente.getId_clientes()))
+                .collect(Collectors.toList());
 
         // Obtener citas/reservas asociadas al cliente
         List<Cita> citas = serviceCita.buscarTodos().stream()
-            .filter(c -> c.getId_clientes() != null && c.getId_clientes().getId_clientes().equals(cliente.getId_clientes()))
-            .collect(Collectors.toList());
+                .filter(c -> c.getId_clientes() != null
+                        && c.getId_clientes().getId_clientes().equals(cliente.getId_clientes()))
+                .collect(Collectors.toList());
 
         res.put("success", true);
         res.put("ventas", ventas);
@@ -509,29 +676,34 @@ public class PageController {
 
     @GetMapping("/tienda/api/detalles-venta/{ventaId}")
     @ResponseBody
-    public List<Map<String, Object>> getDetallesVenta(@org.springframework.web.bind.annotation.PathVariable Integer ventaId) {
+    public List<Map<String, Object>> getDetallesVenta(
+            @org.springframework.web.bind.annotation.PathVariable Integer ventaId) {
         return serviceDetalleVenta.buscarTodos().stream()
-            .filter(d -> d.getId_ventas() != null && d.getId_ventas().getId_ventas().equals(ventaId))
-            .map(d -> {
-                Map<String, Object> item = new HashMap<>();
-                item.put("id_detalle_venta", d.getId_detalle_venta());
-                item.put("cantidad", d.getCantidad());
-                item.put("precio_unitario", d.getPrecio_unitario());
-                item.put("subtotal", d.getSubtotal());
-                // Force eager load of producto name to avoid LAZY proxy null in JSON
-                String nombreProducto = "Producto/Servicio";
-                if (d.getId_productos() != null) {
-                    try { nombreProducto = d.getId_productos().getNombre_producto(); } catch (Exception ignored) {}
-                }
-                item.put("nombre_producto", nombreProducto);
-                return item;
-            })
-            .collect(Collectors.toList());
+                .filter(d -> d.getId_ventas() != null && d.getId_ventas().getId_ventas().equals(ventaId))
+                .map(d -> {
+                    Map<String, Object> item = new HashMap<>();
+                    item.put("id_detalle_venta", d.getId_detalle_venta());
+                    item.put("cantidad", d.getCantidad());
+                    item.put("precio_unitario", d.getPrecio_unitario());
+                    item.put("subtotal", d.getSubtotal());
+                    // Force eager load of producto name to avoid LAZY proxy null in JSON
+                    String nombreProducto = "Producto/Servicio";
+                    if (d.getId_productos() != null) {
+                        try {
+                            nombreProducto = d.getId_productos().getNombre_producto();
+                        } catch (Exception ignored) {
+                        }
+                    }
+                    item.put("nombre_producto", nombreProducto);
+                    return item;
+                })
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/tienda/api/venta/{ventaId}")
     @ResponseBody
-    public Map<String, Object> getVentaById(@org.springframework.web.bind.annotation.PathVariable Integer ventaId, HttpSession session) {
+    public Map<String, Object> getVentaById(@org.springframework.web.bind.annotation.PathVariable Integer ventaId,
+            HttpSession session) {
         Map<String, Object> res = new HashMap<>();
         Venta venta = serviceVenta.buscarId(ventaId).orElse(null);
         if (venta == null) {
@@ -549,8 +721,9 @@ public class PageController {
     public List<CategoriaProducto> getStorefrontCategorias(HttpSession session) {
         Integer tenantId = (Integer) session.getAttribute("tenantId");
         return serviceCategoria.buscarTodos().stream()
-            .filter(c -> tenantId == null || (c.getId_tenants() != null && c.getId_tenants().getId_tenants().equals(tenantId)))
-            .collect(Collectors.toList());
+                .filter(c -> tenantId == null
+                        || (c.getId_tenants() != null && c.getId_tenants().getId_tenants().equals(tenantId)))
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/tienda/api/marcas")
@@ -558,8 +731,9 @@ public class PageController {
     public List<Marca> getStorefrontMarcas(HttpSession session) {
         Integer tenantId = (Integer) session.getAttribute("tenantId");
         return serviceMarca.buscarTodos().stream()
-            .filter(m -> tenantId == null || (m.getId_tenants() != null && m.getId_tenants().getId_tenants().equals(tenantId)))
-            .collect(Collectors.toList());
+                .filter(m -> tenantId == null
+                        || (m.getId_tenants() != null && m.getId_tenants().getId_tenants().equals(tenantId)))
+                .collect(Collectors.toList());
     }
 
     @PostMapping("/tienda/api/checkout")
@@ -572,9 +746,9 @@ public class PageController {
             // 1. Obtener o registrar al cliente filtrando por tenant
             Cliente cliente = null;
             Optional<Cliente> optCliente = serviceCliente.buscarTodos().stream()
-                .filter(c -> c.getCorreo() != null && c.getCorreo().equalsIgnoreCase(request.getCorreo())
-                    && c.getId_tenants() != null && c.getId_tenants().getId_tenants().equals(finalTenantId))
-                .findFirst();
+                    .filter(c -> c.getCorreo() != null && c.getCorreo().equalsIgnoreCase(request.getCorreo())
+                            && c.getId_tenants() != null && c.getId_tenants().getId_tenants().equals(finalTenantId))
+                    .findFirst();
 
             if (optCliente.isPresent()) {
                 cliente = optCliente.get();
@@ -597,12 +771,12 @@ public class PageController {
             // 2. Resolver dependencias de Sede, Tenant y SesionCaja
             Tenants tenant = serviceTenants.buscarId(finalTenantId).orElse(null);
             Sede sede = serviceSede.buscarTodos().stream()
-                .filter(s -> s.getId_tenants() != null && s.getId_tenants().getId_tenants().equals(finalTenantId))
-                .findFirst().orElse(serviceSede.buscarTodos().stream().findFirst().orElse(null));
+                    .filter(s -> s.getId_tenants() != null && s.getId_tenants().getId_tenants().equals(finalTenantId))
+                    .findFirst().orElse(serviceSede.buscarTodos().stream().findFirst().orElse(null));
             SesionCaja sesion = serviceSesionCaja.buscarTodos().stream()
-                .filter(s -> s.getEstado() != null && s.getEstado() == 1)
-                .findFirst()
-                .orElseGet(() -> serviceSesionCaja.buscarTodos().stream().findFirst().orElse(null));
+                    .filter(s -> s.getEstado() != null && s.getEstado() == 1)
+                    .findFirst()
+                    .orElseGet(() -> serviceSesionCaja.buscarTodos().stream().findFirst().orElse(null));
 
             // 3. Crear Venta
             Venta venta = new Venta();
@@ -640,7 +814,7 @@ public class PageController {
                     det.setSubtotal(BigDecimal.valueOf(item.getCantidad() * item.getPrecio_venta()));
                     serviceDetalleVenta.guardar(det);
                     // Guardar para descuento posterior (solo si todo fue bien)
-                    stockUpdates.add(new Object[]{ prod, item.getCantidad() });
+                    stockUpdates.add(new Object[] { prod, item.getCantidad() });
                 }
             }
 
@@ -663,7 +837,6 @@ public class PageController {
         }
     }
 
-
     // ========== CONTROL DE ACCESO DE ADMINISTRACIÓN ==========
 
     @GetMapping("/admin/login")
@@ -676,12 +849,12 @@ public class PageController {
 
     @PostMapping("/admin/login")
     public String adminLoginPost(@RequestParam String correo,
-                                 @RequestParam String contrasenia,
-                                 HttpSession session, Model model) {
+            @RequestParam String contrasenia,
+            HttpSession session, Model model) {
         Optional<Usuarios> user = serviceUsuarios.buscarTodos().stream()
-            .filter(u -> u.getCorreo() != null && u.getCorreo().equals(correo)
-                && u.getContrasenia() != null && u.getContrasenia().equals(contrasenia))
-            .findFirst();
+                .filter(u -> u.getCorreo() != null && u.getCorreo().equals(correo)
+                        && u.getContrasenia() != null && verificarContrasenia(contrasenia, u.getContrasenia()))
+                .findFirst();
 
         if (user.isPresent()) {
             Usuarios u = user.get();
@@ -707,6 +880,20 @@ public class PageController {
         if (session.getAttribute("usuario") == null) {
             return "redirect:/admin/login";
         }
+        Usuarios usuario = (Usuarios) session.getAttribute("usuario");
+        String planName = "Ninguno";
+        if (usuario != null && usuario.getId_tenants() != null) {
+            Integer idTenant = usuario.getId_tenants().getId_tenants();
+            Optional<Suscripcion> activeSubOpt = serviceSuscripcion.buscarTodos().stream()
+                    .filter(s -> s.getId_tenants() != null
+                            && s.getId_tenants().getId_tenants().equals(idTenant)
+                            && s.getEstado() != null && s.getEstado() == 1)
+                    .findFirst();
+            if (activeSubOpt.isPresent()) {
+                planName = activeSubOpt.get().getId_planes_suscripcion().getNombre_plan_suscripcion();
+            }
+        }
+        model.addAttribute("planName", planName);
         model.addAttribute("title", "Dashboard");
         model.addAttribute("contentTemplate", "dashboard");
         return "base";

@@ -6,6 +6,8 @@
     <title th:text="${title}">Bellarista</title>
     <link rel="stylesheet" href="/css/style.css">
     <script src="/js/app.js?v=20260702-1"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -27,13 +29,13 @@
                         <span class="arrow">></span>
                     </div>
                     <div class="menu-items">
-                        <a href="/modulos/usuarios">Usuarios</a>
-                        <a href="/modulos/tenants">Tenants</a>
-                        <a href="/modulos/roles">Roles</a>
-                        <a href="/modulos/permisos">Permisos</a>
-                        <a href="/modulos/usuario-sedes">Usuario-Sedes</a>
-                        <a href="/modulos/preferencias">Preferencias</a>
-                        <a href="/modulos/auditoria">Auditoria</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'usuarios')}" href="/modulos/usuarios">Usuarios</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'tenants')}" href="/modulos/tenants">Tenants</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'roles')}" href="/modulos/roles">Roles</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'permisos')}" href="/modulos/permisos">Permisos</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'usuario-sedes')}" href="/modulos/usuario-sedes">Usuario-Sedes</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'preferencias')}" href="/modulos/preferencias">Preferencias</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'auditoria')}" href="/modulos/auditoria">Auditoria</a>
                     </div>
                 </div>
 
@@ -43,13 +45,13 @@
                         <span class="arrow">></span>
                     </div>
                     <div class="menu-items">
-                        <a href="/modulos/clientes">Clientes</a>
-                        <a href="/modulos/citas">Citas</a>
-                        <a href="/modulos/repartidores">Repartidores</a>
-                        <a href="/modulos/sedes">Sedes</a>
-                        <a href="/modulos/horarios-operacion">Horarios de Operacion</a>
-                        <a href="/modulos/zonas-delivery">Zonas de Delivery</a>
-                        <a href="/modulos/notificaciones">Notificaciones</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'clientes')}" href="/modulos/clientes">Clientes</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'citas')}" href="/modulos/citas">Citas</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'repartidores')}" href="/modulos/repartidores">Repartidores</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'sedes')}" href="/modulos/sedes">Sedes</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'horarios-operacion')}" href="/modulos/horarios-operacion">Horarios de Operacion</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'zonas-delivery')}" href="/modulos/zonas-delivery">Zonas de Delivery</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'notificaciones')}" href="/modulos/notificaciones">Notificaciones</a>
                     </div>
                 </div>
 
@@ -59,12 +61,12 @@
                         <span class="arrow">></span>
                     </div>
                     <div class="menu-items">
-                        <a href="/modulos/ventas">Ventas</a>
-                        <a href="/modulos/pedidos">Pedidos</a>
-                        <a href="/modulos/devoluciones-venta">Devoluciones de Venta</a>
-                        <a href="/modulos/formas-pago-venta">Formas de Pago</a>
-                        <a href="/modulos/comprobantes-electronicos">Comprobantes Electronicos</a>
-                        <a href="/modulos/series-comprobantes">Series de Comprobantes</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'ventas')}" href="/modulos/ventas">Ventas</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'pedidos')}" href="/modulos/pedidos">Pedidos</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'devoluciones-venta')}" href="/modulos/devoluciones-venta">Devoluciones de Venta</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'formas-pago-venta')}" href="/modulos/formas-pago-venta">Formas de Pago</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'comprobantes-electronicos')}" href="/modulos/comprobantes-electronicos">Comprobantes Electronicos</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'series-comprobantes')}" href="/modulos/series-comprobantes">Series de Comprobantes</a>
                     </div>
                 </div>
 
@@ -74,17 +76,17 @@
                         <span class="arrow">></span>
                     </div>
                     <div class="menu-items">
-                        <a href="/modulos/ordenes-compra">Ordenes de Compra</a>
-                        <a href="/modulos/proveedores">Proveedores</a>
-                        <a href="/modulos/proveedores-categorias">Categorias de Proveedor</a>
-                        <a href="/modulos/devoluciones-proveedor">Devoluciones a Proveedor</a>
-                        <a href="/modulos/cuentas-por-pagar">Cuentas por Pagar</a>
-                        <a href="/modulos/pagos-proveedor">Pagos a Proveedor</a>
-                        <a href="/modulos/caja-chica">Caja Chica</a>
-                        <a href="/modulos/sesiones-caja">Sesiones de Caja</a>
-                        <a href="/modulos/metodos-pago">Metodos de Pago</a>
-                        <a href="/modulos/gastos-operativos">Gastos Operativos</a>
-                        <a href="/modulos/gastos-recurrentes">Gastos Recurrentes</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'ordenes-compra')}" href="/modulos/ordenes-compra">Ordenes de Compra</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'proveedores')}" href="/modulos/proveedores">Proveedores</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'proveedores-categorias')}" href="/modulos/proveedores-categorias">Categorias de Proveedor</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'devoluciones-proveedor')}" href="/modulos/devoluciones-proveedor">Devoluciones a Proveedor</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'cuentas-por-pagar')}" href="/modulos/cuentas-por-pagar">Cuentas por Pagar</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'pagos-proveedor')}" href="/modulos/pagos-proveedor">Pagos a Proveedor</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'caja-chica')}" href="/modulos/caja-chica">Caja Chica</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'sesiones-caja')}" href="/modulos/sesiones-caja">Sesiones de Caja</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'metodos-pago')}" href="/modulos/metodos-pago">Metodos de Pago</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'gastos-operativos')}" href="/modulos/gastos-operativos">Gastos Operativos</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'gastos-recurrentes')}" href="/modulos/gastos-recurrentes">Gastos Recurrentes</a>
                     </div>
                 </div>
 
@@ -94,9 +96,9 @@
                         <span class="arrow">></span>
                     </div>
                     <div class="menu-items">
-                        <a href="/modulos/productos">Productos</a>
-                        <a href="/modulos/categorias">Categorias</a>
-                        <a href="/modulos/marcas">Marcas</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'productos')}" href="/modulos/productos">Productos</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'categorias')}" href="/modulos/categorias">Categorias</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'marcas')}" href="/modulos/marcas">Marcas</a>
                     </div>
                 </div>
 
@@ -106,9 +108,9 @@
                         <span class="arrow">></span>
                     </div>
                     <div class="menu-items">
-                        <a href="/modulos/almacenes">Almacenes</a>
-                        <a href="/modulos/lotes">Lotes de Inventario</a>
-                        <a href="/modulos/movimientos">Movimientos</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'almacenes')}" href="/modulos/almacenes">Almacenes</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'lotes')}" href="/modulos/lotes">Lotes de Inventario</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'movimientos')}" href="/modulos/movimientos">Movimientos</a>
                     </div>
                 </div>
 
@@ -118,8 +120,8 @@
                         <span class="arrow">></span>
                     </div>
                     <div class="menu-items">
-                        <a href="/modulos/combos">Combos Promocionales</a>
-                        <a href="/modulos/promociones">Promociones</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'combos')}" href="/modulos/combos">Combos Promocionales</a>
+                        <a th:if="${allowedModules != null and #lists.contains(allowedModules, 'promociones')}" href="/modulos/promociones">Promociones</a>
                     </div>
                 </div>
             </nav>
