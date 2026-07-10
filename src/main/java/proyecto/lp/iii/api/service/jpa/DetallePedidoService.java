@@ -24,8 +24,8 @@ public class DetallePedidoService implements IDetallePedidoService {
         return repoDetallePedido.findAll();
     }
 
-    public void guardar(DetallePedido detallepedido) {
-        repoDetallePedido.save(detallepedido);
+    public DetallePedido guardar(DetallePedido detallepedido) {
+        return repoDetallePedido.save(detallepedido);
     }
 
     @Transactional

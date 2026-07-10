@@ -12,7 +12,9 @@
                         <th>ID</th>
                         <th>Nombre</th>
                         <th>Ubicacion</th>
-                        <th>Capacidad</th>
+                        <th>Capacidad Total</th>
+                        <th>Stock Ocupado</th>
+                        <th>Disponible (Resta)</th>
                         <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
@@ -73,8 +75,10 @@
             { field: 'id_almacenes', pk: true },
             { field: 'nombre_almacen' },
             { field: 'ubicacion' },
-            { field: 'capacidad' },
-            { field: 'estado' },
+            { field: 'capacidad', render: v => v != null ? v + ' und' : '0 und' },
+            { field: 'ocupado', render: v => v != null ? v + ' und' : '0 und' },
+            { field: 'disponible', render: v => (v != null ? v + ' und' : '0 und') + ' restante' },
+            { field: 'estado', render: v => v === 1 ? 'Activo' : 'Inactivo' },
             { field: 'acciones', actions: true }
         ],
         [

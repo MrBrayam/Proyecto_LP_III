@@ -7,7 +7,7 @@ import proyecto.lp.iii.api.entity.Pedido;
 public interface IPedidoService {
     List<Pedido> buscarTodos();
 
-    void guardar(Pedido pedido);
+    Pedido guardar(Pedido pedido);
 
     void modificar(Pedido pedido);
 

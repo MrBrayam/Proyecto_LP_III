@@ -58,6 +58,10 @@ import proyecto.lp.iii.api.entity.ComboPromocional;
 import proyecto.lp.iii.api.service.IComboPromocionalService;
 import proyecto.lp.iii.api.entity.ComposicionCombo;
 import proyecto.lp.iii.api.service.IComposicionComboService;
+import proyecto.lp.iii.api.entity.Pedido;
+import proyecto.lp.iii.api.entity.DetallePedido;
+import proyecto.lp.iii.api.service.IPedidoService;
+import proyecto.lp.iii.api.service.IDetallePedidoService;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
@@ -123,6 +127,12 @@ public class PageController {
 
     @Autowired
     private IComposicionComboService serviceComposicionCombo;
+
+    @Autowired
+    private IPedidoService servicePedido;
+
+    @Autowired
+    private IDetallePedidoService serviceDetallePedido;
 
     // Helper classes for Checkout request parsing
     public static class CheckoutRequest {
@@ -810,10 +820,47 @@ public class PageController {
                 })
                 .collect(Collectors.toList());
 
-        List<Cita> citas = serviceCita.buscarTodos().stream()
-                .filter(c -> c.getId_ventas() != null && c.getId_ventas().getId_ventas().equals(ventaId)
-                        && c.getEstado() != null && c.getEstado() == 1)
-                .collect(Collectors.toList());
+        boolean isPedido = false;
+        if (items.isEmpty()) {
+            items = serviceDetallePedido.buscarTodos().stream()
+                    .filter(d -> d.getId_pedidos() != null && d.getId_pedidos().getId_pedidos().equals(ventaId))
+                    .map(d -> {
+                        Map<String, Object> item = new HashMap<>();
+                        item.put("id_detalle_venta", d.getId_detalle_pedido());
+                        item.put("cantidad", d.getCantidad());
+                        item.put("precio_unitario", d.getPrecio_unitario());
+                        item.put("subtotal", d.getSubtotal());
+                        String nombreProducto = "Producto/Servicio";
+                        if (d.getId_productos() != null) {
+                            try {
+                                nombreProducto = d.getId_productos().getNombre_producto();
+                            } catch (Exception ignored) {
+                            }
+                        }
+                        item.put("nombre_producto", nombreProducto);
+                        return item;
+                    })
+                    .collect(Collectors.toList());
+            isPedido = true;
+        }
+
+        List<Cita> citas = new java.util.ArrayList<>();
+        if (isPedido) {
+            Optional<Pedido> optPedido = servicePedido.buscarId(ventaId);
+            if (optPedido.isPresent()) {
+                Pedido ped = optPedido.get();
+                citas = serviceCita.buscarTodos().stream()
+                        .filter(c -> c.getId_clientes() != null && c.getId_clientes().getId_clientes().equals(ped.getId_clientes().getId_clientes())
+                                && c.getId_ventas() == null
+                                && c.getEstado() != null && c.getEstado() == 1)
+                        .collect(Collectors.toList());
+            }
+        } else {
+            citas = serviceCita.buscarTodos().stream()
+                    .filter(c -> c.getId_ventas() != null && c.getId_ventas().getId_ventas().equals(ventaId)
+                            && c.getEstado() != null && c.getEstado() == 1)
+                    .collect(Collectors.toList());
+        }
 
         for (Cita cita : citas) {
             List<ServicioCita> servs = serviceServicioCita.buscarTodos().stream()
@@ -845,6 +892,24 @@ public class PageController {
         Map<String, Object> res = new HashMap<>();
         Venta venta = serviceVenta.buscarId(ventaId).orElse(null);
         if (venta == null) {
+            Pedido pedido = servicePedido.buscarId(ventaId).orElse(null);
+            if (pedido != null) {
+                Venta dummy = new Venta();
+                dummy.setId_ventas(pedido.getId_pedidos());
+                dummy.setId_clientes(pedido.getId_clientes());
+                dummy.setId_tenants(pedido.getId_tenants());
+                dummy.setNumero_ticket(pedido.getNumero_pedido());
+                dummy.setComprobante_numero(pedido.getNumero_pedido());
+                dummy.setTipo_comprobante("boleta");
+                dummy.setTotal(pedido.getTotal());
+                dummy.setSubtotal(pedido.getSubtotal());
+                dummy.setImpuesto(pedido.getImpuesto());
+                dummy.setFecha_venta(pedido.getFecha_pedido());
+                
+                res.put("success", true);
+                res.put("venta", dummy);
+                return res;
+            }
             res.put("success", false);
             res.put("error", "Venta no encontrada");
             return res;
@@ -1057,41 +1122,38 @@ public class PageController {
                 }
             }
 
-            // 4. Crear Venta
-            Venta venta = new Venta();
-            venta.setId_tenants(tenant);
-            venta.setId_sedes(sede);
-            venta.setId_sesiones_caja(sesion);
-            venta.setId_clientes(cliente);
-            venta.setNumero_ticket("TK-" + System.currentTimeMillis());
-            venta.setComprobante_numero("C-" + System.currentTimeMillis());
-            venta.setTipo_comprobante("boleta");
-            venta.setEstado(1);
-            venta.setEstado_sunat("aceptada");
+            // 4. Crear Pedido
+            Pedido pedido = new Pedido();
+            pedido.setId_tenants(tenant);
+            pedido.setId_clientes(cliente);
+            pedido.setNumero_pedido("PED-" + System.currentTimeMillis());
+            pedido.setModalidad("delivery");
+            pedido.setEstado(1); // 1 = Pendiente
 
             double total = 0.0;
             for (CartItem item : request.getItems()) {
                 total += item.getCantidad() * item.getPrecio_venta();
             }
-            venta.setTotal(BigDecimal.valueOf(total));
-            venta.setSubtotal(BigDecimal.valueOf(total / 1.18));
-            venta.setImpuesto(BigDecimal.valueOf(total - (total / 1.18)));
+            pedido.setTotal(BigDecimal.valueOf(total));
+            pedido.setSubtotal(BigDecimal.valueOf(total / 1.18));
+            pedido.setImpuesto(BigDecimal.valueOf(total - (total / 1.18)));
+            pedido.setDireccion_entrega(request.getDireccion() != null ? request.getDireccion() : "");
 
-            Venta savedVenta = serviceVenta.guardar(venta);
+            Pedido savedPedido = servicePedido.guardar(pedido);
 
-            // 5. Crear DetalleVenta para productos (y descontar stock)
+            // 5. Crear DetallePedido para productos (y descontar stock)
             List<Object[]> stockUpdates = new java.util.ArrayList<>();
             for (CartItem item : request.getItems()) {
                 if (item.getId_productos() != null && !"servicio".equalsIgnoreCase(item.getTipo()) && !"combo".equalsIgnoreCase(item.getTipo())) {
                     Producto prod = serviceProducto.buscarId(item.getId_productos()).orElse(null);
                     if (prod != null) {
-                        DetalleVenta det = new DetalleVenta();
-                        det.setId_ventas(savedVenta);
+                        DetallePedido det = new DetallePedido();
+                        det.setId_pedidos(savedPedido);
                         det.setId_productos(prod);
                         det.setCantidad(item.getCantidad());
                         det.setPrecio_unitario(BigDecimal.valueOf(item.getPrecio_venta()));
                         det.setSubtotal(BigDecimal.valueOf(item.getCantidad() * item.getPrecio_venta()));
-                        serviceDetalleVenta.guardar(det);
+                        serviceDetallePedido.guardar(det);
                         stockUpdates.add(new Object[] { prod, item.getCantidad() });
                     }
                 } else if ("combo".equalsIgnoreCase(item.getTipo()) && item.getId_combos_promocionales() != null) {
@@ -1120,13 +1182,13 @@ public class PageController {
                                 double linePrice = comboTotalPrice * proportion;
                                 double unitPrice = linePrice / totalQtyToDeduct;
 
-                                DetalleVenta det = new DetalleVenta();
-                                det.setId_ventas(savedVenta);
+                                DetallePedido det = new DetallePedido();
+                                det.setId_pedidos(savedPedido);
                                 det.setId_productos(prod);
                                 det.setCantidad(totalQtyToDeduct);
                                 det.setPrecio_unitario(BigDecimal.valueOf(unitPrice));
                                 det.setSubtotal(BigDecimal.valueOf(linePrice));
-                                serviceDetalleVenta.guardar(det);
+                                serviceDetallePedido.guardar(det);
                                 stockUpdates.add(new Object[] { prod, totalQtyToDeduct });
                             }
                         }
@@ -1142,7 +1204,7 @@ public class PageController {
                 serviceProducto.modificar(prod);
             }
 
-            // 6. Si hay servicios, guardar Cita y relacionarla con la Venta
+            // 6. Si hay servicios, guardar Cita y relacionarla con la Venta (null por ahora)
             if (hasServices) {
                 Cita cita = new Cita();
                 cita.setId_tenants(tenant);
@@ -1154,7 +1216,7 @@ public class PageController {
                 cita.setDuracion_minutos(duracionTotal);
                 cita.setEstado(1);
                 cita.setObservaciones(request.getObservacionesCita());
-                cita.setId_ventas(savedVenta);
+                cita.setId_ventas(null);
 
                 Cita savedCita = serviceCita.guardar(cita);
 
@@ -1171,7 +1233,7 @@ public class PageController {
             // Actualizar sesion con datos frescos del cliente
             session.setAttribute("cliente", cliente);
 
-            return "{\"success\": true, \"ventaId\": " + savedVenta.getId_ventas() + "}";
+            return "{\"success\": true, \"ventaId\": " + savedPedido.getId_pedidos() + "}";
         } catch (Exception e) {
             e.printStackTrace();
             return "{\"success\": false, \"error\": \"" + e.getMessage().replace("\"", "\\\"") + "\"}";

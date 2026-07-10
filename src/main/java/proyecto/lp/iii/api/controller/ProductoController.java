@@ -27,18 +27,49 @@ public List<Producto> buscarTodos() {
 return serviceProducto.buscarTodos();
 }
 
-@PostMapping("/productos")
-public Producto guardar(@RequestBody Producto registro) {
-serviceProducto.guardar(registro);
-return registro;
-}
+	@PostMapping("/productos")
+	public Producto guardar(@RequestBody Producto registro) {
+		if (registro.getCodigo_interno() == null || registro.getCodigo_interno().trim().isEmpty()) {
+			int nextId = serviceProducto.buscarTodos().size() + 1;
+			registro.setCodigo_interno(String.format("PROD-%05d", nextId));
+		}
+		if (registro.getCodigo_barras() == null || registro.getCodigo_barras().trim().isEmpty()) {
+			int nextId = serviceProducto.buscarTodos().size() + 1;
+			registro.setCodigo_barras(generateEAN13(nextId));
+		}
+		serviceProducto.guardar(registro);
+		return registro;
+	}
 
-@PutMapping("/productos/{id}")
-public Producto modificar(@PathVariable Integer id, @RequestBody Producto registro) {
-	registro.setId_productos(id);
-	serviceProducto.modificar(registro);
-	return registro;
-}
+	@PutMapping("/productos/{id}")
+	public Producto modificar(@PathVariable Integer id, @RequestBody Producto registro) {
+		registro.setId_productos(id);
+		if (registro.getCodigo_interno() == null || registro.getCodigo_interno().trim().isEmpty()) {
+			int nextId = serviceProducto.buscarTodos().size() + 1;
+			registro.setCodigo_interno(String.format("PROD-%05d", nextId));
+		}
+		if (registro.getCodigo_barras() == null || registro.getCodigo_barras().trim().isEmpty()) {
+			int nextId = serviceProducto.buscarTodos().size() + 1;
+			registro.setCodigo_barras(generateEAN13(nextId));
+		}
+		serviceProducto.modificar(registro);
+		return registro;
+	}
+
+	private String generateEAN13(int nextId) {
+		String base = "775" + String.format("%09d", nextId);
+		int sum = 0;
+		for (int i = 0; i < 12; i++) {
+			int digit = Character.getNumericValue(base.charAt(i));
+			if (i % 2 == 0) {
+				sum += digit;
+			} else {
+				sum += digit * 3;
+			}
+		}
+		int checkDigit = (10 - (sum % 10)) % 10;
+		return base + checkDigit;
+	}
 
 @GetMapping("/productos/{id}")
 public Optional<Producto> buscarId(@PathVariable("id") Integer id) {

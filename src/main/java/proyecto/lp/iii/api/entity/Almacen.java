@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
@@ -54,6 +55,12 @@ public class Almacen {
 
     @Column
     private Integer estado = 1;
+
+    @Transient
+    private Integer ocupado = 0;
+
+    @Transient
+    private Integer disponible = 0;
 
     public Integer getId_almacenes() {
         return id_almacenes;
@@ -109,6 +116,22 @@ public class Almacen {
 
     public void setEstado(Integer estado) {
         this.estado = estado;
+    }
+
+    public Integer getOcupado() {
+        return ocupado;
+    }
+
+    public void setOcupado(Integer ocupado) {
+        this.ocupado = ocupado;
+    }
+
+    public Integer getDisponible() {
+        return disponible;
+    }
+
+    public void setDisponible(Integer disponible) {
+        this.disponible = disponible;
     }
 
     @Override

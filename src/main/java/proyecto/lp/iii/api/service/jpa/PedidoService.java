@@ -23,8 +23,8 @@ public class PedidoService implements IPedidoService {
     public List<Pedido> buscarTodos() { 
         return repoPedido.findAll(); 
     }
-    public void guardar(Pedido pedido) { 
-        repoPedido.save(pedido); 
+    public Pedido guardar(Pedido pedido) { 
+        return repoPedido.save(pedido); 
     }
     @Transactional
     public void modificar(Pedido pedido) { 
