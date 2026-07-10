@@ -12,6 +12,11 @@ let allCombos = [];
 
 // Load Catalog on page ready
 document.addEventListener('DOMContentLoaded', () => {
+    // Only run catalog/store logic when on the actual tienda page
+    const isTiendaPage = document.getElementById('productGrid') !== null
+        || document.getElementById('categoryFilters') !== null;
+    if (!isTiendaPage) return;
+
     loadCart();
     updateAuthUI();
 

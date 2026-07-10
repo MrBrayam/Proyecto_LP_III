@@ -162,7 +162,7 @@ public class PageController {
         private String metodoPago;
         private List<CartItem> items;
         private Integer tenantId;
-        
+
         // Appointment attributes
         private Integer SedeId;
         private String fechaCita;
@@ -354,18 +354,42 @@ public class PageController {
         private String asunto;
         private String mensaje;
 
-        public String getNombre() { return nombre; }
-        public void setNombre(String nombre) { this.nombre = nombre; }
-        public String getCorreo() { return correo; }
-        public void setCorreo(String correo) { this.correo = correo; }
-        public String getAsunto() { return asunto; }
-        public void setAsunto(String asunto) { this.asunto = asunto; }
-        public String getMensaje() { return mensaje; }
-        public void setMensaje(String mensaje) { this.mensaje = mensaje; }
+        public String getNombre() {
+            return nombre;
+        }
+
+        public void setNombre(String nombre) {
+            this.nombre = nombre;
+        }
+
+        public String getCorreo() {
+            return correo;
+        }
+
+        public void setCorreo(String correo) {
+            this.correo = correo;
+        }
+
+        public String getAsunto() {
+            return asunto;
+        }
+
+        public void setAsunto(String asunto) {
+            this.asunto = asunto;
+        }
+
+        public String getMensaje() {
+            return mensaje;
+        }
+
+        public void setMensaje(String mensaje) {
+            this.mensaje = mensaje;
+        }
     }
 
     private boolean verificarContrasenia(String ingresada, String almacenada) {
-        if (ingresada == null || almacenada == null) return false;
+        if (ingresada == null || almacenada == null)
+            return false;
         if (almacenada.startsWith("$2a$") || almacenada.startsWith("$2b$") || almacenada.startsWith("$2y$")) {
             try {
                 return org.springframework.security.crypto.bcrypt.BCrypt.checkpw(ingresada, almacenada);
@@ -399,7 +423,7 @@ public class PageController {
         }
 
         Optional<RolPersonalizado> rolOpt = serviceRolPersonalizado.buscarTodos().stream()
-                .filter(r -> r.getId_tenants() != null && tenantId != null 
+                .filter(r -> r.getId_tenants() != null && tenantId != null
                         && r.getId_tenants().getId_tenants().equals(tenantId)
                         && r.getNombre_rol_personalizado() != null
                         && r.getNombre_rol_personalizado().equalsIgnoreCase(tipo)
@@ -746,11 +770,12 @@ public class PageController {
             session.removeAttribute("cliente");
             cliente = null;
         }
-        
+
         List<Sede> sedes = serviceSede.buscarTodos().stream()
-                .filter(s -> tenantId == null || (s.getId_tenants() != null && s.getId_tenants().getId_tenants().equals(tenantId)))
+                .filter(s -> tenantId == null
+                        || (s.getId_tenants() != null && s.getId_tenants().getId_tenants().equals(tenantId)))
                 .collect(Collectors.toList());
-        
+
         model.addAttribute("cliente", cliente);
         model.addAttribute("tenantId", tenantId);
         model.addAttribute("sedes", sedes);
@@ -828,8 +853,8 @@ public class PageController {
             Cliente cliente = (Cliente) session.getAttribute("cliente");
             if (cliente == null && email != null) {
                 Optional<Cliente> optCli = serviceCliente.buscarTodos().stream()
-                    .filter(c -> c.getCorreo() != null && c.getCorreo().equalsIgnoreCase(email))
-                    .findFirst();
+                        .filter(c -> c.getCorreo() != null && c.getCorreo().equalsIgnoreCase(email))
+                        .findFirst();
                 if (optCli.isPresent()) {
                     cliente = optCli.get();
                 } else {
@@ -863,7 +888,7 @@ public class PageController {
             reclamo.setTipo_incidencia("consulta_contacto");
             reclamo.setDescripcion("Asunto: " + request.getAsunto() + "\n\nMensaje:\n" + request.getMensaje());
             reclamo.setEstado(1);
-            
+
             serviceReclamo.guardar(reclamo);
 
             res.put("success", true);
@@ -919,7 +944,7 @@ public class PageController {
     @ResponseBody
     public List<Map<String, Object>> getDetallesVenta(
             @org.springframework.web.bind.annotation.PathVariable Integer ventaId) {
-        
+
         List<Map<String, Object>> items = serviceDetalleVenta.buscarTodos().stream()
                 .filter(d -> d.getId_ventas() != null && d.getId_ventas().getId_ventas().equals(ventaId))
                 .map(d -> {
@@ -970,7 +995,8 @@ public class PageController {
             if (optPedido.isPresent()) {
                 Pedido ped = optPedido.get();
                 citas = serviceCita.buscarTodos().stream()
-                        .filter(c -> c.getId_clientes() != null && c.getId_clientes().getId_clientes().equals(ped.getId_clientes().getId_clientes())
+                        .filter(c -> c.getId_clientes() != null
+                                && c.getId_clientes().getId_clientes().equals(ped.getId_clientes().getId_clientes())
                                 && c.getId_ventas() == null
                                 && c.getEstado() != null && c.getEstado() == 1)
                         .collect(Collectors.toList());
@@ -1025,7 +1051,7 @@ public class PageController {
                 dummy.setSubtotal(pedido.getSubtotal());
                 dummy.setImpuesto(pedido.getImpuesto());
                 dummy.setFecha_venta(pedido.getFecha_pedido());
-                
+
                 res.put("success", true);
                 res.put("venta", dummy);
                 return res;
@@ -1066,11 +1092,11 @@ public class PageController {
     @GetMapping("/tienda/api/citas/disponibles")
     @ResponseBody
     public List<String> getCitasDisponibles(@RequestParam Integer SedeId,
-                                            @RequestParam String fecha,
-                                            @RequestParam Integer duracion) {
+            @RequestParam String fecha,
+            @RequestParam Integer duracion) {
         try {
             java.time.LocalDate localDate = java.time.LocalDate.parse(fecha);
-            String[] dias = {"lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"};
+            String[] dias = { "lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo" };
             String diaSemana = dias[localDate.getDayOfWeek().getValue() - 1];
 
             Optional<HorarioOperacion> horarioOpt = serviceHorarioOperacion.buscarTodos().stream()
@@ -1136,7 +1162,8 @@ public class PageController {
     @Transactional
     public String procesarCheckout(@RequestBody CheckoutRequest request, HttpSession session) {
         try {
-            Integer checkoutTenantId = request.getTenantId() != null ? request.getTenantId() : (Integer) session.getAttribute("tenantId");
+            Integer checkoutTenantId = request.getTenantId() != null ? request.getTenantId()
+                    : (Integer) session.getAttribute("tenantId");
             final Integer finalTenantId = checkoutTenantId != null ? checkoutTenantId : 1;
 
             // 1. Obtener o registrar al cliente filtrando por tenant
@@ -1166,23 +1193,25 @@ public class PageController {
 
             // 2. Resolver dependencias de Sede, Tenant y SesionCaja
             Tenants tenant = serviceTenants.buscarId(finalTenantId).orElse(null);
-            
+
             Sede sede = null;
             if (request.getSedeId() != null) {
                 sede = serviceSede.buscarId(request.getSedeId()).orElse(null);
             }
             if (sede == null) {
                 sede = serviceSede.buscarTodos().stream()
-                        .filter(s -> s.getId_tenants() != null && s.getId_tenants().getId_tenants().equals(finalTenantId))
+                        .filter(s -> s.getId_tenants() != null
+                                && s.getId_tenants().getId_tenants().equals(finalTenantId))
                         .findFirst().orElse(serviceSede.buscarTodos().stream().findFirst().orElse(null));
             }
-            
+
             SesionCaja sesion = serviceSesionCaja.buscarTodos().stream()
                     .filter(s -> s.getEstado() != null && s.getEstado() == 1)
                     .findFirst()
                     .orElseGet(() -> serviceSesionCaja.buscarTodos().stream().findFirst().orElse(null));
 
-            // 3. Verificar si hay servicios en el carrito y calcular su duración y validaciones
+            // 3. Verificar si hay servicios en el carrito y calcular su duración y
+            // validaciones
             boolean hasServices = false;
             int duracionTotal = 0;
             List<ServicioBelleza> serviciosABookear = new java.util.ArrayList<>();
@@ -1209,12 +1238,13 @@ public class PageController {
                 slotFin = slotInicio.plusMinutes(duracionTotal);
 
                 // Validar día y horario de atención
-                String[] dias = {"lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"};
+                String[] dias = { "lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo" };
                 String diaSemana = dias[localDateCita.getDayOfWeek().getValue() - 1];
                 final Sede finalSede = sede;
                 final String finalDia = diaSemana;
                 Optional<HorarioOperacion> horarioOpt = serviceHorarioOperacion.buscarTodos().stream()
-                        .filter(h -> h.getId_sedes() != null && h.getId_sedes().getId_sedes().equals(finalSede.getId_sedes())
+                        .filter(h -> h.getId_sedes() != null
+                                && h.getId_sedes().getId_sedes().equals(finalSede.getId_sedes())
                                 && h.getDia_semana() != null && h.getDia_semana().equalsIgnoreCase(finalDia)
                                 && h.getEstado() != null && h.getEstado() == 1)
                         .findFirst();
@@ -1230,7 +1260,8 @@ public class PageController {
                 // Validar cruce de citas
                 final java.time.LocalDate targetDate = localDateCita;
                 List<Cita> citasExistentes = serviceCita.buscarTodos().stream()
-                        .filter(c -> c.getId_sedes() != null && c.getId_sedes().getId_sedes().equals(finalSede.getId_sedes())
+                        .filter(c -> c.getId_sedes() != null
+                                && c.getId_sedes().getId_sedes().equals(finalSede.getId_sedes())
                                 && c.getFecha_cita() != null && c.getFecha_cita().equals(targetDate)
                                 && c.getEstado() != null && c.getEstado() == 1)
                         .collect(Collectors.toList());
@@ -1268,7 +1299,8 @@ public class PageController {
             // 5. Crear DetallePedido para productos (y descontar stock)
             List<Object[]> stockUpdates = new java.util.ArrayList<>();
             for (CartItem item : request.getItems()) {
-                if (item.getId_productos() != null && !"servicio".equalsIgnoreCase(item.getTipo()) && !"combo".equalsIgnoreCase(item.getTipo())) {
+                if (item.getId_productos() != null && !"servicio".equalsIgnoreCase(item.getTipo())
+                        && !"combo".equalsIgnoreCase(item.getTipo())) {
                     Producto prod = serviceProducto.buscarId(item.getId_productos()).orElse(null);
                     if (prod != null) {
                         DetallePedido det = new DetallePedido();
@@ -1281,27 +1313,32 @@ public class PageController {
                         stockUpdates.add(new Object[] { prod, item.getCantidad() });
                     }
                 } else if ("combo".equalsIgnoreCase(item.getTipo()) && item.getId_combos_promocionales() != null) {
-                    List<ComposicionCombo> composicion = serviceComposicionCombo.buscarPorCombo(item.getId_combos_promocionales());
+                    List<ComposicionCombo> composicion = serviceComposicionCombo
+                            .buscarPorCombo(item.getId_combos_promocionales());
                     if (composicion != null && !composicion.isEmpty()) {
                         double normalTotal = 0.0;
                         for (ComposicionCombo cc : composicion) {
                             if (cc.getId_productos() != null) {
-                                double price = cc.getId_productos().getPrecio_venta() != null ? cc.getId_productos().getPrecio_venta().doubleValue() : 0.0;
+                                double price = cc.getId_productos().getPrecio_venta() != null
+                                        ? cc.getId_productos().getPrecio_venta().doubleValue()
+                                        : 0.0;
                                 int qtyInCombo = cc.getCantidad() != null ? cc.getCantidad() : 1;
                                 normalTotal += price * qtyInCombo;
                             }
                         }
-                        if (normalTotal <= 0.0) normalTotal = 1.0;
+                        if (normalTotal <= 0.0)
+                            normalTotal = 1.0;
 
                         double comboTotalPrice = item.getPrecio_venta() * item.getCantidad();
 
                         for (ComposicionCombo cc : composicion) {
                             Producto prod = cc.getId_productos();
                             if (prod != null) {
-                                double prodPrice = prod.getPrecio_venta() != null ? prod.getPrecio_venta().doubleValue() : 0.0;
+                                double prodPrice = prod.getPrecio_venta() != null ? prod.getPrecio_venta().doubleValue()
+                                        : 0.0;
                                 int qtyInCombo = cc.getCantidad() != null ? cc.getCantidad() : 1;
                                 int totalQtyToDeduct = qtyInCombo * item.getCantidad();
-                                
+
                                 double proportion = (prodPrice * qtyInCombo) / normalTotal;
                                 double linePrice = comboTotalPrice * proportion;
                                 double unitPrice = linePrice / totalQtyToDeduct;
@@ -1323,21 +1360,24 @@ public class PageController {
             for (Object[] update : stockUpdates) {
                 Producto prod = (Producto) update[0];
                 int qty = (int) update[1];
-                
+
                 List<LoteInventario> lotes = serviceLoteInventario.buscarTodos().stream()
-                    .filter(l -> l.getId_productos() != null && l.getId_productos().getId_productos().equals(prod.getId_productos())
-                            && l.getEstado() != null && l.getEstado() == 1 && l.getCantidad_disponible() != null && l.getCantidad_disponible() > 0)
-                    .sorted(java.util.Comparator.comparing(LoteInventario::getId_lotes_inventario))
-                    .collect(java.util.stream.Collectors.toList());
+                        .filter(l -> l.getId_productos() != null
+                                && l.getId_productos().getId_productos().equals(prod.getId_productos())
+                                && l.getEstado() != null && l.getEstado() == 1 && l.getCantidad_disponible() != null
+                                && l.getCantidad_disponible() > 0)
+                        .sorted(java.util.Comparator.comparing(LoteInventario::getId_lotes_inventario))
+                        .collect(java.util.stream.Collectors.toList());
 
                 int remainingToDeduct = qty;
                 for (LoteInventario lote : lotes) {
-                    if (remainingToDeduct <= 0) break;
+                    if (remainingToDeduct <= 0)
+                        break;
                     int available = lote.getCantidad_disponible();
                     if (available >= remainingToDeduct) {
                         lote.setCantidad_disponible(available - remainingToDeduct);
                         serviceLoteInventario.modificar(lote);
-                        
+
                         MovimientoInventario mov = new MovimientoInventario();
                         mov.setId_lotes_inventario(lote);
                         mov.setTipo_movimiento("salida");
@@ -1345,12 +1385,12 @@ public class PageController {
                         mov.setMotivo("Venta / Pedido online");
                         mov.setReferencia_documento(savedPedido.getNumero_pedido());
                         serviceMovimientoInventario.guardar(mov);
-                        
+
                         remainingToDeduct = 0;
                     } else {
                         lote.setCantidad_disponible(0);
                         serviceLoteInventario.modificar(lote);
-                        
+
                         MovimientoInventario mov = new MovimientoInventario();
                         mov.setId_lotes_inventario(lote);
                         mov.setTipo_movimiento("salida");
@@ -1358,21 +1398,23 @@ public class PageController {
                         mov.setMotivo("Venta / Pedido online");
                         mov.setReferencia_documento(savedPedido.getNumero_pedido());
                         serviceMovimientoInventario.guardar(mov);
-                        
+
                         remainingToDeduct -= available;
                     }
                 }
 
                 int newStock = serviceLoteInventario.buscarTodos().stream()
-                    .filter(l -> l.getId_productos() != null && l.getId_productos().getId_productos().equals(prod.getId_productos())
-                            && l.getEstado() != null && l.getEstado() == 1 && l.getCantidad_disponible() != null)
-                    .mapToInt(LoteInventario::getCantidad_disponible)
-                    .sum();
+                        .filter(l -> l.getId_productos() != null
+                                && l.getId_productos().getId_productos().equals(prod.getId_productos())
+                                && l.getEstado() != null && l.getEstado() == 1 && l.getCantidad_disponible() != null)
+                        .mapToInt(LoteInventario::getCantidad_disponible)
+                        .sum();
                 prod.setStock_actual(newStock);
                 serviceProducto.modificar(prod);
             }
 
-            // 6. Si hay servicios, guardar Cita y relacionarla con la Venta (null por ahora)
+            // 6. Si hay servicios, guardar Cita y relacionarla con la Venta (null por
+            // ahora)
             if (hasServices) {
                 Cita cita = new Cita();
                 cita.setId_tenants(tenant);
@@ -1972,7 +2014,7 @@ public class PageController {
         if (user.isPresent()) {
             Usuarios u = user.get();
             Integer idTenant = u.getId_tenants() != null ? u.getId_tenants().getId_tenants() : null;
-            
+
             String planName = "Ninguno";
             if (idTenant != null) {
                 Optional<Suscripcion> activeSubOpt = serviceSuscripcion.buscarTodos().stream()

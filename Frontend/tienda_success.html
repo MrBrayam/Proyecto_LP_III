@@ -41,8 +41,8 @@
     <!-- Shared storefront JS (cart utils + PDF generator) -->
     <script src="/js/tienda.js"></script>
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const tId = urlParams.get('tenantId') || '1';
+        const successParams = new URLSearchParams(window.location.search);
+        const tId = successParams.get('tenantId') || '1';
         document.getElementById('btnHome').href = `/tienda.html?tenantId=${tId}`;
 
         // Fetch tenant details to customize success message (optional but beautiful)
@@ -57,13 +57,13 @@
             .catch(err => console.error(err));
 
         // Parse ventaId from URL query param as integer
-        var ventaId = parseInt(urlParams.get('ventaId'), 10);
+        var ventaId = parseInt(successParams.get('ventaId'), 10);
         if (ventaId && !isNaN(ventaId)) {
             document.getElementById('btnDownload').style.display = 'inline-flex';
         }
 
         // Parse hasServices from URL query param
-        var hasServices = urlParams.get('hasServices') === 'true';
+        var hasServices = successParams.get('hasServices') === 'true';
         if (hasServices) {
             document.getElementById('btnDownloadCita').style.display = 'inline-flex';
         }
