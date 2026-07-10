@@ -206,7 +206,8 @@
                         links.forEach(l => l.classList.remove('active'));
                         document.getElementById('dashboardHomeBtn').classList.remove('active');
                         a.classList.add('active');
-                        loadModule('/modulos/' + moduleName + '.html', a.textContent);
+                        const fileBase = moduleName.replace(/-/g, '_');
+                        loadModule('/modulos/' + fileBase + '.html', a.textContent);
                     });
                 }
             });

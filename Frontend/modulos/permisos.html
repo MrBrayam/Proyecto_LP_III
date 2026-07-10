@@ -76,10 +76,8 @@
         { value: "promociones", label: "Promociones" }
     ];
 
-    document.addEventListener("DOMContentLoaded", function() {
-        renderizarCheckboxes();
-        cargarRoles();
-    });
+    renderizarCheckboxes();
+    cargarRoles();
 
     // Renderizar checkboxes dinámicamente
     function renderizarCheckboxes() {
@@ -107,12 +105,14 @@
 
     // Cargar la lista de roles en el selector
     function cargarRoles() {
+        const tenantId = localStorage.getItem('tenantId');
         apiFetch('/api/roles_personalizados')
             .then(roles => {
                 const selector = document.getElementById("rolSelector");
                 selector.innerHTML = '<option value="">-- Seleccione un Rol --</option>';
                 roles.forEach(r => {
-                    if (r.estado === 1 || r.estado === true) {
+                    const matchesTenant = !tenantId || (r.id_tenants && (r.id_tenants.id_tenants == tenantId || r.id_tenants == tenantId));
+                    if ((r.estado === 1 || r.estado === true) && matchesTenant) {
                         const opt = document.createElement("option");
                         opt.value = r.id_roles_personalizados;
                         opt.textContent = r.nombre_rol_personalizado;
