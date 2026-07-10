@@ -24,8 +24,8 @@ public class ClienteService implements IClienteService {
         return repoCliente.findAll();
     }
 
-    public void guardar(Cliente cliente) {
-        repoCliente.save(cliente);
+    public Cliente guardar(Cliente cliente) {
+        return repoCliente.save(cliente);
     }
 
     @Transactional

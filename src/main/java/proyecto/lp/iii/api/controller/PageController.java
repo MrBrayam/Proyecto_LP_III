@@ -62,6 +62,12 @@ import proyecto.lp.iii.api.entity.Pedido;
 import proyecto.lp.iii.api.entity.DetallePedido;
 import proyecto.lp.iii.api.service.IPedidoService;
 import proyecto.lp.iii.api.service.IDetallePedidoService;
+import proyecto.lp.iii.api.entity.LoteInventario;
+import proyecto.lp.iii.api.entity.MovimientoInventario;
+import proyecto.lp.iii.api.entity.Reclamo;
+import proyecto.lp.iii.api.service.ILoteInventarioService;
+import proyecto.lp.iii.api.service.IMovimientoInventarioService;
+import proyecto.lp.iii.api.service.IReclamoService;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
@@ -133,6 +139,15 @@ public class PageController {
 
     @Autowired
     private IDetallePedidoService serviceDetallePedido;
+
+    @Autowired
+    private ILoteInventarioService serviceLoteInventario;
+
+    @Autowired
+    private IMovimientoInventarioService serviceMovimientoInventario;
+
+    @Autowired
+    private IReclamoService serviceReclamo;
 
     // Helper classes for Checkout request parsing
     public static class CheckoutRequest {
@@ -322,6 +337,22 @@ public class PageController {
         public void setPrecio_venta(Double precio_venta) {
             this.precio_venta = precio_venta;
         }
+    }
+
+    public static class ContactRequest {
+        private String nombre;
+        private String correo;
+        private String asunto;
+        private String mensaje;
+
+        public String getNombre() { return nombre; }
+        public void setNombre(String nombre) { this.nombre = nombre; }
+        public String getCorreo() { return correo; }
+        public void setCorreo(String correo) { this.correo = correo; }
+        public String getAsunto() { return asunto; }
+        public void setAsunto(String asunto) { this.asunto = asunto; }
+        public String getMensaje() { return mensaje; }
+        public void setMensaje(String mensaje) { this.mensaje = mensaje; }
     }
 
     private boolean verificarContrasenia(String ingresada, String almacenada) {
@@ -763,6 +794,68 @@ public class PageController {
         return serviceComposicionCombo.buscarPorCombo(id);
     }
 
+    @PostMapping("/tienda/api/contacto")
+    @ResponseBody
+    @Transactional
+    public Map<String, Object> registrarContacto(@RequestBody ContactRequest request, HttpSession session) {
+        Map<String, Object> res = new HashMap<>();
+        try {
+            Integer tenantId = (Integer) session.getAttribute("tenantId");
+            if (tenantId == null) {
+                tenantId = 1;
+            }
+            Tenants tenant = serviceTenants.buscarId(tenantId).orElse(null);
+
+            String email = request.getCorreo();
+            Cliente cliente = (Cliente) session.getAttribute("cliente");
+            if (cliente == null && email != null) {
+                Optional<Cliente> optCli = serviceCliente.buscarTodos().stream()
+                    .filter(c -> c.getCorreo() != null && c.getCorreo().equalsIgnoreCase(email))
+                    .findFirst();
+                if (optCli.isPresent()) {
+                    cliente = optCli.get();
+                } else {
+                    cliente = new Cliente();
+                    cliente.setId_tenants(tenant);
+                    cliente.setNombre_cliente(request.getNombre());
+                    cliente.setApellidos_clientes("Contacto Web");
+                    cliente.setCorreo(email);
+                    cliente.setTelefono("");
+                    cliente.setEstado(1);
+                    cliente = serviceCliente.guardar(cliente);
+                }
+            }
+
+            if (cliente == null) {
+                cliente = new Cliente();
+                cliente.setId_tenants(tenant);
+                cliente.setNombre_cliente(request.getNombre() != null ? request.getNombre() : "Usuario Web");
+                cliente.setApellidos_clientes("Contacto Web");
+                cliente.setCorreo(email != null ? email : "web@contact.com");
+                cliente.setTelefono("");
+                cliente.setEstado(1);
+                cliente = serviceCliente.guardar(cliente);
+            }
+
+            Reclamo reclamo = new Reclamo();
+            reclamo.setId_tenants(tenant);
+            reclamo.setId_clientes(cliente);
+            reclamo.setNumero_reclamo("CON-" + System.currentTimeMillis());
+            reclamo.setCanal_ingreso("web");
+            reclamo.setTipo_incidencia("consulta_contacto");
+            reclamo.setDescripcion("Asunto: " + request.getAsunto() + "\n\nMensaje:\n" + request.getMensaje());
+            reclamo.setEstado(1);
+            
+            serviceReclamo.guardar(reclamo);
+
+            res.put("success", true);
+        } catch (Exception e) {
+            res.put("success", false);
+            res.put("error", e.getMessage());
+        }
+        return res;
+    }
+
     @GetMapping("/tienda/api/historial")
     @ResponseBody
     public Map<String, Object> getClienteHistorial(HttpSession session) {
@@ -1199,8 +1292,52 @@ public class PageController {
             for (Object[] update : stockUpdates) {
                 Producto prod = (Producto) update[0];
                 int qty = (int) update[1];
-                int nuevoStock = (prod.getStock_actual() != null ? prod.getStock_actual() : 0) - qty;
-                prod.setStock_actual(Math.max(nuevoStock, 0));
+                
+                List<LoteInventario> lotes = serviceLoteInventario.buscarTodos().stream()
+                    .filter(l -> l.getId_productos() != null && l.getId_productos().getId_productos().equals(prod.getId_productos())
+                            && l.getEstado() != null && l.getEstado() == 1 && l.getCantidad_disponible() != null && l.getCantidad_disponible() > 0)
+                    .sorted(java.util.Comparator.comparing(LoteInventario::getId_lotes_inventario))
+                    .collect(java.util.stream.Collectors.toList());
+
+                int remainingToDeduct = qty;
+                for (LoteInventario lote : lotes) {
+                    if (remainingToDeduct <= 0) break;
+                    int available = lote.getCantidad_disponible();
+                    if (available >= remainingToDeduct) {
+                        lote.setCantidad_disponible(available - remainingToDeduct);
+                        serviceLoteInventario.modificar(lote);
+                        
+                        MovimientoInventario mov = new MovimientoInventario();
+                        mov.setId_lotes_inventario(lote);
+                        mov.setTipo_movimiento("salida");
+                        mov.setCantidad(remainingToDeduct);
+                        mov.setMotivo("Venta / Pedido online");
+                        mov.setReferencia_documento(savedPedido.getNumero_pedido());
+                        serviceMovimientoInventario.guardar(mov);
+                        
+                        remainingToDeduct = 0;
+                    } else {
+                        lote.setCantidad_disponible(0);
+                        serviceLoteInventario.modificar(lote);
+                        
+                        MovimientoInventario mov = new MovimientoInventario();
+                        mov.setId_lotes_inventario(lote);
+                        mov.setTipo_movimiento("salida");
+                        mov.setCantidad(available);
+                        mov.setMotivo("Venta / Pedido online");
+                        mov.setReferencia_documento(savedPedido.getNumero_pedido());
+                        serviceMovimientoInventario.guardar(mov);
+                        
+                        remainingToDeduct -= available;
+                    }
+                }
+
+                int newStock = serviceLoteInventario.buscarTodos().stream()
+                    .filter(l -> l.getId_productos() != null && l.getId_productos().getId_productos().equals(prod.getId_productos())
+                            && l.getEstado() != null && l.getEstado() == 1 && l.getCantidad_disponible() != null)
+                    .mapToInt(LoteInventario::getCantidad_disponible)
+                    .sum();
+                prod.setStock_actual(newStock);
                 serviceProducto.modificar(prod);
             }
 

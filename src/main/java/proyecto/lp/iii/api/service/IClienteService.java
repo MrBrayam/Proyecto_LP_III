@@ -8,7 +8,7 @@ import proyecto.lp.iii.api.entity.Cliente;
 public interface IClienteService {
     List<Cliente> buscarTodos();
 
-    void guardar(Cliente cliente);
+    Cliente guardar(Cliente cliente);
 
     void modificar(Cliente cliente);
 

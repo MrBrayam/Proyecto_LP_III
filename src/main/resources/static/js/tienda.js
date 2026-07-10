@@ -414,6 +414,8 @@ function switchTab(tab, element) {
     document.getElementById('servicesSection').style.display = 'none';
     const historySec = document.getElementById('historySection');
     if (historySec) historySec.style.display = 'none';
+    const contactSec = document.getElementById('contactSection');
+    if (contactSec) contactSec.style.display = 'none';
 
     const heroTitle = document.getElementById('heroTitle');
     const heroDesc = document.getElementById('heroDesc');
@@ -433,6 +435,12 @@ function switchTab(tab, element) {
             heroTitle.textContent = 'Mi Actividad y Estado de Pedidos';
             heroDesc.textContent = 'Sigue el estado de tus compras y administra el calendario de tus próximas visitas al salón de belleza.';
             renderHistory();
+        }
+    } else if (tab === 'contact') {
+        if (contactSec) {
+            contactSec.style.display = 'block';
+            heroTitle.textContent = 'Estamos para Ayudarte';
+            heroDesc.textContent = 'Ponte en contacto con nuestro equipo de atención o envíanos tus comentarios directamente.';
         }
     }
 }
@@ -690,5 +698,39 @@ function generarBoletaPDFComun(ventaId) {
     .catch(err => {
         console.error('Error al generar PDF:', err);
         alert('Ocurrio un error al obtener la boleta del servidor.');
+    });
+}
+
+function submitContactForm(e) {
+    e.preventDefault();
+    const name = document.getElementById('contactName').value;
+    const email = document.getElementById('contactEmail').value;
+    const subject = document.getElementById('contactSubject').value;
+    const message = document.getElementById('contactMessage').value;
+
+    const body = {
+        nombre: name,
+        correo: email,
+        asunto: subject,
+        mensaje: message
+    };
+
+    fetch('/tienda/api/contacto', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert('¡Gracias! Tu mensaje ha sido enviado con éxito. Nos pondremos en contacto contigo pronto.');
+            document.getElementById('contactForm').reset();
+        } else {
+            alert('Error al enviar el mensaje: ' + (data.error || 'Intente nuevamente'));
+        }
+    })
+    .catch(err => {
+        console.error('Error:', err);
+        alert('Ocurrió un error al enviar el mensaje.');
     });
 }
