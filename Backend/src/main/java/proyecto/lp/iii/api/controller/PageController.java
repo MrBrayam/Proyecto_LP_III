@@ -506,6 +506,7 @@ public class PageController {
 
     @PostMapping("/superadmin/tenants/crear")
     @ResponseBody
+    @Transactional
     public Map<String, Object> crearTenant(@RequestBody Map<String, String> datos, HttpSession session) {
         Map<String, Object> res = new HashMap<>();
         if (session.getAttribute("superadmin") == null && datos.get("bypassAuth") == null) {
