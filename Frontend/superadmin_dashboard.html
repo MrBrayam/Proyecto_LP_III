@@ -288,7 +288,8 @@
 
         // Check authentication
         const superadmin = JSON.parse(localStorage.getItem('superadmin') || 'null');
-        if (!superadmin) {
+        const token = localStorage.getItem('api_token');
+        if (!superadmin || !token) {
             window.location.href = '/login_general.html';
         } else {
             document.getElementById('navUserName').textContent = (superadmin.nombres || 'Admin') + ' ' + (superadmin.apellidos || '');
@@ -299,6 +300,7 @@
 
         function logoutSuperadmin() {
             localStorage.removeItem('superadmin');
+            localStorage.removeItem('api_token');
             window.location.href = '/login_general.html';
         }
 

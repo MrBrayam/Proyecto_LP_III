@@ -24,10 +24,9 @@ function crudLog(level, message, details) {
 }
 
 function getApiToken() {
-    return DEFAULT_API_TOKEN
-        || localStorage.getItem(API_TOKEN_KEY)
+    return localStorage.getItem(API_TOKEN_KEY)
         || sessionStorage.getItem(API_TOKEN_KEY)
-        || '';
+        || DEFAULT_API_TOKEN;
 }
 
 function setApiToken(token, persist = true) {
@@ -383,7 +382,7 @@ const crud = {
             } else {
                 renderTable(filtered, this.columns);
             }
-        }).catch(() => {});
+        }).catch(() => { });
     },
 
     openNew() {
@@ -552,7 +551,7 @@ const crud = {
                 if (!sel) return;
                 const current = sel.value;
                 sel.innerHTML = '<option value="">Seleccionar...</option>';
-                
+
                 let filtered = data;
                 if (data && Array.isArray(data) && tenantId) {
                     filtered = data.filter(item => {
@@ -571,21 +570,21 @@ const crud = {
                         return true;
                     });
                 }
-                
+
                 filtered.forEach(item => {
                     const id = item[fk.field];
                     const label = fk.label ? val(item, fk.label) : id;
                     sel.innerHTML += `<option value="${id}">${label}</option>`;
                 });
                 if (current) sel.value = current;
-            }).catch(() => {})
+            }).catch(() => { })
         );
         Promise.all(promises).then(() => { if (cb) cb(); });
     }
 };
 
 // Init
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const params = new URLSearchParams(window.location.search);
     const tokenFromUrl = params.get('token');
     if (tokenFromUrl) {
@@ -608,13 +607,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const logoutBtn = document.querySelector('.logout-btn');
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', function() {
+        logoutBtn.addEventListener('click', function () {
             clearApiToken();
         });
     }
 
     document.querySelectorAll('.menu-header').forEach(h => {
-        h.addEventListener('click', function() { toggleMenuGroup(this); });
+        h.addEventListener('click', function () { toggleMenuGroup(this); });
     });
 
     if (window.crud && typeof window.crud.bindFileInputs === 'function') {
