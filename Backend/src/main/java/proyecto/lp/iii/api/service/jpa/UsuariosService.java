@@ -25,6 +25,7 @@ public class UsuariosService implements IUsuariosService {
         return repoUsuarios.findAll();
     }
 
+    @Transactional
     public void guardar(Usuarios usuario){
         repoUsuarios.save(usuario);
     }

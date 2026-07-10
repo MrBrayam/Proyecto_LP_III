@@ -25,8 +25,9 @@ public class TenantsService implements ITenantsService {
         return repoTenants.findAll();
     }
 
+    @Transactional
     public void guardar(Tenants tenant){
-        repoTenants.save(tenant);
+        repoTenants.saveAndFlush(tenant);
     }
 
     @Transactional
