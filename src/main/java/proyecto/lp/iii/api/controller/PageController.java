@@ -54,6 +54,10 @@ import proyecto.lp.iii.api.service.IHorarioOperacionService;
 import proyecto.lp.iii.api.service.IServicioCitaService;
 import proyecto.lp.iii.api.entity.HorarioOperacion;
 import proyecto.lp.iii.api.entity.ServicioCita;
+import proyecto.lp.iii.api.entity.ComboPromocional;
+import proyecto.lp.iii.api.service.IComboPromocionalService;
+import proyecto.lp.iii.api.entity.ComposicionCombo;
+import proyecto.lp.iii.api.service.IComposicionComboService;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
@@ -113,6 +117,12 @@ public class PageController {
 
     @Autowired
     private IServicioCitaService serviceServicioCita;
+
+    @Autowired
+    private IComboPromocionalService serviceComboPromocional;
+
+    @Autowired
+    private IComposicionComboService serviceComposicionCombo;
 
     // Helper classes for Checkout request parsing
     public static class CheckoutRequest {
@@ -283,6 +293,16 @@ public class PageController {
 
         public void setCantidad(Integer cantidad) {
             this.cantidad = cantidad;
+        }
+
+        private Integer id_combos_promocionales;
+
+        public Integer getId_combos_promocionales() {
+            return id_combos_promocionales;
+        }
+
+        public void setId_combos_promocionales(Integer id_combos_promocionales) {
+            this.id_combos_promocionales = id_combos_promocionales;
         }
 
         public Double getPrecio_venta() {
@@ -715,6 +735,24 @@ public class PageController {
                 .collect(Collectors.toList());
     }
 
+    @GetMapping("/tienda/api/combos")
+    @ResponseBody
+    public List<ComboPromocional> getStorefrontCombos(HttpSession session) {
+        Integer tenantId = (Integer) session.getAttribute("tenantId");
+        return serviceComboPromocional.buscarTodos().stream()
+                .filter(c -> c.getVisible_storefront() != null && c.getVisible_storefront() == 1
+                        && (c.getEstado() == null || c.getEstado() == 1)
+                        && (tenantId == null
+                                || (c.getId_tenants() != null && c.getId_tenants().getId_tenants().equals(tenantId))))
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/tienda/api/combos/{id}/productos")
+    @ResponseBody
+    public List<ComposicionCombo> getStorefrontComboProductos(@PathVariable Integer id) {
+        return serviceComposicionCombo.buscarPorCombo(id);
+    }
+
     @GetMapping("/tienda/api/historial")
     @ResponseBody
     public Map<String, Object> getClienteHistorial(HttpSession session) {
@@ -1044,7 +1082,7 @@ public class PageController {
             // 5. Crear DetalleVenta para productos (y descontar stock)
             List<Object[]> stockUpdates = new java.util.ArrayList<>();
             for (CartItem item : request.getItems()) {
-                if (item.getId_productos() != null && !"servicio".equalsIgnoreCase(item.getTipo())) {
+                if (item.getId_productos() != null && !"servicio".equalsIgnoreCase(item.getTipo()) && !"combo".equalsIgnoreCase(item.getTipo())) {
                     Producto prod = serviceProducto.buscarId(item.getId_productos()).orElse(null);
                     if (prod != null) {
                         DetalleVenta det = new DetalleVenta();
@@ -1055,6 +1093,43 @@ public class PageController {
                         det.setSubtotal(BigDecimal.valueOf(item.getCantidad() * item.getPrecio_venta()));
                         serviceDetalleVenta.guardar(det);
                         stockUpdates.add(new Object[] { prod, item.getCantidad() });
+                    }
+                } else if ("combo".equalsIgnoreCase(item.getTipo()) && item.getId_combos_promocionales() != null) {
+                    List<ComposicionCombo> composicion = serviceComposicionCombo.buscarPorCombo(item.getId_combos_promocionales());
+                    if (composicion != null && !composicion.isEmpty()) {
+                        double normalTotal = 0.0;
+                        for (ComposicionCombo cc : composicion) {
+                            if (cc.getId_productos() != null) {
+                                double price = cc.getId_productos().getPrecio_venta() != null ? cc.getId_productos().getPrecio_venta().doubleValue() : 0.0;
+                                int qtyInCombo = cc.getCantidad() != null ? cc.getCantidad() : 1;
+                                normalTotal += price * qtyInCombo;
+                            }
+                        }
+                        if (normalTotal <= 0.0) normalTotal = 1.0;
+
+                        double comboTotalPrice = item.getPrecio_venta() * item.getCantidad();
+
+                        for (ComposicionCombo cc : composicion) {
+                            Producto prod = cc.getId_productos();
+                            if (prod != null) {
+                                double prodPrice = prod.getPrecio_venta() != null ? prod.getPrecio_venta().doubleValue() : 0.0;
+                                int qtyInCombo = cc.getCantidad() != null ? cc.getCantidad() : 1;
+                                int totalQtyToDeduct = qtyInCombo * item.getCantidad();
+                                
+                                double proportion = (prodPrice * qtyInCombo) / normalTotal;
+                                double linePrice = comboTotalPrice * proportion;
+                                double unitPrice = linePrice / totalQtyToDeduct;
+
+                                DetalleVenta det = new DetalleVenta();
+                                det.setId_ventas(savedVenta);
+                                det.setId_productos(prod);
+                                det.setCantidad(totalQtyToDeduct);
+                                det.setPrecio_unitario(BigDecimal.valueOf(unitPrice));
+                                det.setSubtotal(BigDecimal.valueOf(linePrice));
+                                serviceDetalleVenta.guardar(det);
+                                stockUpdates.add(new Object[] { prod, totalQtyToDeduct });
+                            }
+                        }
                     }
                 }
             }

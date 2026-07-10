@@ -9,6 +9,7 @@ let categories = [];
 let activeCategory = null;
 let cart = [];
 let allServices = [];
+let allCombos = [];
 
 // Load Catalog on page ready
 document.addEventListener('DOMContentLoaded', () => {
@@ -34,6 +35,13 @@ document.addEventListener('DOMContentLoaded', () => {
             allServices = servs;
         })
         .catch(err => console.error('Error al cargar servicios:', err));
+
+    fetch('/tienda/api/combos')
+        .then(r => r.json())
+        .then(combos => {
+            renderCombos(combos);
+        })
+        .catch(err => console.error('Error al cargar combos:', err));
 });
 
 function renderCategoryFilters() {
@@ -129,6 +137,101 @@ function renderProducts() {
     });
 }
 
+function renderCombos(combos) {
+    allCombos = combos;
+    const section = document.getElementById('combosSection');
+    const grid = document.getElementById('combosGrid');
+    if (!grid || !section) return;
+
+    if (!combos || combos.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    section.style.display = 'block';
+    grid.innerHTML = '';
+
+    combos.forEach(c => {
+        const card = document.createElement('article');
+        card.className = 'product-card combo-card';
+        card.style.border = '2px solid var(--primary-light)';
+        card.style.position = 'relative';
+
+        const fallbackChar = c.nombre_promocion.charAt(0).toUpperCase();
+        const imageHtml = '<div style="width:100%;height:100%;background:linear-gradient(135deg, var(--primary-light) 0%, #fae8ff 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:\'Playfair Display\',serif;padding: 20px;text-align:center;">'
+            + '<span style="font-size:32px;font-weight:700;color:var(--primary);">' + fallbackChar + '</span>'
+            + '<span style="font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--primary);margin-top:8px;font-weight:600;font-family:\'Plus Jakarta Sans\',sans-serif;">Combo Pack</span>'
+            + '</div>';
+
+        const tagHtml = '<span class="product-tag" style="background:#6366f1;">Ahorro</span>';
+        const desc = c.descripcion || 'Sin descripción';
+        const promoPrice = c.precio_combo != null ? parseFloat(c.precio_combo).toFixed(2) : '0.00';
+        const origPrice = c.precio_original != null ? parseFloat(c.precio_original).toFixed(2) : null;
+
+        let priceHtml = '<span class="product-price">S/ ' + promoPrice + '</span>';
+        if (origPrice) {
+            priceHtml = '<div style="display:flex;flex-direction:column;gap:2px;">'
+                + '<span class="product-price" style="color:var(--primary);">S/ ' + promoPrice + '</span>'
+                + '<span style="font-size:12px;text-decoration:line-through;color:var(--text-muted);">Antes: S/ ' + origPrice + '</span>'
+                + '</div>';
+        }
+
+        const cartBtnHtml = '<button class="add-to-cart-btn" onclick="addComboToCart(' + c.id_combos_promocionales + ')" style="background:#6366f1;">'
+            + '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+            + '</button>';
+
+        card.innerHTML = '<div class="product-img-wrap">' + imageHtml + tagHtml + '</div>'
+            + '<div class="product-card-body">'
+            + '<span class="product-brand" style="color:#6366f1;font-weight:600;">COMBO PROMOCIONAL</span>'
+            + '<h3 class="product-title">' + c.nombre_promocion + '</h3>'
+            + '<p class="product-desc">' + desc + '</p>'
+            + '<div id="combo-details-' + c.id_combos_promocionales + '" style="font-size:11px;color:var(--text-muted);margin-top:6px;min-height:20px;">Cargando productos...</div>'
+            + '<div class="product-card-footer" style="margin-top: 12px;align-items:flex-end;">'
+            + priceHtml
+            + cartBtnHtml
+            + '</div>'
+            + '</div>';
+        grid.appendChild(card);
+
+        fetch('/tienda/api/combos/' + c.id_combos_promocionales + '/productos')
+            .then(r => r.json())
+            .then(ccList => {
+                const detailsDiv = document.getElementById('combo-details-' + c.id_combos_promocionales);
+                if (detailsDiv && ccList.length > 0) {
+                    const text = ccList.map(cc => {
+                        const prodName = cc.id_productos ? cc.id_productos.nombre_producto : 'Producto';
+                        return cc.cantidad + 'x ' + prodName;
+                    }).join(', ');
+                    detailsDiv.innerHTML = '<strong style="color:var(--text-dark);">Incluye:</strong> ' + text;
+                } else if (detailsDiv) {
+                    detailsDiv.innerHTML = '';
+                }
+            })
+            .catch(err => console.error(err));
+    });
+}
+
+function addComboToCart(comboId) {
+    const combo = allCombos.find(c => c.id_combos_promocionales === comboId);
+    if (!combo) return;
+
+    const existing = cart.find(item => item.id_combos_promocionales === comboId && item.tipo === 'combo');
+    if (existing) {
+        existing.cantidad += 1;
+    } else {
+        cart.push({
+            id_combos_promocionales: combo.id_combos_promocionales,
+            tipo: 'combo',
+            nombre_producto: combo.nombre_promocion,
+            precio_venta: combo.precio_combo || 0.00,
+            img_url: '',
+            cantidad: 1
+        });
+    }
+    saveCart();
+    toggleCart(true);
+}
+
 // Cart Drawer Operations
 function toggleCart(open) {
     document.getElementById('cartOverlay').classList.toggle('open', open);
@@ -202,7 +305,11 @@ function addToCartService(serviceId) {
 }
 
 function updateCartQuantity(itemId, delta, tipo = 'producto') {
-    const item = cart.find(i => (tipo === 'servicio' ? i.id_servicios_belleza === itemId : i.id_productos === itemId) && (i.tipo || 'producto') === tipo);
+    const item = cart.find(i => {
+        if (tipo === 'servicio') return i.id_servicios_belleza === itemId && i.tipo === 'servicio';
+        if (tipo === 'combo') return i.id_combos_promocionales === itemId && i.tipo === 'combo';
+        return i.id_productos === itemId && i.tipo === 'producto';
+    });
     if (!item) return;
 
     if (delta > 0 && tipo === 'producto') {
@@ -221,11 +328,8 @@ function updateCartQuantity(itemId, delta, tipo = 'producto') {
 
     item.cantidad += delta;
     if (item.cantidad <= 0) {
-        if (tipo === 'servicio') {
-            cart = cart.filter(i => !(i.id_servicios_belleza === itemId && i.tipo === 'servicio'));
-        } else {
-            cart = cart.filter(i => !(i.id_productos === itemId && i.tipo !== 'servicio'));
-        }
+        removeFromCart(itemId, tipo);
+        return;
     }
     saveCart();
 }
@@ -233,8 +337,10 @@ function updateCartQuantity(itemId, delta, tipo = 'producto') {
 function removeFromCart(itemId, tipo = 'producto') {
     if (tipo === 'servicio') {
         cart = cart.filter(i => !(i.id_servicios_belleza === itemId && i.tipo === 'servicio'));
+    } else if (tipo === 'combo') {
+        cart = cart.filter(i => !(i.id_combos_promocionales === itemId && i.tipo === 'combo'));
     } else {
-        cart = cart.filter(i => !(i.id_productos === itemId && i.tipo !== 'servicio'));
+        cart = cart.filter(i => !(i.id_productos === itemId && i.tipo === 'producto'));
     }
     saveCart();
 }
@@ -268,13 +374,13 @@ function updateCartUI() {
             ? '<img src="' + imgUrl + '" class="cart-item-img" alt="' + item.nombre_producto + '">'
             : '<div class="cart-item-img" style="display:flex;align-items:center;justify-content:center;background:var(--primary-light);font-size:24px;font-weight:700;color:var(--primary);font-family:\'Playfair Display\',serif;">' + fallbackChar + '</div>';
 
-        const itemId = item.tipo === 'servicio' ? item.id_servicios_belleza : item.id_productos;
+        const itemId = item.tipo === 'servicio' ? item.id_servicios_belleza : (item.tipo === 'combo' ? item.id_combos_promocionales : item.id_productos);
         const itemTipo = item.tipo || 'producto';
 
         div.innerHTML = imageHtml
             + '<div class="cart-item-info">'
             + '<h4>' + item.nombre_producto + '</h4>'
-            + '<p>S/ ' + parseFloat(item.precio_venta).toFixed(2) + ' c/u ' + (item.tipo === 'servicio' ? '<span style="font-size:9px;color:var(--primary);font-weight:600;text-transform:uppercase;">[Servicio]</span>' : '') + '</p>'
+            + '<p>S/ ' + parseFloat(item.precio_venta).toFixed(2) + ' c/u ' + (item.tipo === 'servicio' ? '<span style="font-size:9px;color:var(--primary);font-weight:600;text-transform:uppercase;">[Servicio]</span>' : (item.tipo === 'combo' ? '<span style="font-size:9px;color:#6366f1;font-weight:600;text-transform:uppercase;">[Combo]</span>' : '')) + '</p>'
             + '<div class="cart-item-actions">'
             + '<div class="quantity-control">'
             + '<button onclick="updateCartQuantity(' + itemId + ', -1, \'' + itemTipo + '\')">-</button>'

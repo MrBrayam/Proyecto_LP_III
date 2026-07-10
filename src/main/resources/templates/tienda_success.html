@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>¡Compra Completada! - Bellarista</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600&display=swap"
+        rel="stylesheet">
     <link href="/css/tienda_success.css" rel="stylesheet">
     <!-- jsPDF and AutoTable libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
+
 <body>
 
     <div class="success-card">
@@ -19,15 +23,15 @@
             </svg>
         </div>
         <h1>¡Compra Realizada!</h1>
-        <p>Tu orden ha sido registrada exitosamente en nuestro sistema de Bellarista Salon &amp; Boutique. Recibirás un correo electrónico de confirmación con el detalle de la entrega.</p>
+        <p>Tu orden ha sido registrada exitosamente en nuestro sistema de Bellarista Salon &amp; Boutique. Recibirás un
+            correo electrónico de confirmación con el detalle de la entrega.</p>
 
         <div style="margin-bottom: 24px;">
             <button id="btnDownload" class="btn-home"
-                    style="background: var(--primary); margin-right: 12px; display: none;"
-                    onclick="generarBoletaPDF()">
+                style="background: var(--primary); margin-right: 12px; display: none;" onclick="generarBoletaPDF()">
                 📄 Ver Boleta PDF
             </button>
-            <a href="/" class="btn-home">Seguir comprando</a>
+            <a href="/tienda" class="btn-home">Seguir comprando</a>
         </div>
     </div>
 
@@ -47,7 +51,7 @@
             btn.disabled = true;
 
             // 800ms delay so DB transaction is fully flushed before the fetch
-            setTimeout(function() {
+            setTimeout(function () {
                 generarBoletaPDFComun(ventaId);
                 btn.innerHTML = '📄 Ver Boleta PDF';
                 btn.disabled = false;
@@ -56,4 +60,5 @@
     </script>
 
 </body>
+
 </html>

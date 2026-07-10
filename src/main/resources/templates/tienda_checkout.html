@@ -291,7 +291,7 @@
                 div.innerHTML = `
                     <div>
                         <span class="summary-item-name">${item.nombre_producto}</span>
-                        <span style="color: var(--text-muted); font-size:11px;">x${item.cantidad} ${item.tipo === 'servicio' ? '(Servicio)' : ''}</span>
+                        <span style="color: var(--text-muted); font-size:11px;">x${item.cantidad} ${item.tipo === 'servicio' ? '(Servicio)' : (item.tipo === 'combo' ? '(Combo)' : '')}</span>
                     </div>
                     <span style="font-weight: 600;">S/ ${(item.cantidad * item.precio_venta).toFixed(2)}</span>
                 `;
@@ -348,6 +348,7 @@
                 items: cart.map(item => ({
                     id_productos: item.id_productos || null,
                     id_servicios_belleza: item.id_servicios_belleza || null,
+                    id_combos_promocionales: item.id_combos_promocionales || null,
                     tipo: item.tipo || 'producto',
                     cantidad: item.cantidad,
                     precio_venta: item.precio_venta
