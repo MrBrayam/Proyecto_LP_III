@@ -70,9 +70,13 @@ import proyecto.lp.iii.api.service.IMovimientoInventarioService;
 import proyecto.lp.iii.api.service.IReclamoService;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import jakarta.persistence.EntityManager;
 
 @Controller
 public class PageController {
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Autowired
     private IUsuariosService serviceUsuarios;
@@ -539,7 +543,17 @@ public class PageController {
             Usuarios admin = new Usuarios();
             admin.setId_tenants(tenant);
             String nombreLimpio = datos.get("nombre_comercial").replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
-            admin.setCorreo("admin@" + nombreLimpio + ".com");
+            String emailAdmin = "admin@" + nombreLimpio + ".com";
+            
+            boolean correoExiste = serviceUsuarios.buscarTodos().stream()
+                    .anyMatch(u -> u.getCorreo() != null && u.getCorreo().equalsIgnoreCase(emailAdmin));
+            if (correoExiste) {
+                res.put("success", false);
+                res.put("error", "El correo de administración autogenerado '" + emailAdmin + "' ya está registrado.");
+                return res;
+            }
+
+            admin.setCorreo(emailAdmin);
             admin.setNombre_usuario("Administrador");
             admin.setApellidos_usuario(datos.get("nombre_comercial"));
             admin.setContrasenia("123");
@@ -548,12 +562,16 @@ public class PageController {
             admin.setEstado(1);
             serviceUsuarios.guardar(admin);
 
+            // Force immediate flush inside the try-catch block to catch SQL constraint exceptions
+            entityManager.flush();
+
             res.put("success", true);
             res.put("tenantId", tenant.getId_tenants());
             res.put("adminCorreo", admin.getCorreo());
         } catch (Exception e) {
+            e.printStackTrace();
             res.put("success", false);
-            res.put("error", e.getMessage());
+            res.put("error", e.getMessage() != null ? e.getMessage() : e.toString());
         }
         return res;
     }
