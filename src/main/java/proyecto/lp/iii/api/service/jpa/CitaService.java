@@ -24,8 +24,9 @@ public class CitaService implements ICitaService {
         return repoCita.findAll();
     }
 
-    public void guardar(Cita cita) {
-        repoCita.save(cita);
+    @Transactional
+    public Cita guardar(Cita cita) {
+        return repoCita.save(cita);
     }
 
     @Transactional

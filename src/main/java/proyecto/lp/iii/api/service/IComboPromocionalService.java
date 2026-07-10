@@ -8,7 +8,7 @@ import proyecto.lp.iii.api.entity.ComboPromocional;
 public interface IComboPromocionalService {
     List<ComboPromocional> buscarTodos();
 
-    void guardar(ComboPromocional combopromocional);
+    ComboPromocional guardar(ComboPromocional combopromocional);
 
     void modificar(ComboPromocional combopromocional);
 

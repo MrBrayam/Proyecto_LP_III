@@ -24,8 +24,8 @@ public class ComboPromocionalService implements IComboPromocionalService {
         return repoComboPromocional.findAll();
     }
 
-    public void guardar(ComboPromocional combopromocional) {
-        repoComboPromocional.save(combopromocional);
+    public ComboPromocional guardar(ComboPromocional combopromocional) {
+        return repoComboPromocional.save(combopromocional);
     }
 
     @Transactional

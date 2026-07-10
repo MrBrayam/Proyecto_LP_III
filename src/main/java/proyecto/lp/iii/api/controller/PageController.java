@@ -50,6 +50,11 @@ import proyecto.lp.iii.api.entity.PermisoRol;
 import proyecto.lp.iii.api.entity.RolPersonalizado;
 import proyecto.lp.iii.api.service.IPermisoRolService;
 import proyecto.lp.iii.api.service.IRolPersonalizadoService;
+import proyecto.lp.iii.api.service.IHorarioOperacionService;
+import proyecto.lp.iii.api.service.IServicioCitaService;
+import proyecto.lp.iii.api.entity.HorarioOperacion;
+import proyecto.lp.iii.api.entity.ServicioCita;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 @Controller
@@ -103,6 +108,12 @@ public class PageController {
     @Autowired
     private IRolPersonalizadoService serviceRolPersonalizado;
 
+    @Autowired
+    private IHorarioOperacionService serviceHorarioOperacion;
+
+    @Autowired
+    private IServicioCitaService serviceServicioCita;
+
     // Helper classes for Checkout request parsing
     public static class CheckoutRequest {
         private String nombre;
@@ -115,6 +126,12 @@ public class PageController {
         private String numeroDocumento;
         private String metodoPago;
         private List<CartItem> items;
+        
+        // Appointment attributes
+        private Integer SedeId;
+        private String fechaCita;
+        private String horaCita;
+        private String observacionesCita;
 
         public String getNombre() {
             return nombre;
@@ -195,10 +212,44 @@ public class PageController {
         public void setItems(List<CartItem> items) {
             this.items = items;
         }
+
+        public Integer getSedeId() {
+            return SedeId;
+        }
+
+        public void setSedeId(Integer SedeId) {
+            this.SedeId = SedeId;
+        }
+
+        public String getFechaCita() {
+            return fechaCita;
+        }
+
+        public void setFechaCita(String fechaCita) {
+            this.fechaCita = fechaCita;
+        }
+
+        public String getHoraCita() {
+            return horaCita;
+        }
+
+        public void setHoraCita(String horaCita) {
+            this.horaCita = horaCita;
+        }
+
+        public String getObservacionesCita() {
+            return observacionesCita;
+        }
+
+        public void setObservacionesCita(String observacionesCita) {
+            this.observacionesCita = observacionesCita;
+        }
     }
 
     public static class CartItem {
         private Integer id_productos;
+        private Integer id_servicios_belleza;
+        private String tipo; // "producto" o "servicio"
         private Integer cantidad;
         private Double precio_venta;
 
@@ -208,6 +259,22 @@ public class PageController {
 
         public void setId_productos(Integer id_productos) {
             this.id_productos = id_productos;
+        }
+
+        public Integer getId_servicios_belleza() {
+            return id_servicios_belleza;
+        }
+
+        public void setId_servicios_belleza(Integer id_servicios_belleza) {
+            this.id_servicios_belleza = id_servicios_belleza;
+        }
+
+        public String getTipo() {
+            return tipo;
+        }
+
+        public void setTipo(String tipo) {
+            this.tipo = tipo;
         }
 
         public Integer getCantidad() {
@@ -606,8 +673,14 @@ public class PageController {
             session.removeAttribute("cliente");
             cliente = null;
         }
+        
+        List<Sede> sedes = serviceSede.buscarTodos().stream()
+                .filter(s -> tenantId == null || (s.getId_tenants() != null && s.getId_tenants().getId_tenants().equals(tenantId)))
+                .collect(Collectors.toList());
+        
         model.addAttribute("cliente", cliente);
         model.addAttribute("tenantId", tenantId);
+        model.addAttribute("sedes", sedes);
         return "tienda_checkout";
     }
 
@@ -678,7 +751,8 @@ public class PageController {
     @ResponseBody
     public List<Map<String, Object>> getDetallesVenta(
             @org.springframework.web.bind.annotation.PathVariable Integer ventaId) {
-        return serviceDetalleVenta.buscarTodos().stream()
+        
+        List<Map<String, Object>> items = serviceDetalleVenta.buscarTodos().stream()
                 .filter(d -> d.getId_ventas() != null && d.getId_ventas().getId_ventas().equals(ventaId))
                 .map(d -> {
                     Map<String, Object> item = new HashMap<>();
@@ -686,7 +760,6 @@ public class PageController {
                     item.put("cantidad", d.getCantidad());
                     item.put("precio_unitario", d.getPrecio_unitario());
                     item.put("subtotal", d.getSubtotal());
-                    // Force eager load of producto name to avoid LAZY proxy null in JSON
                     String nombreProducto = "Producto/Servicio";
                     if (d.getId_productos() != null) {
                         try {
@@ -698,6 +771,33 @@ public class PageController {
                     return item;
                 })
                 .collect(Collectors.toList());
+
+        List<Cita> citas = serviceCita.buscarTodos().stream()
+                .filter(c -> c.getId_ventas() != null && c.getId_ventas().getId_ventas().equals(ventaId)
+                        && c.getEstado() != null && c.getEstado() == 1)
+                .collect(Collectors.toList());
+
+        for (Cita cita : citas) {
+            List<ServicioCita> servs = serviceServicioCita.buscarTodos().stream()
+                    .filter(sc -> sc.getId_citas() != null && sc.getId_citas().getId_citas().equals(cita.getId_citas()))
+                    .collect(Collectors.toList());
+
+            for (ServicioCita sc : servs) {
+                Map<String, Object> item = new HashMap<>();
+                item.put("id_detalle_venta", -1);
+                item.put("cantidad", 1);
+                item.put("precio_unitario", sc.getPrecio());
+                item.put("subtotal", sc.getPrecio());
+                String nombreServicio = "Servicio de Belleza";
+                if (sc.getId_servicios_belleza() != null) {
+                    nombreServicio = sc.getId_servicios_belleza().getNombre_servicio_belleza();
+                }
+                item.put("nombre_producto", nombreServicio + " (Servicio)");
+                items.add(item);
+            }
+        }
+
+        return items;
     }
 
     @GetMapping("/tienda/api/venta/{ventaId}")
@@ -736,8 +836,77 @@ public class PageController {
                 .collect(Collectors.toList());
     }
 
+    @GetMapping("/tienda/api/citas/disponibles")
+    @ResponseBody
+    public List<String> getCitasDisponibles(@RequestParam Integer SedeId,
+                                            @RequestParam String fecha,
+                                            @RequestParam Integer duracion) {
+        try {
+            java.time.LocalDate localDate = java.time.LocalDate.parse(fecha);
+            String[] dias = {"lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"};
+            String diaSemana = dias[localDate.getDayOfWeek().getValue() - 1];
+
+            Optional<HorarioOperacion> horarioOpt = serviceHorarioOperacion.buscarTodos().stream()
+                    .filter(h -> h.getId_sedes() != null && h.getId_sedes().getId_sedes().equals(SedeId)
+                            && h.getDia_semana() != null && h.getDia_semana().equalsIgnoreCase(diaSemana)
+                            && h.getEstado() != null && h.getEstado() == 1)
+                    .findFirst();
+
+            if (horarioOpt.isEmpty()) {
+                return java.util.Collections.emptyList();
+            }
+
+            HorarioOperacion horario = horarioOpt.get();
+            java.time.LocalTime apertura = horario.getHora_apertura();
+            java.time.LocalTime cierre = horario.getHora_cierre();
+
+            if (apertura == null || cierre == null) {
+                return java.util.Collections.emptyList();
+            }
+
+            List<Cita> citasExistentes = serviceCita.buscarTodos().stream()
+                    .filter(c -> c.getId_sedes() != null && c.getId_sedes().getId_sedes().equals(SedeId)
+                            && c.getFecha_cita() != null && c.getFecha_cita().equals(localDate)
+                            && c.getEstado() != null && c.getEstado() == 1)
+                    .collect(Collectors.toList());
+
+            List<String> slotsDisponibles = new java.util.ArrayList<>();
+            java.time.LocalTime actual = apertura;
+
+            while (actual.plusMinutes(duracion).isBefore(cierre) || actual.plusMinutes(duracion).equals(cierre)) {
+                java.time.LocalTime slotInicio = actual;
+                java.time.LocalTime slotFin = actual.plusMinutes(duracion);
+
+                boolean seCruza = false;
+                for (Cita cita : citasExistentes) {
+                    java.time.LocalTime cInicio = cita.getHora_inicio();
+                    java.time.LocalTime cFin = cita.getHora_fin();
+
+                    if (cInicio != null && cFin != null) {
+                        if (slotInicio.isBefore(cFin) && cInicio.isBefore(slotFin)) {
+                            seCruza = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!seCruza) {
+                    slotsDisponibles.add(slotInicio.toString().substring(0, 5));
+                }
+
+                actual = actual.plusMinutes(30);
+            }
+
+            return slotsDisponibles;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return java.util.Collections.emptyList();
+        }
+    }
+
     @PostMapping("/tienda/api/checkout")
     @ResponseBody
+    @Transactional
     public String procesarCheckout(@RequestBody CheckoutRequest request, HttpSession session) {
         try {
             Integer checkoutTenantId = (Integer) session.getAttribute("tenantId");
@@ -770,15 +939,87 @@ public class PageController {
 
             // 2. Resolver dependencias de Sede, Tenant y SesionCaja
             Tenants tenant = serviceTenants.buscarId(finalTenantId).orElse(null);
-            Sede sede = serviceSede.buscarTodos().stream()
-                    .filter(s -> s.getId_tenants() != null && s.getId_tenants().getId_tenants().equals(finalTenantId))
-                    .findFirst().orElse(serviceSede.buscarTodos().stream().findFirst().orElse(null));
+            
+            Sede sede = null;
+            if (request.getSedeId() != null) {
+                sede = serviceSede.buscarId(request.getSedeId()).orElse(null);
+            }
+            if (sede == null) {
+                sede = serviceSede.buscarTodos().stream()
+                        .filter(s -> s.getId_tenants() != null && s.getId_tenants().getId_tenants().equals(finalTenantId))
+                        .findFirst().orElse(serviceSede.buscarTodos().stream().findFirst().orElse(null));
+            }
+            
             SesionCaja sesion = serviceSesionCaja.buscarTodos().stream()
                     .filter(s -> s.getEstado() != null && s.getEstado() == 1)
                     .findFirst()
                     .orElseGet(() -> serviceSesionCaja.buscarTodos().stream().findFirst().orElse(null));
 
-            // 3. Crear Venta
+            // 3. Verificar si hay servicios en el carrito y calcular su duración y validaciones
+            boolean hasServices = false;
+            int duracionTotal = 0;
+            List<ServicioBelleza> serviciosABookear = new java.util.ArrayList<>();
+            for (CartItem item : request.getItems()) {
+                if ("servicio".equalsIgnoreCase(item.getTipo()) && item.getId_servicios_belleza() != null) {
+                    hasServices = true;
+                    ServicioBelleza serv = serviceServicioBelleza.buscarId(item.getId_servicios_belleza()).orElse(null);
+                    if (serv != null) {
+                        serviciosABookear.add(serv);
+                        duracionTotal += (serv.getDuracion_minima() != null ? serv.getDuracion_minima() : 30);
+                    }
+                }
+            }
+
+            java.time.LocalDate localDateCita = null;
+            java.time.LocalTime slotInicio = null;
+            java.time.LocalTime slotFin = null;
+            if (hasServices) {
+                if (request.getFechaCita() == null || request.getHoraCita() == null) {
+                    return "{\"success\": false, \"error\": \"Debe seleccionar fecha y hora para su cita.\"}";
+                }
+                localDateCita = java.time.LocalDate.parse(request.getFechaCita());
+                slotInicio = java.time.LocalTime.parse(request.getHoraCita());
+                slotFin = slotInicio.plusMinutes(duracionTotal);
+
+                // Validar día y horario de atención
+                String[] dias = {"lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"};
+                String diaSemana = dias[localDateCita.getDayOfWeek().getValue() - 1];
+                final Sede finalSede = sede;
+                final String finalDia = diaSemana;
+                Optional<HorarioOperacion> horarioOpt = serviceHorarioOperacion.buscarTodos().stream()
+                        .filter(h -> h.getId_sedes() != null && h.getId_sedes().getId_sedes().equals(finalSede.getId_sedes())
+                                && h.getDia_semana() != null && h.getDia_semana().equalsIgnoreCase(finalDia)
+                                && h.getEstado() != null && h.getEstado() == 1)
+                        .findFirst();
+
+                if (horarioOpt.isEmpty()) {
+                    return "{\"success\": false, \"error\": \"La sede seleccionada no atiende en el día elegido.\"}";
+                }
+                HorarioOperacion horario = horarioOpt.get();
+                if (slotInicio.isBefore(horario.getHora_apertura()) || slotFin.isAfter(horario.getHora_cierre())) {
+                    return "{\"success\": false, \"error\": \"El horario seleccionado está fuera del horario de atención de la sede.\"}";
+                }
+
+                // Validar cruce de citas
+                final java.time.LocalDate targetDate = localDateCita;
+                List<Cita> citasExistentes = serviceCita.buscarTodos().stream()
+                        .filter(c -> c.getId_sedes() != null && c.getId_sedes().getId_sedes().equals(finalSede.getId_sedes())
+                                && c.getFecha_cita() != null && c.getFecha_cita().equals(targetDate)
+                                && c.getEstado() != null && c.getEstado() == 1)
+                        .collect(Collectors.toList());
+
+                for (Cita cita : citasExistentes) {
+                    java.time.LocalTime cInicio = cita.getHora_inicio();
+                    java.time.LocalTime cFin = cita.getHora_fin();
+                    if (cInicio != null && cFin != null) {
+                        if (slotInicio.isBefore(cFin) && cInicio.isBefore(slotFin)) {
+                            return "{\"success\": false, \"error\": \"El horario seleccionado ya no está disponible. Por favor elija otro.\"}";
+                        }
+                    }
+                }
+            }
+
+            // 4. Crear Venta
             Venta venta = new Venta();
             venta.setId_tenants(tenant);
             venta.setId_sedes(sede);
@@ -790,7 +1031,6 @@ public class PageController {
             venta.setEstado(1);
             venta.setEstado_sunat("aceptada");
 
-            // Calcular montos
             double total = 0.0;
             for (CartItem item : request.getItems()) {
                 total += item.getCantidad() * item.getPrecio_venta();
@@ -801,30 +1041,56 @@ public class PageController {
 
             Venta savedVenta = serviceVenta.guardar(venta);
 
-            // 4. Crear DetalleVenta para cada producto (sin descontar stock todavía)
+            // 5. Crear DetalleVenta para productos (y descontar stock)
             List<Object[]> stockUpdates = new java.util.ArrayList<>();
             for (CartItem item : request.getItems()) {
-                Producto prod = serviceProducto.buscarId(item.getId_productos()).orElse(null);
-                if (prod != null) {
-                    DetalleVenta det = new DetalleVenta();
-                    det.setId_ventas(savedVenta);
-                    det.setId_productos(prod);
-                    det.setCantidad(item.getCantidad());
-                    det.setPrecio_unitario(BigDecimal.valueOf(item.getPrecio_venta()));
-                    det.setSubtotal(BigDecimal.valueOf(item.getCantidad() * item.getPrecio_venta()));
-                    serviceDetalleVenta.guardar(det);
-                    // Guardar para descuento posterior (solo si todo fue bien)
-                    stockUpdates.add(new Object[] { prod, item.getCantidad() });
+                if (item.getId_productos() != null && !"servicio".equalsIgnoreCase(item.getTipo())) {
+                    Producto prod = serviceProducto.buscarId(item.getId_productos()).orElse(null);
+                    if (prod != null) {
+                        DetalleVenta det = new DetalleVenta();
+                        det.setId_ventas(savedVenta);
+                        det.setId_productos(prod);
+                        det.setCantidad(item.getCantidad());
+                        det.setPrecio_unitario(BigDecimal.valueOf(item.getPrecio_venta()));
+                        det.setSubtotal(BigDecimal.valueOf(item.getCantidad() * item.getPrecio_venta()));
+                        serviceDetalleVenta.guardar(det);
+                        stockUpdates.add(new Object[] { prod, item.getCantidad() });
+                    }
                 }
             }
 
-            // 5. Descontar stock solo si TODOS los detalles se guardaron correctamente
             for (Object[] update : stockUpdates) {
                 Producto prod = (Producto) update[0];
                 int qty = (int) update[1];
                 int nuevoStock = (prod.getStock_actual() != null ? prod.getStock_actual() : 0) - qty;
                 prod.setStock_actual(Math.max(nuevoStock, 0));
                 serviceProducto.modificar(prod);
+            }
+
+            // 6. Si hay servicios, guardar Cita y relacionarla con la Venta
+            if (hasServices) {
+                Cita cita = new Cita();
+                cita.setId_tenants(tenant);
+                cita.setId_sedes(sede);
+                cita.setId_clientes(cliente);
+                cita.setFecha_cita(localDateCita);
+                cita.setHora_inicio(slotInicio);
+                cita.setHora_fin(slotFin);
+                cita.setDuracion_minutos(duracionTotal);
+                cita.setEstado(1);
+                cita.setObservaciones(request.getObservacionesCita());
+                cita.setId_ventas(savedVenta);
+
+                Cita savedCita = serviceCita.guardar(cita);
+
+                for (ServicioBelleza serv : serviciosABookear) {
+                    ServicioCita servCita = new ServicioCita();
+                    servCita.setId_citas(savedCita);
+                    servCita.setId_servicios_belleza(serv);
+                    servCita.setPrecio(serv.getPrecio_base());
+                    servCita.setObservaciones("Reservado online");
+                    serviceServicioCita.guardar(servCita);
+                }
             }
 
             // Actualizar sesion con datos frescos del cliente

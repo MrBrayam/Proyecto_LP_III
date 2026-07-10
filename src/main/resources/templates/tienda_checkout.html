@@ -75,6 +75,38 @@
                         </div>
                     </div>
 
+                    <!-- Programación de Cita (Only displayed if cart has services) -->
+                    <div class="card" id="bookingCard" style="display: none;">
+                        <h3>Programación de Cita</h3>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">
+                            Su carrito incluye servicios de belleza. Por favor seleccione la sede, fecha y hora para su atención.
+                        </p>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Sede de Atención</label>
+                                <select id="sedeId" name="sedeId" onchange="loadAvailableSlots()">
+                                    <option th:each="s : ${sedes}" th:value="${s.id_sedes}" th:text="${s.nombre_sede}"></option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Fecha de la Cita</label>
+                                <input type="date" id="fechaCita" name="fechaCita" onchange="loadAvailableSlots()">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Horario Disponible</label>
+                                <select id="horaCita" name="horaCita">
+                                    <option value="">Seleccione una sede y fecha...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Indicaciones / Observaciones</label>
+                                <input type="text" id="observacionesCita" name="observacionesCita" placeholder="Ej: alergia a tintes, preferencia de especialista, etc.">
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Payment gateway -->
                     <div class="card">
                         <h3>Pasarela de Pago</h3>
@@ -170,6 +202,20 @@
                 return;
             }
 
+            // Set minimum date to today
+            const dateInput = document.getElementById('fechaCita');
+            if (dateInput) {
+                const today = new Date().toISOString().split('T')[0];
+                dateInput.min = today;
+            }
+
+            const hasServices = cart.some(item => item.tipo === 'servicio');
+            if (hasServices) {
+                const bCard = document.getElementById('bookingCard');
+                if (bCard) bCard.style.display = 'block';
+                loadAvailableSlots();
+            }
+
             renderSummary();
         });
 
@@ -187,6 +233,52 @@
             }
         }
 
+        function loadAvailableSlots() {
+            const sedeSelect = document.getElementById('sedeId');
+            const fechaInput = document.getElementById('fechaCita');
+            const horaSelect = document.getElementById('horaCita');
+
+            if (!sedeSelect || !fechaInput || !horaSelect) return;
+
+            const sedeId = sedeSelect.value;
+            const fecha = fechaInput.value;
+
+            if (!sedeId || !fecha) {
+                horaSelect.innerHTML = '<option value="">Seleccione fecha...</option>';
+                return;
+            }
+
+            let duracion = 0;
+            cart.forEach(item => {
+                if (item.tipo === 'servicio') {
+                    duracion += (item.duracion || 60);
+                }
+            });
+            if (duracion === 0) duracion = 60;
+
+            horaSelect.innerHTML = '<option value="">Cargando horarios...</option>';
+
+            fetch(`/tienda/api/citas/disponibles?SedeId=${sedeId}&fecha=${fecha}&duracion=${duracion}`)
+                .then(res => res.json())
+                .then(slots => {
+                    horaSelect.innerHTML = '';
+                    if (slots.length === 0) {
+                        horaSelect.innerHTML = '<option value="">No hay turnos disponibles para esta fecha</option>';
+                    } else {
+                        slots.forEach(slot => {
+                            const opt = document.createElement('option');
+                            opt.value = slot;
+                            opt.textContent = slot;
+                            horaSelect.appendChild(opt);
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error('Error al cargar horarios:', err);
+                    horaSelect.innerHTML = '<option value="">Error al cargar horarios</option>';
+                });
+        }
+
         function renderSummary() {
             const list = document.getElementById('summaryList');
             list.innerHTML = '';
@@ -199,7 +291,7 @@
                 div.innerHTML = `
                     <div>
                         <span class="summary-item-name">${item.nombre_producto}</span>
-                        <span style="color: var(--text-muted); font-size:11px;">x${item.cantidad}</span>
+                        <span style="color: var(--text-muted); font-size:11px;">x${item.cantidad} ${item.tipo === 'servicio' ? '(Servicio)' : ''}</span>
                     </div>
                     <span style="font-weight: 600;">S/ ${(item.cantidad * item.precio_venta).toFixed(2)}</span>
                 `;
@@ -217,7 +309,28 @@
         function submitCheckout(e) {
             e.preventDefault();
 
-            // Prepare Payload
+            const hasServices = cart.some(item => item.tipo === 'servicio');
+            let sedeVal = null;
+            let fechaVal = null;
+            let horaVal = null;
+            let obsVal = null;
+
+            if (hasServices) {
+                sedeVal = document.getElementById('sedeId').value;
+                fechaVal = document.getElementById('fechaCita').value;
+                horaVal = document.getElementById('horaCita').value;
+                obsVal = document.getElementById('observacionesCita').value;
+
+                if (!fechaVal) {
+                    alert('Por favor seleccione la fecha de su cita de belleza.');
+                    return;
+                }
+                if (!horaVal) {
+                    alert('Por favor seleccione un horario disponible para su cita.');
+                    return;
+                }
+            }
+
             const body = {
                 nombre: document.getElementById('nombre').value,
                 apellidos: document.getElementById('apellidos').value,
@@ -228,14 +341,19 @@
                 direccion: document.getElementById('direccion').value,
                 distrito: document.getElementById('distrito').value,
                 metodoPago: selectedMethod,
+                sedeId: sedeVal ? parseInt(sedeVal) : null,
+                fechaCita: fechaVal,
+                horaCita: horaVal,
+                observacionesCita: obsVal,
                 items: cart.map(item => ({
-                    id_productos: item.id_productos,
+                    id_productos: item.id_productos || null,
+                    id_servicios_belleza: item.id_servicios_belleza || null,
+                    tipo: item.tipo || 'producto',
                     cantidad: item.cantidad,
                     precio_venta: item.precio_venta
                 }))
             };
 
-            // Post back to API
             fetch('/tienda/api/checkout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -244,7 +362,6 @@
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    // Clear cart
                     localStorage.removeItem('bellarista_cart');
                     window.location.href = '/tienda/success?ventaId=' + data.ventaId;
                 } else {

@@ -1,121 +1,209 @@
 <div th:fragment="content">
-    <div class="card">
-        <div class="card-header">
-            <h3>Permisos de Rol</h3>
-            <button class="btn btn-primary" onclick="crud.openNew()">+ Nuevo</button>
-        </div>
-        <div class="loading">Cargando...</div>
-        <div class="entity-cards" id="data-cards"></div>
-        <div class="empty-state" style="display:none;">No hay registros</div>
-    </div>
+    <div style="max-width: 800px; margin: 0 auto; padding: 20px;">
+        <div class="card" style="background: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); padding: 24px; border: 1px solid #e2e8f0;">
+            <div style="border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; margin-bottom: 24px;">
+                <h3 style="font-size: 20px; font-weight: 700; color: #1e293b; margin: 0;">Asignación de Permisos por Rol</h3>
+                <p style="font-size: 14px; color: #64748b; margin: 4px 0 0 0;">Seleccione un rol para administrar los módulos a los que tiene acceso en el sistema.</p>
+            </div>
 
-    <div class="modal-overlay" id="entityModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 id="modalTitle">Nuevo Permiso</h3>
-                <button class="modal-close" onclick="crud.closeModal()">x</button>
+            <!-- Seleccionar Rol -->
+            <div class="form-group" style="margin-bottom: 24px;">
+                <label style="font-weight: 600; font-size: 14px; color: #334155; margin-bottom: 8px; display: block;">Rol Personalizado</label>
+                <select id="rolSelector" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #cbd5e1; background-color: #ffffff; font-size: 14px; color: #334155;" onchange="cargarPermisosDelRol()">
+                    <option value="">-- Seleccione un Rol --</option>
+                </select>
             </div>
-            <div class="modal-body">
-                <form id="entityForm" autocomplete="off">
-                    <div class="form-group">
-                        <label>Rol</label>
-                        <select name="id_roles_personalizados"></select>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Modulo</label>
-                            <input name="modulo" required placeholder="Ej: productos, ventas, clientes">
-                        </div>
-                        <div class="form-group">
-                            <label>Accion</label>
-                            <select name="accion">
-                                <option value="crear">Crear</option>
-                                <option value="editar">Editar</option>
-                                <option value="eliminar">Eliminar</option>
-                                <option value="visualizar">Visualizar</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Recurso</label>
-                            <input name="recurso" placeholder="Recurso especifico (opcional)">
-                        </div>
-                        <div class="form-group">
-                            <label>Estado</label>
-                            <select name="estado">
-                                <option value="1">Activo</option>
-                                <option value="0">Inactivo</option>
-                            </select>
-                        </div>
-                    </div>
-                </form>
+
+            <!-- Panel de Módulos (Inicialmente oculto hasta seleccionar rol) -->
+            <div id="permissionsPanel" style="display: none;">
+                <label style="font-weight: 600; font-size: 14px; color: #334155; margin-bottom: 12px; display: block;">Módulos Autorizados</label>
+                <div id="checkboxesContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; max-height: 350px; overflow-y: auto; border: 1px solid #e2e8f0; padding: 16px; border-radius: 8px; background: #f8fafc; margin-bottom: 24px;">
+                    <!-- Se rellena dinámicamente con JS -->
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                    <button class="btn btn-primary" onclick="guardarPermisos()">Guardar Permisos</button>
+                </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn" onclick="crud.closeModal()">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="crud.save()">Guardar</button>
+            
+            <div id="selectPrompt" style="text-align: center; padding: 40px 20px; color: #94a3b8; border: 2px dashed #e2e8f0; border-radius: 8px; background: #fafafa;">
+                <p style="margin: 0; font-size: 15px;">Por favor, seleccione un rol para configurar sus accesos.</p>
             </div>
         </div>
     </div>
 
     <script>
-    crud.init(
-        '/api/permisos_rol',
-        [
-            { field: 'id_permisos_rol', pk: true },
-            { field: 'id_roles_personalizados.nombre_rol_personalizado', render: v => v || '-' },
-            { field: 'modulo' },
-            { field: 'accion' },
-            { field: 'recurso' },
-            { field: 'estado' },
-            { field: 'acciones', actions: true }
-        ],
-        [
-            { name: 'id_roles_personalizados', type: 'fk' },
-            { name: 'modulo', type: 'text' },
-            { name: 'accion', type: 'text' },
-            { name: 'recurso', type: 'text' },
-            { name: 'estado', type: 'number' }
-        ],
-        [
-            { field: 'id_roles_personalizados', api: '/api/roles_personalizados', label: 'nombre_rol_personalizado' }
-        ],
-        {
-            view: 'cards',
-            cardRenderer: function(row) {
-                const id = row.id_permisos_rol;
-                const rol = escapeHtml(val(row, 'id_roles_personalizados.nombre_rol_personalizado', '-'));
-                const modulo = escapeHtml(row.modulo || '-');
-                const accion = escapeHtml(row.accion || '-');
-                const recurso = escapeHtml(row.recurso || '-');
-                const fallback = modulo.slice(0, 2).toUpperCase();
-                const estado = row.estado === 1 || row.estado === true
-                    ? '<span class="badge badge-active">Activo</span>'
-                    : '<span class="badge badge-inactive">Inactivo</span>';
+    // Lista de todos los módulos del sistema
+    const modulosDisponibles = [
+        { value: "usuarios", label: "Usuarios" },
+        { value: "tenants", label: "Tenants" },
+        { value: "roles", label: "Roles" },
+        { value: "permisos", label: "Permisos" },
+        { value: "usuario-sedes", label: "Usuario-Sedes" },
+        { value: "preferencias", label: "Preferencias" },
+        { value: "auditoria", label: "Auditoría" },
+        { value: "clientes", label: "Clientes" },
+        { value: "citas", label: "Citas" },
+        { value: "repartidores", label: "Repartidores" },
+        { value: "sedes", label: "Sedes" },
+        { value: "horarios-operacion", label: "Horarios" },
+        { value: "zonas-delivery", label: "Delivery" },
+        { value: "notificaciones", label: "Notificaciones" },
+        { value: "ventas", label: "Ventas" },
+        { value: "pedidos", label: "Pedidos" },
+        { value: "devoluciones-venta", label: "Devoluciones Venta" },
+        { value: "formas-pago-venta", label: "Formas de Pago" },
+        { value: "comprobantes-electronicos", label: "Comprobantes" },
+        { value: "series-comprobantes", label: "Series Comprobantes" },
+        { value: "ordenes-compra", label: "Órdenes de Compra" },
+        { value: "proveedores", label: "Proveedores" },
+        { value: "proveedores-categorias", label: "Cat. Proveedor" },
+        { value: "devoluciones-proveedor", label: "Dev. Proveedor" },
+        { value: "cuentas-por-pagar", label: "Cuentas por Pagar" },
+        { value: "pagos-proveedor", label: "Pagos Proveedor" },
+        { value: "caja-chica", label: "Caja Chica" },
+        { value: "sesiones-caja", label: "Sesiones de Caja" },
+        { value: "metodos-pago", label: "Métodos de Pago" },
+        { value: "gastos-operativos", label: "Gastos Operativos" },
+        { value: "gastos-recurrentes", label: "Gastos Recurrentes" },
+        { value: "productos", label: "Productos" },
+        { value: "categorias", label: "Categorías" },
+        { value: "marcas", label: "Marcas" },
+        { value: "almacenes", label: "Almacenes" },
+        { value: "lotes", label: "Lotes" },
+        { value: "movimientos", label: "Movimientos" },
+        { value: "combos", label: "Combos" },
+        { value: "promociones", label: "Promociones" }
+    ];
 
-                return `
-                    <article class="entity-card">
+    document.addEventListener("DOMContentLoaded", function() {
+        renderizarCheckboxes();
+        cargarRoles();
+    });
 
-                        <div class="entity-card__body">
-                            <div class="entity-card__header">
-                                <div>
-                                    <h4>${modulo} - ${accion}</h4>
-                                    <p>Rol: ${rol}</p>
-                                </div>
-                                ${estado}
-                            </div>
-                            <div class="entity-card__meta">
-                                <div class="entity-card__meta-item"><span>Recurso</span><strong>${recurso}</strong></div>
-                                <div class="entity-card__meta-item"><span>Accion</span><strong>${accion}</strong></div>
-                            </div>
-                            <div class="entity-card__actions">
-                                <button class="btn btn-sm" onclick="crud.edit(${id})">Editar</button>
-                                <button class="btn btn-sm btn-danger" onclick="crud.del(${id})">Eliminar</button>
-                            </div>
-                        </div>
-                    </article>`;
-            }
+    // Renderizar checkboxes dinámicamente
+    function renderizarCheckboxes() {
+        const container = document.getElementById("checkboxesContainer");
+        container.innerHTML = "";
+        modulosDisponibles.forEach(mod => {
+            const label = document.createElement("label");
+            label.style.display = "flex";
+            label.style.alignItems = "center";
+            label.style.gap = "8px";
+            label.style.fontSize = "13px";
+            label.style.fontWeight = "normal";
+            label.style.cursor = "pointer";
+
+            const input = document.createElement("input");
+            input.type = "checkbox";
+            input.name = "permissions_check";
+            input.value = mod.value;
+
+            label.appendChild(input);
+            label.appendChild(document.createTextNode(" " + mod.label));
+            container.appendChild(label);
+        });
+    }
+
+    // Cargar la lista de roles en el selector
+    function cargarRoles() {
+        apiFetch('/api/roles_personalizados')
+            .then(roles => {
+                const selector = document.getElementById("rolSelector");
+                selector.innerHTML = '<option value="">-- Seleccione un Rol --</option>';
+                roles.forEach(r => {
+                    if (r.estado === 1 || r.estado === true) {
+                        const opt = document.createElement("option");
+                        opt.value = r.id_roles_personalizados;
+                        opt.textContent = r.nombre_rol_personalizado;
+                        selector.appendChild(opt);
+                    }
+                });
+            })
+            .catch(err => console.error("Error al cargar roles:", err));
+    }
+
+    // Cargar permisos del rol seleccionado
+    function cargarPermisosDelRol() {
+        const rolId = document.getElementById("rolSelector").value;
+        const panel = document.getElementById("permissionsPanel");
+        const prompt = document.getElementById("selectPrompt");
+
+        if (!rolId) {
+            panel.style.display = "none";
+            prompt.style.display = "block";
+            return;
         }
-    );
+
+        // Limpiar checkboxes
+        document.querySelectorAll('input[name="permissions_check"]').forEach(cb => cb.checked = false);
+
+        // Obtener permisos actuales
+        apiFetch('/api/permisos_rol')
+            .then(perms => {
+                const rolePerms = perms.filter(p => p.id_roles_personalizados 
+                    && p.id_roles_personalizados.id_roles_personalizados === Number(rolId)
+                    && p.estado === 1);
+                
+                rolePerms.forEach(p => {
+                    const cb = document.querySelector(`input[name="permissions_check"][value="${p.modulo}"]`);
+                    if (cb) cb.checked = true;
+                });
+
+                panel.style.display = "block";
+                prompt.style.display = "none";
+            })
+            .catch(err => {
+                console.error("Error al cargar permisos:", err);
+                alert("No se pudieron cargar los permisos del rol.");
+            });
+    }
+
+    // Guardar permisos seleccionados para el rol
+    function guardarPermisos() {
+        const rolId = document.getElementById("rolSelector").value;
+        if (!rolId) return;
+
+        const checkedModules = Array.from(document.querySelectorAll('input[name="permissions_check"]:checked'))
+            .map(cb => cb.value);
+
+        const saveBtn = document.querySelector('#permissionsPanel button');
+        const originalText = saveBtn.textContent;
+        saveBtn.disabled = true;
+        saveBtn.textContent = "Guardando...";
+
+        apiFetch('/api/permisos_rol')
+            .then(async (currentPerms) => {
+                const rolePermsToDelete = currentPerms.filter(p => p.id_roles_personalizados 
+                    && p.id_roles_personalizados.id_roles_personalizados === Number(rolId));
+
+                // Eliminar antiguos
+                for (const p of rolePermsToDelete) {
+                    await apiFetch('/api/permisos_rol/' + p.id_permisos_rol, { method: 'DELETE' });
+                }
+
+                // Crear nuevos
+                for (const mod of checkedModules) {
+                    const permPayload = {
+                        id_roles_personalizados: { id_roles_personalizados: Number(rolId) },
+                        modulo: mod,
+                        accion: 'visualizar',
+                        recurso: 'modulo',
+                        estado: 1
+                    };
+                    await apiFetch('/api/permisos_rol', { method: 'POST', body: JSON.stringify(permPayload) });
+                }
+
+                alert("Permisos actualizados con éxito.");
+            })
+            .catch(err => {
+                console.error("Error al guardar permisos:", err);
+                alert("Ocurrió un error al guardar los permisos: " + err.message);
+            })
+            .finally(() => {
+                saveBtn.disabled = false;
+                saveBtn.textContent = originalText;
+            });
+    }
     </script>
 </div>

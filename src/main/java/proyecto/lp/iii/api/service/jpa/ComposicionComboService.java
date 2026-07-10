@@ -24,6 +24,10 @@ public class ComposicionComboService implements IComposicionComboService {
         return repoComposicionCombo.findAll();
     }
 
+    public List<ComposicionCombo> buscarPorCombo(Integer comboId) {
+        return repoComposicionCombo.findByComboId(comboId);
+    }
+
     public void guardar(ComposicionCombo composicioncombo) {
         repoComposicionCombo.save(composicioncombo);
     }
@@ -40,4 +44,10 @@ public class ComposicionComboService implements IComposicionComboService {
     public void eliminar(Integer id) {
         repoComposicionCombo.deleteById(id);
     }
+
+    @Transactional
+    public void eliminarPorCombo(Integer comboId) {
+        repoComposicionCombo.deleteByComboId(comboId);
+    }
 }
+

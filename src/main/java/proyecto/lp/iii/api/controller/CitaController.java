@@ -29,8 +29,7 @@ public class CitaController {
 
 	@PostMapping("/citas")
 	public Cita guardar(@RequestBody Cita registro) {
-		serviceCita.guardar(registro);
-		return registro;
+		return serviceCita.guardar(registro);
 	}
 
 	@PutMapping("/citas/{id}")

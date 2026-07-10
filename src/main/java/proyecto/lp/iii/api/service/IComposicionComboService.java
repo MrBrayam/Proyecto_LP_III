@@ -8,6 +8,8 @@ import proyecto.lp.iii.api.entity.ComposicionCombo;
 public interface IComposicionComboService {
     List<ComposicionCombo> buscarTodos();
 
+    List<ComposicionCombo> buscarPorCombo(Integer comboId);
+
     void guardar(ComposicionCombo composicioncombo);
 
     void modificar(ComposicionCombo composicioncombo);
@@ -15,4 +17,6 @@ public interface IComposicionComboService {
     Optional<ComposicionCombo> buscarId(Integer id);
 
     void eliminar(Integer id);
+
+    void eliminarPorCombo(Integer comboId);
 }

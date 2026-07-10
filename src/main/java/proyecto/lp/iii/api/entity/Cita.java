@@ -78,6 +78,11 @@ public class Cita {
     private String observaciones;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_ventas")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private Venta id_ventas;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuarios_usuario_creacion")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Usuarios id_usuarios_usuario_creacion;
@@ -177,6 +182,14 @@ public class Cita {
 
     public void setId_usuarios_usuario_creacion(Usuarios id_usuarios_usuario_creacion) {
         this.id_usuarios_usuario_creacion = id_usuarios_usuario_creacion;
+    }
+
+    public Venta getId_ventas() {
+        return id_ventas;
+    }
+
+    public void setId_ventas(Venta id_ventas) {
+        this.id_ventas = id_ventas;
     }
 
     @Override

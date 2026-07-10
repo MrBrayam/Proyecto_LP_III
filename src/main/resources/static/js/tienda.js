@@ -152,7 +152,7 @@ function addToCart(prodId) {
     const prod = allProducts.find(p => p.id_productos === prodId);
     if (!prod) return;
 
-    const existing = cart.find(item => item.id_productos === prodId);
+    const existing = cart.find(item => item.id_productos === prodId && item.tipo !== 'servicio');
     const stockAct = prod.stock_actual != null ? Number(prod.stock_actual) : 0;
     const currentQty = existing ? existing.cantidad : 0;
 
@@ -166,6 +166,7 @@ function addToCart(prodId) {
     } else {
         cart.push({
             id_productos: prod.id_productos,
+            tipo: 'producto',
             nombre_producto: prod.nombre_producto,
             precio_venta: prod.precio_venta,
             img_url: prod.img_url,
@@ -176,12 +177,36 @@ function addToCart(prodId) {
     toggleCart(true);
 }
 
-function updateCartQuantity(prodId, delta) {
-    const item = cart.find(i => i.id_productos === prodId);
+function addToCartService(serviceId) {
+    const serv = allServices.find(s => s.id_servicios_belleza === serviceId);
+    if (!serv) return;
+
+    const existing = cart.find(item => item.id_servicios_belleza === serviceId && item.tipo === 'servicio');
+    if (existing) {
+        alert('Este servicio ya se encuentra en su carrito de reservas.');
+        return;
+    }
+
+    cart.push({
+        id_servicios_belleza: serv.id_servicios_belleza,
+        tipo: 'servicio',
+        nombre_producto: serv.nombre_servicio_belleza,
+        precio_venta: serv.precio_base,
+        img_url: '',
+        cantidad: 1,
+        duracion: serv.duracion_minima || 60
+    });
+
+    saveCart();
+    toggleCart(true);
+}
+
+function updateCartQuantity(itemId, delta, tipo = 'producto') {
+    const item = cart.find(i => (tipo === 'servicio' ? i.id_servicios_belleza === itemId : i.id_productos === itemId) && (i.tipo || 'producto') === tipo);
     if (!item) return;
 
-    if (delta > 0) {
-        const prod = allProducts.find(p => p.id_productos === prodId);
+    if (delta > 0 && tipo === 'producto') {
+        const prod = allProducts.find(p => p.id_productos === itemId);
         const stockAct = prod && prod.stock_actual != null ? Number(prod.stock_actual) : 999;
         if (item.cantidad >= stockAct) {
             alert('No se pueden agregar más unidades. El stock máximo disponible es ' + stockAct + '.');
@@ -189,15 +214,28 @@ function updateCartQuantity(prodId, delta) {
         }
     }
 
+    if (tipo === 'servicio' && delta > 0) {
+        alert('Solo puede reservar un turno de este servicio a la vez.');
+        return;
+    }
+
     item.cantidad += delta;
     if (item.cantidad <= 0) {
-        cart = cart.filter(i => i.id_productos !== prodId);
+        if (tipo === 'servicio') {
+            cart = cart.filter(i => !(i.id_servicios_belleza === itemId && i.tipo === 'servicio'));
+        } else {
+            cart = cart.filter(i => !(i.id_productos === itemId && i.tipo !== 'servicio'));
+        }
     }
     saveCart();
 }
 
-function removeFromCart(prodId) {
-    cart = cart.filter(i => i.id_productos !== prodId);
+function removeFromCart(itemId, tipo = 'producto') {
+    if (tipo === 'servicio') {
+        cart = cart.filter(i => !(i.id_servicios_belleza === itemId && i.tipo === 'servicio'));
+    } else {
+        cart = cart.filter(i => !(i.id_productos === itemId && i.tipo !== 'servicio'));
+    }
     saveCart();
 }
 
@@ -205,7 +243,6 @@ function updateCartUI() {
     const container = document.getElementById('cartItems');
     const countBadge = document.getElementById('cartCount');
 
-    // Guard: these elements only exist on tienda.html, not on other pages
     if (!container || !countBadge) return;
 
     const totalCount = cart.reduce((sum, item) => sum + item.cantidad, 0);
@@ -231,17 +268,20 @@ function updateCartUI() {
             ? '<img src="' + imgUrl + '" class="cart-item-img" alt="' + item.nombre_producto + '">'
             : '<div class="cart-item-img" style="display:flex;align-items:center;justify-content:center;background:var(--primary-light);font-size:24px;font-weight:700;color:var(--primary);font-family:\'Playfair Display\',serif;">' + fallbackChar + '</div>';
 
+        const itemId = item.tipo === 'servicio' ? item.id_servicios_belleza : item.id_productos;
+        const itemTipo = item.tipo || 'producto';
+
         div.innerHTML = imageHtml
             + '<div class="cart-item-info">'
             + '<h4>' + item.nombre_producto + '</h4>'
-            + '<p>S/ ' + parseFloat(item.precio_venta).toFixed(2) + ' c/u</p>'
+            + '<p>S/ ' + parseFloat(item.precio_venta).toFixed(2) + ' c/u ' + (item.tipo === 'servicio' ? '<span style="font-size:9px;color:var(--primary);font-weight:600;text-transform:uppercase;">[Servicio]</span>' : '') + '</p>'
             + '<div class="cart-item-actions">'
             + '<div class="quantity-control">'
-            + '<button onclick="updateCartQuantity(' + item.id_productos + ', -1)">-</button>'
+            + '<button onclick="updateCartQuantity(' + itemId + ', -1, \'' + itemTipo + '\')">-</button>'
             + '<span>' + item.cantidad + '</span>'
-            + '<button onclick="updateCartQuantity(' + item.id_productos + ', 1)">+</button>'
+            + '<button onclick="updateCartQuantity(' + itemId + ', 1, \'' + itemTipo + '\')">+</button>'
             + '</div>'
-            + '<button class="remove-item-btn" onclick="removeFromCart(' + item.id_productos + ')">Quitar</button>'
+            + '<button class="remove-item-btn" onclick="removeFromCart(' + itemId + ', \'' + itemTipo + '\')">Quitar</button>'
             + '</div>'
             + '</div>';
         container.appendChild(div);
@@ -325,7 +365,7 @@ function renderServices() {
             + '<div class="product-card-footer" style="margin-top:auto;border-top:1px solid rgba(0,0,0,0.04);padding-top:12px;">'
             + '<div><span style="font-size:9px;text-transform:uppercase;color:var(--text-muted);display:block;letter-spacing:0.5px;">Precio Base</span>'
             + '<span class="product-price" style="font-size:16px;">S/ ' + price + '</span></div>'
-            + '<a href="https://wa.me/51987654321?text=Hola,%20quisiera%20reservar%20una%20cita%20para%20el%20servicio%20de%20' + encodeURIComponent(s.nombre_servicio_belleza) + '" target="_blank" class="btn-filled" style="padding:6px 12px;font-size:11px;border-radius:99px;display:flex;align-items:center;gap:4px;text-decoration:none;">Reservar Cita</a>'
+            + '<button onclick="addToCartService(' + s.id_servicios_belleza + ')" class="btn-filled" style="padding:6px 12px;font-size:11px;border-radius:99px;display:flex;align-items:center;gap:4px;border:none;cursor:pointer;">Reservar Cita</button>'
             + '</div></div>';
         grid.appendChild(card);
     });

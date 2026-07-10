@@ -35,9 +35,7 @@ public class SecurityConfig {
                     "/favicon.ico",
                     "/error",
                     "/uploads/**",
-                    "/api/uploads/**",
-                    "/api/token",
-                    "/api/registros",
+                    "/api/**",
                     "/tienda/**"
                 ).permitAll()
                 .anyRequest().authenticated()).addFilterBefore(jwtFilter,

@@ -2,7 +2,7 @@
     <div class="card">
         <div class="card-header">
             <h3>Combos Promocionales</h3>
-            <button class="btn btn-primary" onclick="crud.openNew()">+ Nuevo</button>
+            <button class="btn btn-primary" onclick="abrirModalNuevo()">+ Nuevo</button>
         </div>
         <div class="loading">Cargando...</div>
         <div class="table-container">
@@ -11,6 +11,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Nombre</th>
+                        <th>Descripción</th>
                         <th>Precio Combo</th>
                         <th>Precio Original</th>
                         <th>Fecha Inicio</th>
@@ -19,88 +20,297 @@
                         <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody id="combosTableBody"></tbody>
             </table>
         </div>
-        <div class="empty-state" style="display:none;">No hay registros</div>
+        <div class="empty-state" id="emptyState" style="display:none;">No hay registros</div>
     </div>
 
-    <div class="modal-overlay" id="entityModal">
-        <div class="modal">
+    <!-- Modal de Combo con Productos -->
+    <div class="modal-overlay" id="comboModal">
+        <div class="modal" style="max-width:720px; width:95%;">
             <div class="modal-header">
-                <h3 id="modalTitle">Nuevo Registro</h3>
-                <button class="modal-close" onclick="crud.closeModal()">x</button>
+                <h3 id="modalTitle">Nuevo Combo</h3>
+                <button class="modal-close" onclick="cerrarModal()">✕</button>
             </div>
             <div class="modal-body">
-                <form id="entityForm" autocomplete="off">
-                    <input type="hidden" name="id_tenants" value="1">
+                <form id="comboForm" autocomplete="off">
+                    <input type="hidden" id="comboId">
                     <div class="form-group">
-                        <label>Nombre Promocion</label>
-                        <input name="nombre_promocion" required placeholder="Nombre de la promocion">
+                        <label>Nombre del Combo *</label>
+                        <input id="nombre_promocion" required placeholder="Ej: Combo Verano 2025">
                     </div>
                     <div class="form-group">
-                        <label>Descripcion</label>
-                        <textarea name="descripcion" placeholder="Descripcion"></textarea>
+                        <label>Descripción</label>
+                        <textarea id="descripcion" rows="2" placeholder="Descripción del combo"></textarea>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Precio Combo</label>
-                            <input name="precio_combo" type="number" step="0.01" placeholder="0.00">
+                            <label>Precio Combo (S/)</label>
+                            <input id="precio_combo" type="number" step="0.01" min="0" placeholder="0.00">
                         </div>
                         <div class="form-group">
-                            <label>Precio Original</label>
-                            <input name="precio_original" type="number" step="0.01" placeholder="0.00">
+                            <label>Precio Original (S/) <span style="font-size:.75rem;color:#6366f1;font-weight:400;">— se calcula automático</span></label>
+                            <input id="precio_original" type="number" step="0.01" min="0" placeholder="0.00" readonly
+                                   style="background:#f8fafc;cursor:not-allowed;color:#64748b;">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label>Fecha Inicio</label>
-                            <input name="fecha_inicio" type="date">
+                            <input id="fecha_inicio" type="date">
                         </div>
                         <div class="form-group">
                             <label>Fecha Fin</label>
-                            <input name="fecha_fin" type="date">
+                            <input id="fecha_fin" type="date">
                         </div>
                     </div>
                     <div class="form-group">
                         <label>Estado</label>
-                        <select name="estado">
+                        <select id="estado">
                             <option value="1">Activo</option>
                             <option value="0">Inactivo</option>
                         </select>
                     </div>
+
+                    <!-- Selector de Productos -->
+                    <div style="margin-top:1rem;">
+                        <label style="font-weight:600; margin-bottom:.5rem; display:block;">
+                            Productos del Combo
+                            <span style="font-size:.8rem; color:#888; font-weight:400;">(selecciona y define cantidad)</span>
+                        </label>
+                        <div id="productosContainer"
+                             style="max-height:220px; overflow-y:auto; border:1px solid #e2e8f0; border-radius:8px; padding:.5rem;">
+                            <div id="loadingProductos" style="text-align:center; color:#888; padding:1rem;">
+                                Cargando productos...
+                            </div>
+                        </div>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn" onclick="crud.closeModal()">Cancelar</button>
-                <button class="btn btn-primary" onclick="crud.save()">Guardar</button>
+                <button class="btn" onclick="cerrarModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="guardarCombo()">Guardar Combo</button>
             </div>
         </div>
     </div>
 
     <script>
-    crud.init(
-        '/api/combos_promocionales',
-        [
-            { field: 'id_combos_promocionales', pk: true },
-            { field: 'nombre_promocion' },
-            { field: 'precio_combo', render: v => v != null ? 'S/ ' + parseFloat(v).toFixed(2) : '-' },
-            { field: 'precio_original', render: v => v != null ? 'S/ ' + parseFloat(v).toFixed(2) : '-' },
-            { field: 'fecha_inicio' },
-            { field: 'fecha_fin' },
-            { field: 'estado' },
-            { field: 'acciones', actions: true }
-        ],
-        [
-            { name: 'id_tenants', type: 'fk' },
-            { name: 'nombre_promocion', type: 'text' },
-            { name: 'descripcion', type: 'text' },
-            { name: 'precio_combo', type: 'decimal' },
-            { name: 'precio_original', type: 'decimal' },
-            { name: 'fecha_inicio', type: 'text' },
-            { name: 'fecha_fin', type: 'text' },
-            { name: 'estado', type: 'number' }
-        ]
-    );
+    let todosProductos = [];
+    let tenantId = 1;
+
+    // ─── Cargar tabla de combos ────────────────────────────────────────────────
+    async function cargarCombos() {
+        const tbody  = document.getElementById('combosTableBody');
+        const loading = document.querySelector('.loading');
+        const empty  = document.getElementById('emptyState');
+        loading.style.display = 'block';
+        try {
+            const res  = await fetch('/api/combos_promocionales');
+            const data = await res.json();
+            loading.style.display = 'none';
+            if (!data.length) { empty.style.display = 'block'; return; }
+            tbody.innerHTML = data.map(c => `
+                <tr>
+                    <td>${c.id_combos_promocionales}</td>
+                    <td>${c.nombre_promocion || '-'}</td>
+                    <td>${c.descripcion || '-'}</td>
+                    <td>${c.precio_combo != null ? 'S/ ' + parseFloat(c.precio_combo).toFixed(2) : '-'}</td>
+                    <td>${c.precio_original != null ? 'S/ ' + parseFloat(c.precio_original).toFixed(2) : '-'}</td>
+                    <td>${c.fecha_inicio || '-'}</td>
+                    <td>${c.fecha_fin || '-'}</td>
+                    <td><span class="badge ${c.estado == 1 ? 'badge-success' : 'badge-danger'}">${c.estado == 1 ? 'Activo' : 'Inactivo'}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-secondary" onclick="abrirModalEditar(${c.id_combos_promocionales})">✏️ Editar</button>
+                        <button class="btn btn-sm btn-danger"    onclick="eliminarCombo(${c.id_combos_promocionales})">🗑️ Eliminar</button>
+                    </td>
+                </tr>`).join('');
+        } catch (e) {
+            loading.style.display = 'none';
+            console.error('Error cargando combos', e);
+        }
+    }
+
+    // ─── Cargar productos para el selector ────────────────────────────────────
+    async function cargarProductos(composicionExistente) {
+        composicionExistente = composicionExistente || [];
+        const container = document.getElementById('productosContainer');
+        container.innerHTML = '<div style="text-align:center;padding:1rem;color:#888">Cargando productos...</div>';
+        try {
+            const res = await fetch('/api/productos');
+            todosProductos = await res.json();
+            if (!todosProductos.length) {
+                container.innerHTML = '<div style="padding:.75rem;color:#888">No hay productos disponibles.</div>';
+                return;
+            }
+
+            // Mapa productoId → cantidad de la composición existente
+            const mapExistente = {};
+            composicionExistente.forEach(function(cc) {
+                const pid = cc.id_productos && cc.id_productos.id_productos;
+                if (pid) mapExistente[pid] = cc.cantidad || 1;
+            });
+
+            const filas = todosProductos.map(function(p) {
+                const pid     = p.id_productos;
+                const checked = mapExistente[pid] ? 'checked' : '';
+                const cantidad = mapExistente[pid] || 1;
+                const precio   = parseFloat(p.precio_venta || 0);
+                const opacity  = mapExistente[pid] ? '1' : '0.4';
+                const disabled = mapExistente[pid] ? '' : 'disabled';
+                return (
+                    '<div class="producto-row" style="display:flex;align-items:center;gap:.75rem;padding:.45rem .5rem;border-bottom:1px solid #f0f4f8;">' +
+                        '<input type="checkbox" id="prod_' + pid + '" value="' + pid + '" ' + checked +
+                            ' onchange="toggleCantidad(' + pid + ')"' +
+                            ' style="width:18px;height:18px;cursor:pointer;accent-color:#6366f1;">' +
+                        '<label for="prod_' + pid + '" style="flex:1;cursor:pointer;font-size:.9rem;">' +
+                            (p.nombre_producto || 'Producto #' + pid) +
+                            '<span style="color:#888;font-size:.8rem;"> — S/ ' + precio.toFixed(2) + '</span>' +
+                        '</label>' +
+                        '<div style="display:flex;align-items:center;gap:.4rem;opacity:' + opacity + ';" id="cantidadWrap_' + pid + '">' +
+                            '<label style="font-size:.8rem;color:#64748b;">Cant:</label>' +
+                            '<input type="number" id="cant_' + pid + '" value="' + cantidad + '" min="1"' +
+                                ' data-precio="' + precio + '"' +
+                                ' style="width:60px;padding:.25rem .5rem;border:1px solid #d1d5db;border-radius:6px;font-size:.9rem;"' +
+                                ' oninput="recalcularPrecioOriginal()"' +
+                                ' ' + disabled + '>' +
+                        '</div>' +
+                    '</div>'
+                );
+            });
+            container.innerHTML = filas.join('');
+        } catch (e) {
+            container.innerHTML = '<div style="padding:.75rem;color:#e11d48;">Error cargando productos.</div>';
+        }
+    }
+
+    // ─── Toggle cantidad al marcar/desmarcar ──────────────────────────────────
+    function toggleCantidad(pid) {
+        const cb   = document.getElementById('prod_' + pid);
+        const inp  = document.getElementById('cant_' + pid);
+        const wrap = document.getElementById('cantidadWrap_' + pid);
+        inp.disabled      = !cb.checked;
+        wrap.style.opacity = cb.checked ? '1' : '0.4';
+        recalcularPrecioOriginal();
+    }
+
+    // ─── Auto-calcular precio original ────────────────────────────────────────
+    function recalcularPrecioOriginal() {
+        let total = 0;
+        document.querySelectorAll('#productosContainer input[type="checkbox"]:checked').forEach(function(cb) {
+            const pid      = cb.value;
+            const cantInp  = document.getElementById('cant_' + pid);
+            const precio   = parseFloat(cantInp ? cantInp.getAttribute('data-precio') : 0) || 0;
+            const cantidad = cantInp ? (parseInt(cantInp.value) || 1) : 1;
+            total += precio * cantidad;
+        });
+        document.getElementById('precio_original').value = total > 0 ? total.toFixed(2) : '';
+    }
+
+    // ─── Abrir modal nuevo ────────────────────────────────────────────────────
+    function abrirModalNuevo() {
+        document.getElementById('modalTitle').textContent = 'Nuevo Combo';
+        document.getElementById('comboId').value         = '';
+        document.getElementById('nombre_promocion').value = '';
+        document.getElementById('descripcion').value     = '';
+        document.getElementById('precio_combo').value    = '';
+        document.getElementById('precio_original').value = '';
+        document.getElementById('fecha_inicio').value    = '';
+        document.getElementById('fecha_fin').value       = '';
+        document.getElementById('estado').value          = '1';
+        document.getElementById('comboModal').style.display = 'flex';
+        cargarProductos([]);
+    }
+
+    // ─── Abrir modal editar ───────────────────────────────────────────────────
+    async function abrirModalEditar(id) {
+        try {
+            const [comboRes, prodRes] = await Promise.all([
+                fetch('/api/combos_promocionales/' + id),
+                fetch('/api/combos_promocionales/' + id + '/productos')
+            ]);
+            const combo      = await comboRes.json();
+            const composicion = await prodRes.json();
+
+            document.getElementById('modalTitle').textContent = 'Editar Combo';
+            document.getElementById('comboId').value          = id;
+            document.getElementById('nombre_promocion').value  = combo.nombre_promocion || '';
+            document.getElementById('descripcion').value      = combo.descripcion || '';
+            document.getElementById('precio_combo').value     = combo.precio_combo || '';
+            document.getElementById('precio_original').value  = combo.precio_original || '';
+            document.getElementById('fecha_inicio').value     = combo.fecha_inicio || '';
+            document.getElementById('fecha_fin').value        = combo.fecha_fin || '';
+            document.getElementById('estado').value           = combo.estado != null ? combo.estado : 1;
+            document.getElementById('comboModal').style.display = 'flex';
+
+            await cargarProductos(composicion);
+            recalcularPrecioOriginal();
+        } catch (e) {
+            alert('Error cargando combo: ' + e.message);
+        }
+    }
+
+    // ─── Guardar combo (nuevo o edición) ─────────────────────────────────────
+    async function guardarCombo() {
+        const nombre = document.getElementById('nombre_promocion').value.trim();
+        if (!nombre) { alert('El nombre del combo es obligatorio.'); return; }
+
+        const productos = [];
+        document.querySelectorAll('#productosContainer input[type="checkbox"]:checked').forEach(function(cb) {
+            const pid      = parseInt(cb.value);
+            const cantInp  = document.getElementById('cant_' + pid);
+            const cantidad = cantInp ? (parseInt(cantInp.value) || 1) : 1;
+            productos.push({ id_productos: pid, cantidad: cantidad });
+        });
+
+        const comboId = document.getElementById('comboId').value;
+        const payload = {
+            combo: {
+                nombre_promocion : nombre,
+                descripcion      : document.getElementById('descripcion').value,
+                precio_combo     : document.getElementById('precio_combo').value || null,
+                precio_original  : document.getElementById('precio_original').value || null,
+                fecha_inicio     : document.getElementById('fecha_inicio').value || null,
+                fecha_fin        : document.getElementById('fecha_fin').value || null,
+                estado           : parseInt(document.getElementById('estado').value),
+                id_tenants       : tenantId
+            },
+            productos: productos
+        };
+
+        const url    = comboId ? '/api/combos_promocionales/' + comboId + '/con-productos'
+                               : '/api/combos_promocionales/con-productos';
+        const method = comboId ? 'PUT' : 'POST';
+
+        try {
+            const res = await fetch(url, {
+                method  : method,
+                headers : { 'Content-Type': 'application/json' },
+                body    : JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error(await res.text());
+            cerrarModal();
+            cargarCombos();
+        } catch (e) {
+            alert('Error al guardar: ' + e.message);
+        }
+    }
+
+    // ─── Eliminar combo ───────────────────────────────────────────────────────
+    async function eliminarCombo(id) {
+        if (!confirm('¿Eliminar este combo?')) return;
+        await fetch('/api/combos_promocionales/' + id, { method: 'DELETE' });
+        cargarCombos();
+    }
+
+    function cerrarModal() {
+        document.getElementById('comboModal').style.display = 'none';
+    }
+
+    // Leer tenantId desde el meta tag si está disponible
+    const tenantMeta = document.querySelector('meta[name="tenantId"]');
+    if (tenantMeta) tenantId = parseInt(tenantMeta.content) || 1;
+
+    cargarCombos();
     </script>
 </div>

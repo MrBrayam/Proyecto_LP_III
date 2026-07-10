@@ -8,7 +8,7 @@ import proyecto.lp.iii.api.entity.Cita;
 public interface ICitaService {
     List<Cita> buscarTodos();
 
-    void guardar(Cita cita);
+    Cita guardar(Cita cita);
 
     void modificar(Cita cita);
 
