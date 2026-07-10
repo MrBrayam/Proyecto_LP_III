@@ -514,9 +514,18 @@ public class PageController {
             return res;
         }
         try {
+            String ruc = datos.get("ruc");
+            boolean rucExiste = serviceTenants.buscarTodos().stream()
+                    .anyMatch(t -> t.getRuc() != null && t.getRuc().equals(ruc));
+            if (rucExiste) {
+                res.put("success", false);
+                res.put("error", "El RUC ya se encuentra registrado por otra tienda.");
+                return res;
+            }
+
             Tenants tenant = new Tenants();
             tenant.setRazon_social(datos.get("razon_social"));
-            tenant.setRuc(datos.get("ruc"));
+            tenant.setRuc(ruc);
             tenant.setDireccion_fiscal(datos.get("direccion_fiscal"));
             tenant.setCorreo(datos.get("correo"));
             tenant.setTelefono(datos.get("telefono"));
@@ -565,8 +574,18 @@ public class PageController {
                 res.put("error", "Tenant no encontrado");
                 return res;
             }
+
+            String ruc = datos.get("ruc");
+            boolean rucExiste = serviceTenants.buscarTodos().stream()
+                    .anyMatch(t -> t.getRuc() != null && t.getRuc().equals(ruc) && !t.getId_tenants().equals(id));
+            if (rucExiste) {
+                res.put("success", false);
+                res.put("error", "El RUC ya se encuentra registrado por otra tienda.");
+                return res;
+            }
+
             tenant.setRazon_social(datos.get("razon_social"));
-            tenant.setRuc(datos.get("ruc"));
+            tenant.setRuc(ruc);
             tenant.setDireccion_fiscal(datos.get("direccion_fiscal"));
             tenant.setCorreo(datos.get("correo"));
             tenant.setTelefono(datos.get("telefono"));
