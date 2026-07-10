@@ -1,8 +1,13 @@
 HELP.md
-target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+
+### Backend - Java / Spring Boot ###
+Backend/target/
+Backend/.mvn/wrapper/maven-wrapper.jar
+!Backend/**/src/main/**/target/
+!Backend/**/src/test/**/target/
+Backend/build/
+!Backend/**/src/main/**/build/
+!Backend/**/src/test/**/build/
 
 ### STS ###
 .apt_generated
@@ -25,9 +30,6 @@ target/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
 ### VS Code ###
 .vscode/
@@ -37,4 +39,11 @@ build/
 postman/
 
 ### Uploads ###
-uploads/
+Backend/uploads/
+
+### Frontend - React / Vite ###
+Frontend/node_modules/
+Frontend/dist/
+Frontend/.env
+Frontend/.env.local
+Frontend/.env.production
