@@ -486,6 +486,13 @@ function renderServices() {
 }
 
 // Render History List
+let ventasData = [];
+let citasData = [];
+let currentVentasPage = 1;
+let currentCitasPage = 1;
+const itemsPerPage = 5;
+
+// Render History List
 function renderHistory() {
     const ventasList = document.getElementById('ventasHistoryList');
     const citasList = document.getElementById('citasHistoryList');
@@ -502,79 +509,223 @@ function renderHistory() {
                 return;
             }
 
-            // Render Ventas
-            ventasList.innerHTML = '';
-            if (!data.ventas || data.ventas.length === 0) {
-                ventasList.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;font-weight:300;font-size:13px;">No tienes compras registradas.</div>';
-            } else {
-                data.ventas.forEach(v => {
-                    const dateStr = v.fecha_venta ? new Date(v.fecha_venta).toLocaleDateString() : '-';
-                    const ticket = v.numero_ticket || v.comprobante_numero || 'T-N/A';
-                    const statusLabel = v.estado_sunat ? v.estado_sunat.toUpperCase() : 'PENDIENTE';
-                    const totalVal = v.total != null ? parseFloat(v.total).toFixed(2) : '0.00';
+            // Sort by date descending (recent purchases/appointments first)
+            ventasData = (data.ventas || []).sort((a, b) => {
+                const dateA = a.fecha_venta ? new Date(a.fecha_venta) : new Date(0);
+                const dateB = b.fecha_venta ? new Date(b.fecha_venta) : new Date(0);
+                return dateB - dateA;
+            });
 
-                    let statusClass = 'status-badge-pending';
-                    if (v.estado_sunat === 'aceptada') statusClass = 'status-badge-success';
-                    else if (v.estado_sunat === 'rechazada') statusClass = 'status-badge-danger';
+            citasData = (data.citas || []).sort((a, b) => {
+                const dateA = a.fecha_cita ? new Date(a.fecha_cita) : new Date(0);
+                const dateB = b.fecha_cita ? new Date(b.fecha_cita) : new Date(0);
+                return dateB - dateA;
+            });
 
-                    const itemDiv = document.createElement('div');
-                    itemDiv.className = 'history-item';
-                    itemDiv.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
-                        + '<div><strong style="font-size:14px;color:var(--dark);">' + ticket + '</strong>'
-                        + '<span style="font-size:12px;color:var(--text-muted);margin-left:8px;">' + dateStr + '</span></div>'
-                        + '<span class="status-badge ' + statusClass + '">' + statusLabel + '</span>'
-                        + '</div>'
-                        + '<div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;">'
-                        + '<span style="color:var(--text-muted);">Comprobante: ' + (v.tipo_comprobante || 'boleta') + '</span>'
-                        + '<div style="display:flex;align-items:center;gap:12px;">'
-                        + '<button onclick="generarBoletaDesdeHistorial(' + v.id_ventas + ')" class="btn-filled" style="padding:4px 10px;font-size:10px;border-radius:99px;background:var(--primary);border:none;cursor:pointer;color:white;">📄 PDF</button>'
-                        + '<strong style="font-size:15px;color:var(--dark);">S/ ' + totalVal + '</strong>'
-                        + '</div></div>';
-                    ventasList.appendChild(itemDiv);
-                });
-            }
+            currentVentasPage = 1;
+            currentCitasPage = 1;
 
-            // Render Citas
-            citasList.innerHTML = '';
-            if (!data.citas || data.citas.length === 0) {
-                citasList.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;font-weight:300;font-size:13px;">No tienes reservas de citas de belleza.</div>';
-            } else {
-                data.citas.forEach(c => {
-                    const dateStr = c.fecha_cita ? new Date(c.fecha_cita + 'T00:00:00').toLocaleDateString() : '-';
-                    const startStr = c.hora_inicio ? c.hora_inicio.substring(0, 5) : '';
-                    const endStr = c.hora_fin ? c.hora_fin.substring(0, 5) : '';
-                    const timeStr = startStr + ' - ' + endStr;
-                    const duration = c.duracion_minutos ? (c.duracion_minutos + ' min') : '60 min';
-                    const sedeName = c.id_sedes ? c.id_sedes.nombre_sede : 'Sede Principal';
-
-                    let statusLabel = 'CONFIRMADA';
-                    let statusClass = 'status-badge-success';
-                    if (c.estado === 0) {
-                        statusLabel = 'CANCELADA';
-                        statusClass = 'status-badge-danger';
-                    }
-
-                    const itemDiv = document.createElement('div');
-                    itemDiv.className = 'history-item';
-                    itemDiv.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
-                        + '<div><strong style="font-size:14px;color:var(--dark);">' + dateStr + '</strong>'
-                        + '<span style="font-size:12px;color:var(--text-muted);margin-left:8px;">' + timeStr + '</span></div>'
-                        + '<span class="status-badge ' + statusClass + '">' + statusLabel + '</span>'
-                        + '</div>'
-                        + '<div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:4px;">'
-                        + '<span style="color:var(--text-muted);">Sede: ' + sedeName + '</span>'
-                        + '<span style="color:var(--text-muted);">' + duration + '</span>'
-                        + '</div>'
-                        + '<div style="font-size:12px;color:var(--text-muted);font-style:italic;">Obs: ' + (c.observaciones || 'Sin observaciones') + '</div>';
-                    citasList.appendChild(itemDiv);
-                });
-            }
+            renderVentasHistoryPage();
+            renderCitasHistoryPage();
         })
         .catch(err => {
             console.error('Error al cargar historial:', err);
             ventasList.innerHTML = '<div style="text-align:center;color:red;padding:20px;font-size:13px;">Error al cargar.</div>';
             citasList.innerHTML = '<div style="text-align:center;color:red;padding:20px;font-size:13px;">Error al cargar.</div>';
         });
+}
+
+function renderVentasHistoryPage() {
+    const list = document.getElementById('ventasHistoryList');
+    const pag = document.getElementById('ventasPagination');
+    list.innerHTML = '';
+    pag.innerHTML = '';
+
+    if (ventasData.length === 0) {
+        list.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;font-weight:300;font-size:13px;">No tienes compras registradas.</div>';
+        return;
+    }
+
+    const totalPages = Math.ceil(ventasData.length / itemsPerPage);
+    const start = (currentVentasPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const pageItems = ventasData.slice(start, end);
+
+    pageItems.forEach(v => {
+        const dateStr = v.fecha_venta ? new Date(v.fecha_venta).toLocaleDateString() : '-';
+        const ticket = v.numero_ticket || v.comprobante_numero || 'T-N/A';
+        const statusLabel = v.estado_sunat ? v.estado_sunat.toUpperCase() : 'PENDIENTE';
+        const totalVal = v.total != null ? parseFloat(v.total).toFixed(2) : '0.00';
+
+        let statusClass = 'status-badge-pending';
+        if (v.estado_sunat === 'aceptada') statusClass = 'status-badge-success';
+        else if (v.estado_sunat === 'rechazada') statusClass = 'status-badge-danger';
+
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'history-item';
+        itemDiv.style.background = 'var(--surface)';
+        itemDiv.style.border = '1px solid #f1f5f9';
+        itemDiv.style.borderRadius = '12px';
+        itemDiv.style.padding = '16px';
+        itemDiv.style.boxShadow = '0 2px 8px rgba(0,0,0,0.02)';
+        itemDiv.style.transition = 'transform 0.2s, box-shadow 0.2s';
+        itemDiv.style.cursor = 'pointer';
+
+        itemDiv.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <div>
+                    <strong style="font-size:15px;color:var(--dark);font-weight:600;">${ticket}</strong>
+                    <span style="font-size:12px;color:var(--text-muted);margin-left:8px;font-weight:300;">${dateStr}</span>
+                </div>
+                <span class="status-badge ${statusClass}" style="font-size:10px;padding:3px 8px;border-radius:12px;font-weight:600;">${statusLabel}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;">
+                <span style="color:var(--text-muted);font-weight:300;">Comprobante: <span style="font-weight:500;color:var(--dark);">${v.tipo_comprobante || 'boleta'}</span></span>
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <button onclick="generarBoletaDesdeHistorial(${v.id_ventas})" class="btn-filled" 
+                            style="padding:5px 12px;font-size:11px;border-radius:99px;background:var(--primary);border:none;cursor:pointer;color:white;font-weight:500;transition:opacity 0.2s;"
+                            onmouseover="this.style.opacity=0.9" onmouseout="this.style.opacity=1">📄 PDF</button>
+                    <strong style="font-size:16px;color:var(--dark);font-weight:600;">S/ ${totalVal}</strong>
+                </div>
+            </div>
+        `;
+        list.appendChild(itemDiv);
+    });
+
+    renderPaginationButtons(pag, currentVentasPage, totalPages, (page) => {
+        currentVentasPage = page;
+        renderVentasHistoryPage();
+    });
+}
+
+function renderCitasHistoryPage() {
+    const list = document.getElementById('citasHistoryList');
+    const pag = document.getElementById('citasPagination');
+    list.innerHTML = '';
+    pag.innerHTML = '';
+
+    if (citasData.length === 0) {
+        list.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;font-weight:300;font-size:13px;">No tienes reservas de citas de belleza.</div>';
+        return;
+    }
+
+    const totalPages = Math.ceil(citasData.length / itemsPerPage);
+    const start = (currentCitasPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const pageItems = citasData.slice(start, end);
+
+    pageItems.forEach(c => {
+        const dateStr = c.fecha_cita ? new Date(c.fecha_cita + 'T00:00:00').toLocaleDateString() : '-';
+        const startStr = c.hora_inicio ? c.hora_inicio.substring(0, 5) : '';
+        const endStr = c.hora_fin ? c.hora_fin.substring(0, 5) : '';
+        const timeStr = startStr + ' - ' + endStr;
+        const duration = c.duracion_minutos ? (c.duracion_minutos + ' min') : '60 min';
+        const sedeName = c.id_sedes ? c.id_sedes.nombre_sede : 'Sede Principal';
+
+        let statusLabel = 'CONFIRMADA';
+        let statusClass = 'status-badge-success';
+        if (c.estado === 0) {
+            statusLabel = 'CANCELADA';
+            statusClass = 'status-badge-danger';
+        }
+
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'history-item';
+        itemDiv.style.background = 'var(--surface)';
+        itemDiv.style.border = '1px solid #f1f5f9';
+        itemDiv.style.borderRadius = '12px';
+        itemDiv.style.padding = '16px';
+        itemDiv.style.boxShadow = '0 2px 8px rgba(0,0,0,0.02)';
+        itemDiv.style.transition = 'transform 0.2s, box-shadow 0.2s';
+
+        itemDiv.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <div>
+                    <strong style="font-size:15px;color:var(--dark);font-weight:600;">${dateStr}</strong>
+                    <span style="font-size:12px;color:var(--text-muted);margin-left:8px;font-weight:300;">${timeStr}</span>
+                </div>
+                <span class="status-badge ${statusClass}" style="font-size:10px;padding:3px 8px;border-radius:12px;font-weight:600;">${statusLabel}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:8px;">
+                <span style="color:var(--text-muted);font-weight:300;">Sede: <span style="font-weight:500;color:var(--dark);">${sedeName}</span></span>
+                <span style="color:var(--text-muted);font-weight:300;">Duración: <span style="font-weight:500;color:var(--dark);">${duration}</span></span>
+            </div>
+            <div style="font-size:12px;color:var(--text-muted);font-style:italic;font-weight:300;">Obs: ${c.observaciones || 'Sin observaciones'}</div>
+        `;
+        list.appendChild(itemDiv);
+    });
+
+    renderPaginationButtons(pag, currentCitasPage, totalPages, (page) => {
+        currentCitasPage = page;
+        renderCitasHistoryPage();
+    });
+}
+
+function renderPaginationButtons(container, currentPage, totalPages, onPageClick) {
+    if (totalPages <= 1) return;
+
+    // Prev Button
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = '◀';
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.style.padding = '6px 12px';
+    prevBtn.style.borderRadius = '8px';
+    prevBtn.style.border = '1px solid #e2e8f0';
+    prevBtn.style.background = 'white';
+    prevBtn.style.fontSize = '12px';
+    prevBtn.style.cursor = currentPage === 1 ? 'not-allowed' : 'pointer';
+    prevBtn.style.opacity = currentPage === 1 ? '0.5' : '1';
+    prevBtn.style.transition = 'all 0.2s';
+    if (currentPage !== 1) {
+        prevBtn.addEventListener('mouseover', () => prevBtn.style.background = '#f8fafc');
+        prevBtn.addEventListener('mouseout', () => prevBtn.style.background = 'white');
+    }
+    prevBtn.addEventListener('click', () => onPageClick(currentPage - 1));
+    container.appendChild(prevBtn);
+
+    // Page Numbers
+    for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.style.padding = '6px 12px';
+        btn.style.borderRadius = '8px';
+        btn.style.border = '1px solid #e2e8f0';
+        btn.style.fontSize = '12px';
+        btn.style.cursor = 'pointer';
+        btn.style.fontWeight = '600';
+        btn.style.transition = 'all 0.2s';
+        if (i === currentPage) {
+            btn.style.background = 'var(--primary)';
+            btn.style.color = 'white';
+            btn.style.borderColor = 'var(--primary)';
+        } else {
+            btn.style.background = 'white';
+            btn.style.color = 'var(--dark)';
+            btn.addEventListener('mouseover', () => btn.style.background = '#f8fafc');
+            btn.addEventListener('mouseout', () => btn.style.background = 'white');
+        }
+        btn.addEventListener('click', () => onPageClick(i));
+        container.appendChild(btn);
+    }
+
+    // Next Button
+    const nextBtn = document.createElement('button');
+    nextBtn.textContent = '▶';
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.style.padding = '6px 12px';
+    nextBtn.style.borderRadius = '8px';
+    nextBtn.style.border = '1px solid #e2e8f0';
+    nextBtn.style.background = 'white';
+    nextBtn.style.fontSize = '12px';
+    nextBtn.style.cursor = currentPage === totalPages ? 'not-allowed' : 'pointer';
+    nextBtn.style.opacity = currentPage === totalPages ? '0.5' : '1';
+    nextBtn.style.transition = 'all 0.2s';
+    if (currentPage !== totalPages) {
+        nextBtn.addEventListener('mouseover', () => nextBtn.style.background = '#f8fafc');
+        nextBtn.addEventListener('mouseout', () => nextBtn.style.background = 'white');
+    }
+    nextBtn.addEventListener('click', () => onPageClick(currentPage + 1));
+    container.appendChild(nextBtn);
 }
 
 // PDF Generator — from history page

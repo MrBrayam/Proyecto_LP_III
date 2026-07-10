@@ -68,6 +68,16 @@ public class UsuariosController {
                 }
             }
         }
+
+        // Encrypt password before saving if raw
+        String pwd = registro.getContrasenia();
+        if (pwd != null && !pwd.trim().isEmpty()) {
+            if (!pwd.startsWith("$2a$") && !pwd.startsWith("$2b$") && !pwd.startsWith("$2y$")) {
+                String hashed = org.springframework.security.crypto.bcrypt.BCrypt.hashpw(pwd, org.springframework.security.crypto.bcrypt.BCrypt.gensalt());
+                registro.setContrasenia(hashed);
+            }
+        }
+
         serviceUsuarios.guardar(registro);
         return registro;
     }
@@ -75,6 +85,20 @@ public class UsuariosController {
     @PutMapping("/usuarios/{id}")
     public Usuarios modificar(@PathVariable Integer id, @RequestBody Usuarios registro) {
         registro.setId_usuarios(id);
+        
+        // Preserve password if left empty, otherwise encrypt the new password
+        Optional<Usuarios> originalOpt = serviceUsuarios.buscarId(id);
+        if (originalOpt.isPresent()) {
+            Usuarios original = originalOpt.get();
+            String pwd = registro.getContrasenia();
+            if (pwd == null || pwd.trim().isEmpty()) {
+                registro.setContrasenia(original.getContrasenia());
+            } else if (!pwd.startsWith("$2a$") && !pwd.startsWith("$2b$") && !pwd.startsWith("$2y$")) {
+                String hashed = org.springframework.security.crypto.bcrypt.BCrypt.hashpw(pwd, org.springframework.security.crypto.bcrypt.BCrypt.gensalt());
+                registro.setContrasenia(hashed);
+            }
+        }
+
         serviceUsuarios.modificar(registro);
         return registro;
     }

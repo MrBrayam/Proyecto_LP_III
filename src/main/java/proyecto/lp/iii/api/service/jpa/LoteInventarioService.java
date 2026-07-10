@@ -36,4 +36,10 @@ public class LoteInventarioService implements ILoteInventarioService {
     public void eliminar(Integer id) { 
         repoLoteInventario.deleteById(id); 
     }
+    public List<LoteInventario> buscarPorProductoDisponible(proyecto.lp.iii.api.entity.Producto producto) {
+        return repoLoteInventario.findAvailableLotsByProducto(producto);
+    }
+    public List<LoteInventario> buscarPorProducto(proyecto.lp.iii.api.entity.Producto producto) {
+        return repoLoteInventario.findLotsByProducto(producto);
+    }
 }

@@ -41,19 +41,18 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label>Numero Ticket</label>
-                            <input name="numero_ticket" required placeholder="Ej: T-0001">
+                            <input name="numero_ticket" placeholder="Autogenerado si se deja en blanco">
                         </div>
                         <div class="form-group">
                             <label>Comprobante Numero</label>
-                            <input name="comprobante_numero" placeholder="Ej: F001-00023">
+                            <input name="comprobante_numero" placeholder="Autogenerado si se deja en blanco">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label>Tipo Comprobante</label>
                             <select name="tipo_comprobante">
-                                <option value="ticket" selected>Ticket de Venta</option>
-                                <option value="boleta">Boleta Electronica</option>
+                                <option value="boleta" selected>Boleta Electronica</option>
                                 <option value="factura">Factura Electronica</option>
                             </select>
                         </div>
@@ -83,7 +82,7 @@
                         </div>
                         <div class="form-group">
                             <label>Total (S/)</label>
-                            <input name="total" type="number" step="0.01" placeholder="0.00" required>
+                            <input name="total" type="number" step="0.01" placeholder="0.00" required readonly style="background: #f1f3f5; color: #495057; font-weight: bold; cursor: not-allowed;">
                         </div>
                     </div>
                     <div class="form-group">
@@ -93,6 +92,20 @@
                             <option value="0">Anulada</option>
                         </select>
                     </div>
+
+                    <!-- Selector de Productos -->
+                    <div style="margin-top:1.5rem;">
+                        <label style="font-weight:600; margin-bottom:.5rem; display:block;">
+                            Productos Vendidos
+                            <span style="font-size:.8rem; color:#888; font-weight:400;">(selecciona y define cantidad)</span>
+                        </label>
+                        <div id="productosContainer"
+                             style="max-height:220px; overflow-y:auto; border:1px solid #e2e8f0; border-radius:8px; padding:.5rem; background: #fff;">
+                            <div id="loadingProductos" style="text-align:center; color:#888; padding:1rem;">
+                                Cargando productos...
+                            </div>
+                        </div>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -101,8 +114,99 @@
             </div>
         </div>
     </div>
-
     <script>
+    let todosProductos = [];
+
+    fetch('/api/productos')
+        .then(r => r.json())
+        .then(data => {
+            todosProductos = data;
+        })
+        .catch(err => console.error('Error cargando productos:', err));
+
+    function renderProductosSelector(composicion = []) {
+        const container = document.getElementById('productosContainer');
+        container.innerHTML = '';
+        if (todosProductos.length === 0) {
+            container.innerHTML = '<div style="text-align:center;color:#888;padding:1rem;">No hay productos disponibles</div>';
+            return;
+        }
+
+        todosProductos.forEach(prod => {
+            const compItem = composicion.find(c => c.id_productos && c.id_productos.id_productos === prod.id_productos);
+            const isChecked = !!compItem;
+            const cantidadVal = isChecked ? compItem.cantidad : 1;
+
+            const div = document.createElement('div');
+            div.style.display = 'flex';
+            div.style.alignItems = 'center';
+            div.style.justifyContent = 'space-between';
+            div.style.padding = '6px 10px';
+            div.style.borderBottom = '1px solid #f1f5f9';
+
+            div.innerHTML = `
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <input type="checkbox" value="${prod.id_productos}" ${isChecked ? 'checked' : ''} 
+                           onchange="toggleProductRow(${prod.id_productos}, this)" style="cursor:pointer;width:16px;height:16px;">
+                    <span style="font-size:13px;font-weight:500;color:#334155;">${prod.nombre_producto}</span>
+                    <span style="font-size:11px;color:#64748b;">(S/ ${parseFloat(prod.precio_venta).toFixed(2)})</span>
+                </div>
+                <div id="cantidadWrap_${prod.id_productos}" style="opacity: ${isChecked ? '1' : '0.4'}; transition: opacity 0.2s;">
+                    <label style="font-size:11px;margin-right:6px;color:#64748b;">Cant:</label>
+                    <input type="number" id="cant_${prod.id_productos}" min="1" value="${cantidadVal}" ${isChecked ? '' : 'disabled'}
+                           data-precio="${prod.precio_venta}" oninput="recalcularPreciosDirectas()"
+                           style="width:60px;padding:3px 6px;border:1px solid #cbd5e1;border-radius:4px;font-size:12px;text-align:center;">
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    window.toggleProductRow = function(pid, cb) {
+        const inp = document.getElementById('cant_' + pid);
+        const wrap = document.getElementById('cantidadWrap_' + pid);
+        if (inp && wrap) {
+            inp.disabled = !cb.checked;
+            wrap.style.opacity = cb.checked ? '1' : '0.4';
+        }
+        recalcularPreciosDirectas();
+    };
+
+    window.recalcularPreciosDirectas = function() {
+        let subtotal = 0.0;
+        document.querySelectorAll('#productosContainer input[type="checkbox"]:checked').forEach(cb => {
+            const pid = cb.value;
+            const cantInp = document.getElementById('cant_' + pid);
+            if (cantInp) {
+                const precio = parseFloat(cantInp.getAttribute('data-precio')) || 0.0;
+                const cant = parseInt(cantInp.value) || 1;
+                subtotal += precio * cant;
+            }
+        });
+
+        const form = document.getElementById('entityForm');
+        if (form) {
+            const subInput = form.querySelector('input[name="subtotal"]');
+            const descInput = form.querySelector('input[name="descuento"]');
+            const impInput = form.querySelector('input[name="impuesto"]');
+            const totInput = form.querySelector('input[name="total"]');
+
+            if (subInput) {
+                subInput.value = subtotal.toFixed(2);
+                if (impInput) {
+                    impInput.value = (subtotal * 0.18).toFixed(2);
+                }
+                
+                const descVal = parseFloat(descInput ? descInput.value : 0) || 0.0;
+                const impVal = parseFloat(impInput ? impInput.value : 0) || 0.0;
+                const totalVal = subtotal - descVal + impVal;
+                if (totInput) {
+                    totInput.value = totalVal.toFixed(2);
+                }
+            }
+        }
+    };
+
     crud.init(
         '/api/ventas',
         [
@@ -134,7 +238,7 @@
         ],
         [
             { field: 'id_sedes', api: '/api/sedes', label: 'nombre_sede' },
-            { field: 'id_sesiones_caja', api: '/api/sesiones_caja', label: 'id_sesiones_caja' }, // We'll show ID or details
+            { field: 'id_sesiones_caja', api: '/api/sesiones_caja', label: 'id_sesiones_caja' },
             { field: 'id_clientes', api: '/api/clientes', label: 'nombre_cliente' },
             { field: 'id_usuarios', api: '/api/usuarios', label: 'nombre_usuario' }
         ],
@@ -156,7 +260,6 @@
 
                 return `
                     <article class="entity-card">
-
                         <div class="entity-card__body">
                             <div class="entity-card__header">
                                 <div>
@@ -180,5 +283,122 @@
             }
         }
     );
+
+    const originalOpenNew = crud.openNew;
+    crud.openNew = function() {
+        originalOpenNew.apply(crud, arguments);
+        document.getElementById('modalTitle').textContent = 'Nueva Venta';
+        renderProductosSelector([]);
+    };
+
+    crud.edit = function(id) {
+        crud.editId = id;
+        Promise.all([
+            fetch('/api/ventas/' + id),
+            fetch('/api/ventas/' + id + '/productos')
+        ])
+        .then(async ([ventaRes, prodRes]) => {
+            const venta = await ventaRes.json();
+            const composition = await prodRes.json();
+
+            document.getElementById('modalTitle').textContent = 'Editar Venta';
+            crud.openModal();
+
+            const form = document.getElementById('entityForm');
+            crud.formConfig.forEach(field => {
+                const el = form.elements[field.name];
+                if (!el) return;
+                
+                let val = venta[field.name];
+                if (val && typeof val === 'object') {
+                    val = val[field.name];
+                }
+                el.value = val !== null && val !== undefined ? val : '';
+            });
+
+            renderProductosSelector(composition);
+            recalcularPreciosDirectas();
+        })
+        .catch(err => {
+            console.error('Error cargando venta:', err);
+            alert('Error al cargar la venta.');
+        });
+    };
+
+    crud.save = function() {
+        const form = document.getElementById('entityForm');
+        
+        const ventaData = {
+            id_tenants: 1
+        };
+        
+        crud.formConfig.forEach(field => {
+            const el = form.elements[field.name];
+            if (!el) return;
+            let v = el.value;
+            if (v === '' || v === null || v === undefined) return;
+            
+            if (field.type === 'fk') {
+                ventaData[field.name] = Number(v);
+            } else if (field.type === 'number' || field.type === 'decimal') {
+                ventaData[field.name] = field.type === 'decimal' ? parseFloat(v) : Number(v);
+            } else {
+                ventaData[field.name] = v;
+            }
+        });
+
+        const detalles = [];
+        document.querySelectorAll('#productosContainer input[type="checkbox"]:checked').forEach(cb => {
+            const pid = parseInt(cb.value);
+            const cantInp = document.getElementById('cant_' + pid);
+            if (cantInp) {
+                const precio = parseFloat(cantInp.getAttribute('data-precio')) || 0.0;
+                const cant = parseInt(cantInp.value) || 1;
+                detalles.push({
+                    id_productos: pid,
+                    cantidad: cant,
+                    precio_unitario: precio,
+                    subtotal: precio * cant
+                });
+            }
+        });
+
+        if (detalles.length === 0) {
+            alert('Debe seleccionar al menos un producto.');
+            return;
+        }
+
+        const payload = {
+            venta: ventaData,
+            detalles: detalles
+        };
+
+        const method = crud.editId ? 'PUT' : 'POST';
+        const url = crud.editId 
+            ? '/api/ventas/' + crud.editId + '/con-detalles' 
+            : '/api/ventas/con-detalles';
+
+        fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(r => r.json())
+        .then(data => {
+            crud.closeModal();
+            crud.load();
+        })
+        .catch(err => {
+            console.error('Error guardando venta con productos:', err);
+            alert('Error al guardar la venta.');
+        });
+    };
+
+    document.addEventListener('input', function(e) {
+        const name = e.target.name;
+        if (name === 'descuento' || name === 'impuesto') {
+            recalcularPreciosDirectas();
+        }
+    });
     </script>
 </div>
