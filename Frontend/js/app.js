@@ -419,12 +419,18 @@ const crud = {
                     }
                     fkValues[field.name] = value;
                 } else {
-                    el.value = field.fromNested ? val(data, field.name) : (data[field.name] ?? '');
+                    let rawVal = field.fromNested ? val(data, field.name) : (data[field.name] ?? '');
+                    if (el.type === 'datetime-local' && typeof rawVal === 'string' && rawVal.length >= 16) {
+                        rawVal = rawVal.substring(0, 16);
+                    }
+                    el.value = rawVal;
                 }
             }
             this.loadFkOptions(() => {
                 for (const [name, value] of Object.entries(fkValues)) {
-                    if (value) form.elements[name].value = value;
+                    if (value && form.elements[name]) {
+                        form.elements[name].value = value;
+                    }
                 }
                 this.syncFilePreviews();
                 this.fileFields.forEach(field => {
@@ -555,6 +561,12 @@ const crud = {
                         }
                         if (item.id_tenants) {
                             return item.id_tenants.id_tenants == tenantId || item.id_tenants == tenantId;
+                        }
+                        if (item.id_sedes) {
+                            const sedeTenant = item.id_sedes.id_tenants;
+                            if (sedeTenant) {
+                                return sedeTenant.id_tenants == tenantId || sedeTenant == tenantId;
+                            }
                         }
                         return true;
                     });

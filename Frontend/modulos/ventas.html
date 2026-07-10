@@ -119,12 +119,22 @@
 
     apiFetch('/api/productos')
         .then(data => {
-            todosProductos = data;
+            if (data && Array.isArray(data) && tenantId) {
+                todosProductos = data.filter(item => {
+                    if (item.id_tenants) {
+                        return item.id_tenants.id_tenants == tenantId || item.id_tenants == tenantId;
+                    }
+                    return true;
+                });
+            } else {
+                todosProductos = data || [];
+            }
         })
         .catch(err => console.error('Error cargando productos:', err));
 
     function renderProductosSelector(composicion = []) {
         const container = document.getElementById('productosContainer');
+        if (!container) return;
         container.innerHTML = '';
         if (todosProductos.length === 0) {
             container.innerHTML = '<div style="text-align:center;color:#888;padding:1rem;">No hay productos disponibles</div>';
@@ -298,22 +308,36 @@
         ])
         .then(([venta, composition]) => {
             document.getElementById('modalTitle').textContent = 'Editar Venta';
-            crud.openModal();
 
             const form = document.getElementById('entityForm');
+            const fkValues = {};
+
             crud.formConfig.forEach(field => {
                 const el = form.elements[field.name];
                 if (!el) return;
                 
-                let val = venta[field.name];
-                if (val && typeof val === 'object') {
-                    val = val[field.name];
+                if (field.type === 'fk') {
+                    let val = venta[field.name];
+                    if (val && typeof val === 'object') {
+                        val = val[field.name];
+                    }
+                    fkValues[field.name] = val;
+                } else {
+                    let val = venta[field.name];
+                    el.value = val !== null && val !== undefined ? val : '';
                 }
-                el.value = val !== null && val !== undefined ? val : '';
             });
 
-            renderProductosSelector(composition);
-            recalcularPreciosDirectas();
+            crud.loadFkOptions(() => {
+                for (const [name, value] of Object.entries(fkValues)) {
+                    if (value && form.elements[name]) {
+                        form.elements[name].value = value;
+                    }
+                }
+                renderProductosSelector(composition);
+                recalcularPreciosDirectas();
+                crud.openModal();
+            });
         })
         .catch(err => {
             console.error('Error cargando venta:', err);

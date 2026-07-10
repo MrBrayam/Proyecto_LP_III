@@ -134,9 +134,11 @@
     async function cargarProductos(composicionExistente) {
         composicionExistente = composicionExistente || [];
         const container = document.getElementById('productosContainer');
+        if (!container) return;
         container.innerHTML = '<div style="text-align:center;padding:1rem;color:#888">Cargando productos...</div>';
         try {
             todosProductos = await apiFetch('/api/productos');
+            if (!container) return; // double check if user switched during fetch
             if (!todosProductos || !todosProductos.length) {
                 container.innerHTML = '<div style="padding:.75rem;color:#888">No hay productos disponibles.</div>';
                 return;
