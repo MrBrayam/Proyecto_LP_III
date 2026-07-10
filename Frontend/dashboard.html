@@ -131,7 +131,11 @@
             <header class="topbar">
                 <button class="hamburger" id="hamburgerBtn">=</button>
                 <h1 id="moduleTitle">Dashboard</h1>
-                <div class="user-info">
+                <div class="user-info" style="display: flex; align-items: center; gap: 16px;">
+                    <span id="navPlanBadge" style="background: #e0f2fe; color: #0369a1; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; border: 1px solid #bae6fd; text-transform: uppercase; letter-spacing: 0.5px;">Básico</span>
+                    <button onclick="openUpgradePlanModal()" style="background: linear-gradient(135deg, #e11d48, #be123c); color: #ffffff; border: none; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(225, 29, 72, 0.2); transition: all 0.2s;">
+                        <span>Actualizar Plan</span>
+                    </button>
                     <span id="navUserName">Usuario</span>
                     <a href="#" onclick="logoutUser()" class="logout-btn">Salir</a>
                 </div>
@@ -145,16 +149,63 @@
         </div>
     </div>
 
+    <!-- Modal Actualizar Plan -->
+    <div id="upgradeModal" style="display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 10000; padding: 20px;">
+        <div style="background: #ffffff; border-radius: 16px; width: 100%; max-width: 800px; padding: 32px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); position: relative; border: 1px solid #e2e8f0;">
+            <button onclick="closeUpgradePlanModal()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 24px; color: #64748b; cursor: pointer;">&times;</button>
+            <h3 style="font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: #0f172a; margin-bottom: 8px; text-align: center;">Actualizar Suscripción</h3>
+            <p style="color: #64748b; font-size: 14px; text-align: center; margin-bottom: 32px;">Mejore su plan para desbloquear nuevas capacidades en Bellarista.</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 24px;">
+                <!-- Plan Basico -->
+                <div id="card-plan-1" style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; transition: all 0.2s;">
+                    <h4 style="font-size: 18px; color: #0f172a; margin-bottom: 4px; font-weight: 600;">Plan Básico</h4>
+                    <p style="color: #64748b; font-size: 12px; margin-bottom: 16px; flex-grow: 1; line-height: 1.5;">Funciones esenciales para un solo usuario.</p>
+                    <div style="margin-bottom: 20px;">
+                        <span style="font-size: 28px; font-weight: 700; color: #0f172a;">S/. 29</span>
+                        <span style="color: #64748b; font-size: 12px;">/ mes</span>
+                    </div>
+                    <button onclick="selectPlanUpgrade(1, 'Plan Básico')" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; cursor: pointer; transition: all 0.2s;">Seleccionar</button>
+                </div>
+                <!-- Plan Profesional -->
+                <div id="card-plan-2" style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; transition: all 0.2s;">
+                    <h4 style="font-size: 18px; color: #0f172a; margin-bottom: 4px; font-weight: 600;">Plan Profesional</h4>
+                    <p style="color: #64748b; font-size: 12px; margin-bottom: 16px; flex-grow: 1; line-height: 1.5;">Funciones avanzadas para pequeñas empresas.</p>
+                    <div style="margin-bottom: 20px;">
+                        <span style="font-size: 28px; font-weight: 700; color: #0f172a;">S/. 79</span>
+                        <span style="color: #64748b; font-size: 12px;">/ mes</span>
+                    </div>
+                    <button onclick="selectPlanUpgrade(2, 'Plan Profesional')" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-weight: 600; cursor: pointer; transition: all 0.2s;">Seleccionar</button>
+                </div>
+                <!-- Plan Enterprise -->
+                <div id="card-plan-3" style="border: 2px solid #e11d48; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; position: relative; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(225, 29, 72, 0.1);">
+                    <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #e11d48; color: #ffffff; font-size: 10px; font-weight: 700; padding: 2px 10px; border-radius: 20px; text-transform: uppercase;">Recomendado</div>
+                    <h4 style="font-size: 18px; color: #0f172a; margin-bottom: 4px; font-weight: 600;">Plan Enterprise</h4>
+                    <p style="color: #64748b; font-size: 12px; margin-bottom: 16px; flex-grow: 1; line-height: 1.5;">Reportes en PDF, gráficos de pastel dinámicos y sedes ilimitadas.</p>
+                    <div style="margin-bottom: 20px;">
+                        <span style="font-size: 28px; font-weight: 700; color: #0f172a;">S/. 190</span>
+                        <span style="color: #64748b; font-size: 12px;">/ mes</span>
+                    </div>
+                    <button onclick="selectPlanUpgrade(3, 'Plan Enterprise')" style="width: 100%; padding: 10px; border-radius: 8px; border: none; background: #e11d48; color: #ffffff; font-weight: 600; cursor: pointer; transition: all 0.2s;">Seleccionar</button>
+                </div>
+            </div>
+            
+            <div id="upgradeStatus" style="text-align: center; font-size: 13px; font-weight: 600; height: 20px;"></div>
+        </div>
+    </div>
+
     <script>
         const usuario = JSON.parse(localStorage.getItem('usuario') || 'null');
         const tenantId = localStorage.getItem('tenantId') || '1';
-        const planName = localStorage.getItem('planName') || 'Básico';
+        let planName = localStorage.getItem('planName') || 'Plan Básico';
         const allowedModules = JSON.parse(localStorage.getItem('allowedModules') || '[]');
 
         if (!usuario) {
             window.location.href = '/login.html';
         } else {
             document.getElementById('navUserName').textContent = (usuario.nombre_usuario || 'Usuario') + ' ' + (usuario.apellidos_usuario || '');
+            const badge = document.getElementById('navPlanBadge');
+            if (badge) badge.textContent = planName.replace('Plan ', '');
         }
 
         function logoutUser() {
@@ -305,16 +356,17 @@
                         </div>
                         <div style="padding: 24px;">
                             <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">
-                                Genere reportes descargables en formato PDF a partir de los datos almacenados en el sistema.
+                                Genere reportes descargables en formato PDF con gráficos estadísticos de pastel.
                             </p>
                             <div class="reports-container" style="display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-end;">
                                 <div style="flex: 2; min-width: 220px;">
                                     <label style="display: block; font-size: 13px; font-weight: 500; color: #475569; margin-bottom: 8px;">Tipo de Reporte</label>
                                     <select id="reportType" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #0f172a; background: #f8fafc; outline: none; transition: border-color 0.2s;">
-                                        <option value="ventas">Reporte de Ventas</option>
-                                        <option value="citas">Reporte de Citas</option>
-                                        <option value="clientes">Reporte de Clientes</option>
-                                        <option value="productos">Reporte de Inventario de Productos</option>
+                                        <option value="general">Reporte General del Negocio</option>
+                                        <option value="ventas">Reporte de Ventas (por tipo de comp.)</option>
+                                        <option value="citas">Reporte de Citas (por especialista)</option>
+                                        <option value="clientes">Reporte de Clientes (por tipo doc.)</option>
+                                        <option value="productos">Reporte de Inventario (por categoría)</option>
                                     </select>
                                 </div>
                                 <div style="flex: 1; min-width: 160px;">
@@ -327,7 +379,7 @@
                                 </div>
                                 <div style="min-width: 150px;">
                                     <button onclick="generarReportePDF()" style="width: 100%; padding: 12px 24px; background: #0f172a; color: #ffffff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s ease-in-out; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                                        <span>Descargar PDF</span>
+                                        <span>Descargar PDF con Gráfico</span>
                                     </button>
                                 </div>
                             </div>
@@ -351,12 +403,97 @@
                                 Su plan actual: <span style="font-weight: 600; color: #0f172a;">${planName}</span>
                             </div>
                             <p style="color: #94a3b8; font-size: 11px;">
-                                Contacte con el equipo de soporte de Bellarista para actualizar su plan de suscripción.
+                                Actualice su plan haciendo clic en <strong>Actualizar Plan</strong> en la parte superior derecha de la pantalla.
                             </p>
                         </div>
                     </div>
                 `;
             }
+        }
+
+        function openUpgradePlanModal() {
+            document.getElementById('upgradeModal').style.display = 'flex';
+            document.getElementById('upgradeStatus').textContent = '';
+            
+            for (let i = 1; i <= 3; i++) {
+                const card = document.getElementById(`card-plan-${i}`);
+                if (card) {
+                    if ((i === 1 && planName.includes('Básico')) || 
+                        (i === 2 && planName.includes('Profesional')) || 
+                        (i === 3 && planName.includes('Enterprise'))) {
+                        card.style.background = '#f8fafc';
+                        card.style.borderColor = '#94a3b8';
+                        const btn = card.querySelector('button');
+                        if (btn) {
+                            btn.textContent = 'Plan Actual';
+                            btn.disabled = true;
+                            btn.style.background = '#e2e8f0';
+                            btn.style.color = '#94a3b8';
+                        }
+                    } else {
+                        card.style.background = '#ffffff';
+                        card.style.borderColor = i === 3 ? '#e11d48' : '#e2e8f0';
+                        const btn = card.querySelector('button');
+                        if (btn) {
+                            btn.textContent = 'Seleccionar';
+                            btn.disabled = false;
+                            btn.style.background = i === 3 ? '#e11d48' : '#ffffff';
+                            btn.style.color = i === 3 ? '#ffffff' : '#0f172a';
+                        }
+                    }
+                }
+            }
+        }
+
+        function closeUpgradePlanModal() {
+            document.getElementById('upgradeModal').style.display = 'none';
+        }
+
+        function selectPlanUpgrade(planId, newPlanName) {
+            const statusDiv = document.getElementById('upgradeStatus');
+            statusDiv.textContent = 'Procesando actualización...';
+            statusDiv.style.color = '#64748b';
+
+            apiFetch('/api/suscripciones')
+                .then(subs => {
+                    const activeSub = subs.find(s => s.id_tenants && s.id_tenants.id_tenants == tenantId && s.estado === 1);
+                    const nowStr = new Date().toISOString().slice(0, 10);
+                    const nextMonthStr = new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().slice(0, 10);
+                    
+                    const payload = {
+                        id_tenants: { id_tenants: Number(tenantId) },
+                        id_planes_suscripcion: { id_planes_suscripcion: planId },
+                        fecha_inicio: activeSub ? activeSub.fecha_inicio : nowStr,
+                        fecha_proximo_pago: nextMonthStr,
+                        precio_contratado: planId === 1 ? 29.00 : (planId === 2 ? 79.00 : 190.00),
+                        estado: 1
+                    };
+
+                    const requestPromise = activeSub 
+                        ? apiFetch('/api/suscripciones/' + activeSub.id_suscripciones, { method: 'PUT', body: JSON.stringify(payload) })
+                        : apiFetch('/api/suscripciones', { method: 'POST', body: JSON.stringify(payload) });
+
+                    return requestPromise;
+                })
+                .then(() => {
+                    planName = newPlanName;
+                    localStorage.setItem('planName', newPlanName);
+                    
+                    const badge = document.getElementById('navPlanBadge');
+                    if (badge) badge.textContent = newPlanName.replace('Plan ', '');
+                    
+                    statusDiv.textContent = '¡Plan actualizado con éxito!';
+                    statusDiv.style.color = '#15803d';
+                    setTimeout(() => {
+                        closeUpgradePlanModal();
+                        showDashboardStatsView(); // reload reports panel lock/unlock view
+                    }, 1500);
+                })
+                .catch(err => {
+                    console.error(err);
+                    statusDiv.textContent = 'Error al actualizar el plan de suscripción.';
+                    statusDiv.style.color = '#b91c1c';
+                });
         }
 
         async function generarReportePDF() {
@@ -367,6 +504,194 @@
 
             statusDiv.textContent = 'Obteniendo datos...';
             statusDiv.style.color = '#64748b';
+
+            // Special handling for Reporte General
+            if (reportType === 'general') {
+                try {
+                    const [ventas, citas, clientes, productos] = await Promise.all([
+                        apiFetch('/api/ventas'),
+                        apiFetch('/api/citas'),
+                        apiFetch('/api/clientes'),
+                        apiFetch('/api/productos')
+                    ]);
+
+                    const filterByTenant = (list) => {
+                        if (!list || !Array.isArray(list)) return [];
+                        return list.filter(item => {
+                            if (item.id_tenants) {
+                                return item.id_tenants.id_tenants == tenantId || item.id_tenants == tenantId;
+                            }
+                            return true;
+                        });
+                    };
+
+                    const tVentas = filterByTenant(ventas);
+                    const tCitas = filterByTenant(citas);
+                    const tClientes = filterByTenant(clientes);
+                    const tProductos = filterByTenant(productos);
+
+                    let fVentas = tVentas;
+                    let fCitas = tCitas;
+                    let fClientes = tClientes;
+
+                    if (fromVal || toVal) {
+                        const fromDate = fromVal ? new Date(fromVal + 'T00:00:00') : null;
+                        const toDate = toVal ? new Date(toVal + 'T23:59:59') : null;
+
+                        const filterByDate = (list, dateKey) => {
+                            return list.filter(item => {
+                                const itemDate = parseDateString(item[dateKey]);
+                                if (!itemDate) return true;
+                                if (fromDate && itemDate < fromDate) return false;
+                                if (toDate && itemDate > toDate) return false;
+                                return true;
+                            });
+                        };
+
+                        fVentas = filterByDate(tVentas, 'fecha_venta');
+                        fCitas = filterByDate(tCitas, 'fecha_cita');
+                        fClientes = filterByDate(tClientes, 'fecha_registro');
+                    }
+
+                    const generalDistributionData = [
+                        { label: 'Ventas', count: fVentas.length },
+                        { label: 'Citas', count: fCitas.length },
+                        { label: 'Clientes', count: fClientes.length },
+                        { label: 'Productos', count: tProductos.length }
+                    ];
+
+                    const chartDataURL = generatePieChartForGeneral(generalDistributionData);
+
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
+
+                    doc.setFontSize(18);
+                    doc.setTextColor(15, 23, 42);
+                    doc.text("Bellarista", 14, 20);
+
+                    doc.setFontSize(14);
+                    doc.setTextColor(71, 85, 105);
+                    doc.text("Reporte General del Estado del Negocio", 14, 28);
+
+                    doc.setFontSize(10);
+                    doc.setTextColor(100);
+                    const now = new Date().toLocaleString();
+                    let dateText = `Generado el: ${now}`;
+                    if (fromVal || toVal) {
+                        dateText += ` | Rango: ${fromVal || 'Inicio'} hasta ${toVal || 'Fin'}`;
+                    }
+                    doc.text(dateText, 14, 34);
+
+                    // Render 4 KPI Cards
+                    // KPI 1: Ventas Total Revenue
+                    doc.setFillColor(248, 250, 252);
+                    doc.setDrawColor(226, 232, 240);
+                    doc.roundedRect(14, 45, 80, 24, 3, 3, 'FD');
+                    doc.setFontSize(8);
+                    doc.setTextColor(100);
+                    doc.text("INGRESOS TOTALES (VENTAS)", 18, 52);
+                    doc.setFontSize(11);
+                    doc.setTextColor(15, 23, 42);
+                    const totalRevenue = fVentas.reduce((acc, curr) => acc + parseFloat(curr.total || 0), 0);
+                    doc.text(`S/. ${totalRevenue.toFixed(2)} (${fVentas.length} u.)`, 18, 62);
+
+                    // KPI 2: Citas
+                    doc.roundedRect(102, 45, 80, 24, 3, 3, 'FD');
+                    doc.setFontSize(8);
+                    doc.setTextColor(100);
+                    doc.text("CITAS AGENDADAS", 106, 52);
+                    doc.setFontSize(11);
+                    doc.setTextColor(15, 23, 42);
+                    doc.text(`${fCitas.length} citas`, 106, 62);
+
+                    // KPI 3: Clientes Nuevos
+                    doc.roundedRect(14, 75, 80, 24, 3, 3, 'FD');
+                    doc.setFontSize(8);
+                    doc.setTextColor(100);
+                    doc.text("CLIENTES REGISTRADOS", 18, 82);
+                    doc.setFontSize(11);
+                    doc.setTextColor(15, 23, 42);
+                    doc.text(`${fClientes.length} nuevos`, 18, 92);
+
+                    // KPI 4: Catálogo Productos
+                    doc.roundedRect(102, 75, 80, 24, 3, 3, 'FD');
+                    doc.setFontSize(8);
+                    doc.setTextColor(100);
+                    doc.text("CATÁLOGO DE PRODUCTOS", 106, 82);
+                    doc.setFontSize(11);
+                    doc.setTextColor(15, 23, 42);
+                    doc.text(`${tProductos.length} ítems`, 106, 92);
+
+                    if (chartDataURL) {
+                        doc.setFontSize(11);
+                        doc.setTextColor(15, 23, 42);
+                        doc.text("Distribución Operativa (Compartición por Volumen)", 14, 112);
+                        doc.addImage(chartDataURL, 'PNG', 14, 116, 150, 75);
+                    }
+
+                    // Page 2: Detailed lists of recent items
+                    doc.addPage();
+                    doc.setFontSize(14);
+                    doc.setTextColor(15, 23, 42);
+                    doc.text("Últimos Pedidos / Ventas del Periodo", 14, 20);
+
+                    const recentSalesHeaders = [['ID', 'Fecha', 'Documento', 'Cliente', 'Total']];
+                    const recentSalesRows = fVentas.slice(0, 5).map(item => [
+                        item.id_ventas || '-',
+                        item.fecha_venta ? formatReportDate(item.fecha_venta) : '-',
+                        item.comprobante_numero || item.numero_ticket || '-',
+                        item.id_clientes ? `${item.id_clientes.nombre_cliente || ''} ${item.id_clientes.apellidos_clientes || ''}`.trim() : 'General',
+                        item.total ? `S/. ${parseFloat(item.total).toFixed(2)}` : 'S/. 0.00'
+                    ]);
+
+                    doc.autoTable({
+                        startY: 25,
+                        head: recentSalesHeaders,
+                        body: recentSalesRows,
+                        theme: 'striped',
+                        headStyles: { fillColor: [15, 23, 42] },
+                        styles: { fontSize: 9 },
+                        margin: { top: 25 }
+                    });
+
+                    const currentY = doc.autoTable.previous.finalY || 80;
+
+                    doc.setFontSize(14);
+                    doc.setTextColor(15, 23, 42);
+                    doc.text("Próximas Citas Agendadas", 14, currentY + 15);
+
+                    const recentCitasHeaders = [['ID', 'Fecha Cita', 'Hora', 'Cliente', 'Especialista']];
+                    const recentCitasRows = fCitas.slice(0, 5).map(item => [
+                        item.id_citas || '-',
+                        item.fecha_cita ? formatReportDate(item.fecha_cita) : '-',
+                        `${item.hora_inicio || ''} - ${item.hora_fin || ''}`,
+                        item.id_clientes ? `${item.id_clientes.nombre_cliente || ''} ${item.id_clientes.apellidos_clientes || ''}`.trim() : '-',
+                        item.id_usuarios_especialista ? `${item.id_usuarios_especialista.nombre_usuario || ''} ${item.id_usuarios_especialista.apellidos_usuario || ''}`.trim() : '-'
+                    ]);
+
+                    doc.autoTable({
+                        startY: currentY + 20,
+                        head: recentCitasHeaders,
+                        body: recentCitasRows,
+                        theme: 'striped',
+                        headStyles: { fillColor: [71, 85, 105] },
+                        styles: { fontSize: 9 },
+                        margin: { top: currentY + 20 }
+                    });
+
+                    const filename = `Reporte_General_${new Date().toISOString().slice(0,10)}.pdf`;
+                    doc.save(filename);
+
+                    statusDiv.textContent = `Reporte generado con éxito: ${filename}`;
+                    statusDiv.style.color = '#15803d';
+
+                } catch (error) {
+                    console.error(error);
+                    statusDiv.textContent = 'Error al generar el reporte general.';
+                    statusDiv.style.color = '#b91c1c';
+                }
+                return;
+            }
 
             let apiEndpoint = '';
             let reportTitle = '';
@@ -408,7 +733,7 @@
                     const fromDate = fromVal ? new Date(fromVal + 'T00:00:00') : null;
                     const toDate = toVal ? new Date(toVal + 'T23:59:59') : null;
 
-                    filteredData = data.filter(item => {
+                    filteredData = filteredData.filter(item => {
                         let itemDate = null;
                         if (reportType === 'ventas' && item.fecha_venta) {
                             itemDate = parseDateString(item.fecha_venta);
@@ -432,6 +757,15 @@
                     return;
                 }
 
+                // Render dynamic Pie Chart to canvas
+                const chartDataURL = generatePieChartDataURL(filteredData, item => {
+                    if (reportType === 'ventas') return item.tipo_comprobante;
+                    if (reportType === 'citas') return item.id_usuarios_especialista ? item.id_usuarios_especialista.nombre_usuario : 'Sin Asignar';
+                    if (reportType === 'clientes') return item.tipo_documento;
+                    if (reportType === 'productos') return item.id_categorias_productos ? item.id_categorias_productos.nombre_categoria_producto : 'Sin Categoría';
+                    return null;
+                });
+
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
 
@@ -451,6 +785,15 @@
                     dateText += ` | Rango: ${fromVal || 'Inicio'} hasta ${toVal || 'Fin'}`;
                 }
                 doc.text(dateText, 14, 34);
+
+                let startY = 40;
+                if (chartDataURL) {
+                    doc.setFontSize(11);
+                    doc.setTextColor(15, 23, 42);
+                    doc.text("Resumen Gráfico (Distribución de Registros)", 14, 42);
+                    doc.addImage(chartDataURL, 'PNG', 14, 46, 150, 75);
+                    startY = 128;
+                }
 
                 let headers = [];
                 let rows = [];
@@ -499,7 +842,7 @@
                 }
 
                 doc.autoTable({
-                    startY: 40,
+                    startY: startY,
                     head: headers,
                     body: rows,
                     theme: 'striped',
@@ -519,6 +862,134 @@
                 statusDiv.textContent = 'Error al generar el reporte. Inténtelo nuevamente.';
                 statusDiv.style.color = '#b91c1c';
             }
+        }
+
+        function generatePieChartForGeneral(distributionData) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 450;
+            canvas.height = 220;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const total = distributionData.reduce((acc, curr) => acc + curr.count, 0);
+            if (total === 0) return null;
+
+            const colors = ['#f43f5e', '#3b82f6', '#10b981', '#f59e0b'];
+            let startAngle = 0;
+            let colorIdx = 0;
+
+            const radius = 70;
+            const centerX = 100;
+            const centerY = 110;
+
+            distributionData.forEach(item => {
+                const sliceAngle = (item.count / total) * 2 * Math.PI;
+                if (sliceAngle === 0) return;
+                
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
+                ctx.closePath();
+                
+                ctx.fillStyle = colors[colorIdx % colors.length];
+                ctx.fill();
+                
+                startAngle += sliceAngle;
+                colorIdx++;
+            });
+
+            ctx.font = 'bold 12px sans-serif';
+            ctx.fillStyle = '#0f172a';
+            ctx.fillText('Distribución de Operaciones:', 220, 35);
+            
+            ctx.font = '11px sans-serif';
+            colorIdx = 0;
+            let legendY = 60;
+            distributionData.forEach(item => {
+                const percent = ((item.count / total) * 100).toFixed(1);
+                
+                ctx.fillStyle = colors[colorIdx % colors.length];
+                ctx.fillRect(220, legendY - 8, 12, 12);
+                
+                ctx.fillStyle = '#475569';
+                ctx.fillText(`${item.label}: ${item.count} (${percent}%)`, 240, legendY);
+                
+                legendY += 22;
+                colorIdx++;
+            });
+
+            return canvas.toDataURL('image/png');
+        }
+
+        function generatePieChartDataURL(data, keyExtractor) {
+            const counts = {};
+            data.forEach(item => {
+                let val = keyExtractor(item) || 'Otros';
+                counts[val] = (counts[val] || 0) + 1;
+            });
+
+            const canvas = document.createElement('canvas');
+            canvas.width = 450;
+            canvas.height = 220;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const total = Object.values(counts).reduce((a, b) => a + b, 0);
+            if (total === 0) return null;
+
+            const colors = ['#f43f5e', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#64748b'];
+            let startAngle = 0;
+            let colorIdx = 0;
+
+            const keys = Object.keys(counts);
+            const radius = 70;
+            const centerX = 100;
+            const centerY = 110;
+
+            // Draw pie slices
+            keys.forEach(key => {
+                const count = counts[key];
+                const sliceAngle = (count / total) * 2 * Math.PI;
+                
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
+                ctx.closePath();
+                
+                ctx.fillStyle = colors[colorIdx % colors.length];
+                ctx.fill();
+                
+                startAngle += sliceAngle;
+                colorIdx++;
+            });
+
+            // Draw legend
+            ctx.font = 'bold 12px sans-serif';
+            ctx.fillStyle = '#0f172a';
+            ctx.fillText('Distribución por Categorías:', 220, 35);
+            
+            ctx.font = '11px sans-serif';
+            colorIdx = 0;
+            let legendY = 60;
+            keys.forEach(key => {
+                const count = counts[key];
+                const percent = ((count / total) * 100).toFixed(1);
+                
+                ctx.fillStyle = colors[colorIdx % colors.length];
+                ctx.fillRect(220, legendY - 8, 12, 12);
+                
+                ctx.fillStyle = '#475569';
+                ctx.fillText(`${key}: ${count} (${percent}%)`, 240, legendY);
+                
+                legendY += 22;
+                colorIdx++;
+            });
+
+            return canvas.toDataURL('image/png');
         }
 
         function parseDateString(dateVal) {

@@ -97,7 +97,7 @@
 
     <script>
     let todosProductos = [];
-    let tenantId = 1;
+    // Utiliza el tenantId global ya definido en dashboard.html
 
     // ─── Cargar tabla de combos ────────────────────────────────────────────────
     async function cargarCombos() {
@@ -106,10 +106,9 @@
         const empty  = document.getElementById('emptyState');
         loading.style.display = 'block';
         try {
-            const res  = await fetch('/api/combos_promocionales');
-            const data = await res.json();
+            const data = await apiFetch('/api/combos_promocionales');
             loading.style.display = 'none';
-            if (!data.length) { empty.style.display = 'block'; return; }
+            if (!data || !data.length) { empty.style.display = 'block'; return; }
             tbody.innerHTML = data.map(c => `
                 <tr>
                     <td>${c.id_combos_promocionales}</td>
@@ -137,9 +136,8 @@
         const container = document.getElementById('productosContainer');
         container.innerHTML = '<div style="text-align:center;padding:1rem;color:#888">Cargando productos...</div>';
         try {
-            const res = await fetch('/api/productos');
-            todosProductos = await res.json();
-            if (!todosProductos.length) {
+            todosProductos = await apiFetch('/api/productos');
+            if (!todosProductos || !todosProductos.length) {
                 container.innerHTML = '<div style="padding:.75rem;color:#888">No hay productos disponibles.</div>';
                 return;
             }
@@ -153,70 +151,62 @@
 
             const filas = todosProductos.map(function(p) {
                 const pid     = p.id_productos;
-                const checked = mapExistente[pid] ? 'checked' : '';
-                const cantidad = mapExistente[pid] || 1;
-                const precio   = parseFloat(p.precio_venta || 0);
-                const opacity  = mapExistente[pid] ? '1' : '0.4';
-                const disabled = mapExistente[pid] ? '' : 'disabled';
-                return (
-                    '<div class="producto-row" style="display:flex;align-items:center;gap:.75rem;padding:.45rem .5rem;border-bottom:1px solid #f0f4f8;">' +
-                        '<input type="checkbox" id="prod_' + pid + '" value="' + pid + '" ' + checked +
-                            ' onchange="toggleCantidad(' + pid + ')"' +
-                            ' style="width:18px;height:18px;cursor:pointer;accent-color:#6366f1;">' +
-                        '<label for="prod_' + pid + '" style="flex:1;cursor:pointer;font-size:.9rem;">' +
-                            (p.nombre_producto || 'Producto #' + pid) +
-                            '<span style="color:#888;font-size:.8rem;"> — S/ ' + precio.toFixed(2) + '</span>' +
-                        '</label>' +
-                        '<div style="display:flex;align-items:center;gap:.4rem;opacity:' + opacity + ';" id="cantidadWrap_' + pid + '">' +
-                            '<label style="font-size:.8rem;color:#64748b;">Cant:</label>' +
-                            '<input type="number" id="cant_' + pid + '" value="' + cantidad + '" min="1"' +
-                                ' data-precio="' + precio + '"' +
-                                ' style="width:60px;padding:.25rem .5rem;border:1px solid #d1d5db;border-radius:6px;font-size:.9rem;"' +
-                                ' oninput="recalcularPrecioOriginal()"' +
-                                ' ' + disabled + '>' +
-                        '</div>' +
-                    '</div>'
-                );
-            });
-            container.innerHTML = filas.join('');
+                const pnombre = p.nombre_producto || 'Sin Nombre';
+                const pprecio = p.precio_venta != null ? parseFloat(p.precio_venta) : 0.00;
+                const checked = mapExistente[pid] !== undefined ? 'checked' : '';
+                const cantVal = mapExistente[pid] !== undefined ? mapExistente[pid] : 1;
+                const disp    = mapExistente[pid] !== undefined ? 'block' : 'none';
+
+                return `
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding:.35rem; border-bottom:1px solid #f1f5f9;">
+                        <label style="display:flex; align-items:center; gap:.5rem; font-weight:400; cursor:pointer;">
+                            <input type="checkbox" value="${pid}" ${checked} onchange="toggleCantidadField(${pid}, this.checked)">
+                            <span>${escapeHtml(pnombre)} (S/ ${pprecio.toFixed(2)})</span>
+                        </label>
+                        <div id="wrapper_cant_${pid}" style="display:${disp}; align-items:center; gap:.25rem;">
+                            <span style="font-size:.75rem; color:#64748b;">Cant:</span>
+                            <input id="cant_${pid}" type="number" min="1" value="${cantVal}" oninput="recalcularPrecioOriginal()"
+                                   style="width:50px; padding:.15rem .25rem; border:1px solid #cbd5e1; border-radius:4px; text-align:center;">
+                        </div>
+                    </div>`;
+            }).join('');
+            container.innerHTML = filas;
         } catch (e) {
             container.innerHTML = '<div style="padding:.75rem;color:#e11d48;">Error cargando productos.</div>';
         }
     }
 
-    // ─── Toggle cantidad al marcar/desmarcar ──────────────────────────────────
-    function toggleCantidad(pid) {
-        const cb   = document.getElementById('prod_' + pid);
-        const inp  = document.getElementById('cant_' + pid);
-        const wrap = document.getElementById('cantidadWrap_' + pid);
-        inp.disabled      = !cb.checked;
-        wrap.style.opacity = cb.checked ? '1' : '0.4';
+    function toggleCantidadField(pid, isChecked) {
+        const wrapper = document.getElementById('wrapper_cant_' + pid);
+        if (wrapper) wrapper.style.display = isChecked ? 'block' : 'none';
         recalcularPrecioOriginal();
     }
 
-    // ─── Auto-calcular precio original ────────────────────────────────────────
+    // Calcular el precio original sumando (precio_venta * cantidad) de productos seleccionados
     function recalcularPrecioOriginal() {
-        let total = 0;
+        let total = 0.00;
         document.querySelectorAll('#productosContainer input[type="checkbox"]:checked').forEach(function(cb) {
-            const pid      = cb.value;
-            const cantInp  = document.getElementById('cant_' + pid);
-            const precio   = parseFloat(cantInp ? cantInp.getAttribute('data-precio') : 0) || 0;
+            const pid     = parseInt(cb.value);
+            const cantInp = document.getElementById('cant_' + pid);
             const cantidad = cantInp ? (parseInt(cantInp.value) || 1) : 1;
-            total += precio * cantidad;
+            
+            const prod = todosProductos.find(p => p.id_productos === pid);
+            if (prod && prod.precio_venta != null) {
+                total += parseFloat(prod.precio_venta) * cantidad;
+            }
         });
-        document.getElementById('precio_original').value = total > 0 ? total.toFixed(2) : '';
+        document.getElementById('precio_original').value = total.toFixed(2);
     }
 
-    // ─── Abrir modal nuevo ────────────────────────────────────────────────────
     function abrirModalNuevo() {
         document.getElementById('modalTitle').textContent = 'Nuevo Combo';
-        document.getElementById('comboId').value         = '';
-        document.getElementById('nombre_promocion').value = '';
-        document.getElementById('descripcion').value     = '';
-        document.getElementById('precio_combo').value    = '';
-        document.getElementById('precio_original').value = '';
-        document.getElementById('fecha_inicio').value    = '';
-        document.getElementById('fecha_fin').value       = '';
+        document.getElementById('comboId').value          = '';
+        document.getElementById('nombre_promocion').value  = '';
+        document.getElementById('descripcion').value      = '';
+        document.getElementById('precio_combo').value     = '';
+        document.getElementById('precio_original').value  = '0.00';
+        document.getElementById('fecha_inicio').value     = '';
+        document.getElementById('fecha_fin').value        = '';
         document.getElementById('estado').value          = '1';
         document.getElementById('comboModal').style.display = 'flex';
         cargarProductos([]);
@@ -225,12 +215,10 @@
     // ─── Abrir modal editar ───────────────────────────────────────────────────
     async function abrirModalEditar(id) {
         try {
-            const [comboRes, prodRes] = await Promise.all([
-                fetch('/api/combos_promocionales/' + id),
-                fetch('/api/combos_promocionales/' + id + '/productos')
+            const [combo, composicion] = await Promise.all([
+                apiFetch('/api/combos_promocionales/' + id),
+                apiFetch('/api/combos_promocionales/' + id + '/productos')
             ]);
-            const combo      = await comboRes.json();
-            const composicion = await prodRes.json();
 
             document.getElementById('modalTitle').textContent = 'Editar Combo';
             document.getElementById('comboId').value          = id;
@@ -273,7 +261,7 @@
                 fecha_inicio     : document.getElementById('fecha_inicio').value || null,
                 fecha_fin        : document.getElementById('fecha_fin').value || null,
                 estado           : parseInt(document.getElementById('estado').value),
-                id_tenants       : tenantId
+                id_tenants       : Number(tenantId)
             },
             productos: productos
         };
@@ -283,12 +271,10 @@
         const method = comboId ? 'PUT' : 'POST';
 
         try {
-            const res = await fetch(url, {
+            await apiFetch(url, {
                 method  : method,
-                headers : { 'Content-Type': 'application/json' },
                 body    : JSON.stringify(payload)
             });
-            if (!res.ok) throw new Error(await res.text());
             cerrarModal();
             cargarCombos();
         } catch (e) {
@@ -299,17 +285,13 @@
     // ─── Eliminar combo ───────────────────────────────────────────────────────
     async function eliminarCombo(id) {
         if (!confirm('¿Eliminar este combo?')) return;
-        await fetch('/api/combos_promocionales/' + id, { method: 'DELETE' });
+        await apiFetch('/api/combos_promocionales/' + id, { method: 'DELETE' });
         cargarCombos();
     }
 
     function cerrarModal() {
         document.getElementById('comboModal').style.display = 'none';
     }
-
-    // Leer tenantId desde el meta tag si está disponible
-    const tenantMeta = document.querySelector('meta[name="tenantId"]');
-    if (tenantMeta) tenantId = parseInt(tenantMeta.content) || 1;
 
     cargarCombos();
     </script>

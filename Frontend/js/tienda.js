@@ -707,7 +707,12 @@ function renderCitasHistoryPage() {
                 <span style="color:var(--text-muted);font-weight:300;">Sede: <span style="font-weight:500;color:var(--dark);">${sedeName}</span></span>
                 <span style="color:var(--text-muted);font-weight:300;">Duración: <span style="font-weight:500;color:var(--dark);">${duration}</span></span>
             </div>
-            <div style="font-size:12px;color:var(--text-muted);font-style:italic;font-weight:300;">Obs: ${c.observaciones || 'Sin observaciones'}</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div style="font-size:12px;color:var(--text-muted);font-style:italic;font-weight:300;">Obs: ${c.observaciones || 'Sin observaciones'}</div>
+                <button onclick="generarComprobanteCita(${c.id_citas})" class="btn-filled" 
+                        style="padding:5px 12px;font-size:11px;border-radius:99px;background:var(--primary);border:none;cursor:pointer;color:white;font-weight:500;transition:opacity 0.2s;"
+                        onmouseover="this.style.opacity=0.9" onmouseout="this.style.opacity=1">📄 PDF</button>
+            </div>
         `;
         list.appendChild(itemDiv);
     });
@@ -942,3 +947,123 @@ function submitContactForm(e) {
         alert('Ocurrió un error al enviar el mensaje.');
     });
 }
+
+function generarComprobanteCita(citaId) {
+    if (!citaId) return;
+    Promise.all([
+        fetch(API + '/api/citas/' + citaId).then(r => r.json()),
+        fetch(API + '/api/servicio_cita').then(r => r.json())
+    ])
+    .then(([cita, allServicios]) => {
+        if (!cita) {
+            alert('No se encontró la cita. Intente nuevamente.');
+            return;
+        }
+        
+        const detalles = (allServicios || []).filter(sc => sc.id_citas && (sc.id_citas.id_citas === citaId || sc.id_citas === citaId));
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        doc.setFont('Helvetica', 'bold');
+        doc.setFontSize(20);
+        doc.setTextColor(30, 30, 36);
+        doc.text('BELLARISTA SALON & BOUTIQUE', 14, 20);
+
+        doc.setFont('Helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(117, 117, 119);
+        doc.text('RUC: 20601234561', 14, 26);
+        doc.text('Dirección: Av. La Marina 123, San Miguel, Lima', 14, 31);
+        doc.text('Teléfono: 01-3456789 | contacto@bellarista.pe', 14, 36);
+
+        // Gold title card for CITA
+        doc.setDrawColor(197, 168, 128);
+        doc.setFillColor(245, 239, 230);
+        doc.rect(125, 12, 70, 26, 'FD');
+
+        doc.setFont('Helvetica', 'bold');
+        doc.setFontSize(11);
+        doc.setTextColor(176, 145, 104);
+        doc.text('RESERVA DE CITA', 130, 18);
+        doc.text('DE BELLEZA', 130, 23);
+
+        const ticketNum = 'RES-' + (cita.id_citas || 'N/A');
+        doc.setFontSize(11);
+        doc.setTextColor(30, 30, 36);
+        doc.text(ticketNum, 130, 31);
+
+        doc.setDrawColor(230, 230, 233);
+        doc.line(14, 45, 195, 45);
+
+        doc.setFont('Helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.text('DATOS DE LA RESERVA', 14, 52);
+
+        doc.setFont('Helvetica', 'normal');
+        doc.setFontSize(9);
+        const cli = cita.id_clientes || {};
+        const cliNombre = cli.nombre_cliente ? (cli.nombre_cliente + ' ' + (cli.apellidos_clientes || '')) : 'Cliente';
+        const cliPhone = cli.telefono || '-';
+        const cliMail = cli.correo || '-';
+        
+        const sede = cita.id_sedes || {};
+        const sedeNombre = sede.nombre_sede || 'Sede Principal';
+        const sedeDir = sede.direccion || '-';
+
+        const fechaCita = cita.fecha_cita ? new Date(cita.fecha_cita + 'T00:00:00').toLocaleDateString() : '-';
+        const horaCita = `${cita.hora_inicio ? cita.hora_inicio.substring(0, 5) : ''} - ${cita.hora_fin ? cita.hora_fin.substring(0, 5) : ''}`;
+
+        doc.text('Cliente: ' + cliNombre, 14, 58);
+        doc.text('Teléfono: ' + cliPhone, 14, 63);
+        doc.text('Correo: ' + cliMail, 14, 68);
+        
+        doc.text('Sede: ' + sedeNombre, 120, 58);
+        doc.text('Dirección Sede: ' + sedeDir, 120, 63);
+        doc.text('Fecha Cita: ' + fechaCita + ' (' + horaCita + ')', 120, 68);
+
+        const headers = [['Item', 'Servicio Belleza', 'Duración', 'Precio Base']];
+        const rows = detalles.map((d, index) => [
+            index + 1,
+            d.id_servicios_belleza ? d.id_servicios_belleza.nombre_servicio : 'Servicio',
+            d.id_servicios_belleza && d.id_servicios_belleza.duracion_minima ? (d.id_servicios_belleza.duracion_minima + ' min') : '30 min',
+            d.precio ? `S/. ${parseFloat(d.precio).toFixed(2)}` : 'S/. 0.00'
+        ]);
+
+        doc.autoTable({
+            startY: 75,
+            head: headers,
+            body: rows,
+            theme: 'striped',
+            headStyles: { fillColor: [197, 168, 128] },
+            styles: { fontSize: 9, font: 'helvetica' },
+            margin: { top: 75 }
+        });
+
+        const finalY = doc.lastAutoTable.finalY || 120;
+
+        // Total
+        doc.setFont('Helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.setTextColor(30, 30, 36);
+        const totalAmount = detalles.reduce((sum, d) => sum + parseFloat(d.precio || 0), 0);
+        doc.text(`Total Estimado a Pagar en Sede: S/. ${totalAmount.toFixed(2)}`, 14, finalY + 12);
+
+        doc.setFont('Helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(117, 117, 119);
+        doc.text('Notas: Por favor presentarse 10 minutos antes del horario reservado.', 14, finalY + 22);
+        doc.text('En caso de cancelación, avisar con al menos 24 horas de anticipación.', 14, finalY + 27);
+
+        // Open in new window/tab
+        const pdfBlob = doc.output('blob');
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        window.open(pdfUrl, '_blank');
+    })
+    .catch(err => {
+        console.error('Error al generar comprobante de cita:', err);
+        alert('Ocurrió un error al generar el PDF de la cita.');
+    });
+}
+
+window.generarComprobanteCita = generarComprobanteCita;

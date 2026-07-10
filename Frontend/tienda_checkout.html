@@ -417,7 +417,8 @@
             .then(data => {
                 if (data.success) {
                     localStorage.removeItem('bellarista_cart');
-                    window.location.href = `/tienda_success.html?tenantId=${tenantId}&ventaId=${data.ventaId}`;
+                    const hasServices = cart.some(item => item.tipo === 'servicio');
+                    window.location.href = `/tienda_success.html?tenantId=${tenantId}&ventaId=${data.ventaId}${hasServices ? '&hasServices=true' : ''}`;
                 } else {
                     console.error('Error detallado del servidor:', data.error);
                     alert('Error al registrar compra: ' + (data.error || 'Intente nuevamente'));

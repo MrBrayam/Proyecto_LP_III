@@ -117,8 +117,7 @@
     <script>
     let todosProductos = [];
 
-    fetch('/api/productos')
-        .then(r => r.json())
+    apiFetch('/api/productos')
         .then(data => {
             todosProductos = data;
         })
@@ -294,13 +293,10 @@
     crud.edit = function(id) {
         crud.editId = id;
         Promise.all([
-            fetch('/api/ventas/' + id),
-            fetch('/api/ventas/' + id + '/productos')
+            apiFetch('/api/ventas/' + id),
+            apiFetch('/api/ventas/' + id + '/productos')
         ])
-        .then(async ([ventaRes, prodRes]) => {
-            const venta = await ventaRes.json();
-            const composition = await prodRes.json();
-
+        .then(([venta, composition]) => {
             document.getElementById('modalTitle').textContent = 'Editar Venta';
             crud.openModal();
 

@@ -33,177 +33,183 @@
     </div>
 
     <script>
-    // Lista de todos los módulos del sistema
-    const modulosDisponibles = [
-        { value: "usuarios", label: "Usuarios" },
-        { value: "tenants", label: "Tenants" },
-        { value: "roles", label: "Roles" },
-        { value: "permisos", label: "Permisos" },
-        { value: "usuario-sedes", label: "Usuario-Sedes" },
-        { value: "preferencias", label: "Preferencias" },
-        { value: "auditoria", label: "Auditoría" },
-        { value: "clientes", label: "Clientes" },
-        { value: "citas", label: "Citas" },
-        { value: "repartidores", label: "Repartidores" },
-        { value: "sedes", label: "Sedes" },
-        { value: "horarios-operacion", label: "Horarios" },
-        { value: "zonas-delivery", label: "Delivery" },
-        { value: "notificaciones", label: "Notificaciones" },
-        { value: "ventas", label: "Ventas" },
-        { value: "pedidos", label: "Pedidos" },
-        { value: "devoluciones-venta", label: "Devoluciones Venta" },
-        { value: "formas-pago-venta", label: "Formas de Pago" },
-        { value: "comprobantes-electronicos", label: "Comprobantes" },
-        { value: "series-comprobantes", label: "Series Comprobantes" },
-        { value: "ordenes-compra", label: "Órdenes de Compra" },
-        { value: "proveedores", label: "Proveedores" },
-        { value: "proveedores-categorias", label: "Cat. Proveedor" },
-        { value: "devoluciones-proveedor", label: "Dev. Proveedor" },
-        { value: "cuentas-por-pagar", label: "Cuentas por Pagar" },
-        { value: "pagos-proveedor", label: "Pagos Proveedor" },
-        { value: "caja-chica", label: "Caja Chica" },
-        { value: "sesiones-caja", label: "Sesiones de Caja" },
-        { value: "metodos-pago", label: "Métodos de Pago" },
-        { value: "gastos-operativos", label: "Gastos Operativos" },
-        { value: "gastos-recurrentes", label: "Gastos Recurrentes" },
-        { value: "productos", label: "Productos" },
-        { value: "categorias", label: "Categorías" },
-        { value: "marcas", label: "Marcas" },
-        { value: "almacenes", label: "Almacenes" },
-        { value: "lotes", label: "Lotes" },
-        { value: "movimientos", label: "Movimientos" },
-        { value: "combos", label: "Combos" },
-        { value: "promociones", label: "Promociones" }
-    ];
+    {
+        // Lista de todos los módulos del sistema
+        const modulosDisponibles = [
+            { value: "usuarios", label: "Usuarios" },
+            { value: "tenants", label: "Tenants" },
+            { value: "roles", label: "Roles" },
+            { value: "permisos", label: "Permisos" },
+            { value: "usuario-sedes", label: "Usuario-Sedes" },
+            { value: "preferencias", label: "Preferencias" },
+            { value: "auditoria", label: "Auditoría" },
+            { value: "clientes", label: "Clientes" },
+            { value: "citas", label: "Citas" },
+            { value: "repartidores", label: "Repartidores" },
+            { value: "sedes", label: "Sedes" },
+            { value: "horarios-operacion", label: "Horarios" },
+            { value: "zonas-delivery", label: "Delivery" },
+            { value: "notificaciones", label: "Notificaciones" },
+            { value: "ventas", label: "Ventas" },
+            { value: "pedidos", label: "Pedidos" },
+            { value: "devoluciones-venta", label: "Devoluciones Venta" },
+            { value: "formas-pago-venta", label: "Formas de Pago" },
+            { value: "comprobantes-electronicos", label: "Comprobantes" },
+            { value: "series-comprobantes", label: "Series Comprobantes" },
+            { value: "ordenes-compra", label: "Órdenes de Compra" },
+            { value: "proveedores", label: "Proveedores" },
+            { value: "proveedores-categorias", label: "Cat. Proveedor" },
+            { value: "devoluciones-proveedor", label: "Dev. Proveedor" },
+            { value: "cuentas-por-pagar", label: "Cuentas por Pagar" },
+            { value: "pagos-proveedor", label: "Pagos Proveedor" },
+            { value: "caja-chica", label: "Caja Chica" },
+            { value: "sesiones-caja", label: "Sesiones de Caja" },
+            { value: "metodos-pago", label: "Métodos de Pago" },
+            { value: "gastos-operativos", label: "Gastos Operativos" },
+            { value: "gastos-recurrentes", label: "Gastos Recurrentes" },
+            { value: "productos", label: "Productos" },
+            { value: "categorias", label: "Categorías" },
+            { value: "marcas", label: "Marcas" },
+            { value: "almacenes", label: "Almacenes" },
+            { value: "lotes", label: "Lotes" },
+            { value: "movimientos", label: "Movimientos" },
+            { value: "combos", label: "Combos" },
+            { value: "promociones", label: "Promociones" }
+        ];
 
-    renderizarCheckboxes();
-    cargarRoles();
+        renderizarCheckboxes();
+        cargarRoles();
 
-    // Renderizar checkboxes dinámicamente
-    function renderizarCheckboxes() {
-        const container = document.getElementById("checkboxesContainer");
-        container.innerHTML = "";
-        modulosDisponibles.forEach(mod => {
-            const label = document.createElement("label");
-            label.style.display = "flex";
-            label.style.alignItems = "center";
-            label.style.gap = "8px";
-            label.style.fontSize = "13px";
-            label.style.fontWeight = "normal";
-            label.style.cursor = "pointer";
+        // Renderizar checkboxes dinámicamente
+        function renderizarCheckboxes() {
+            const container = document.getElementById("checkboxesContainer");
+            container.innerHTML = "";
+            modulosDisponibles.forEach(mod => {
+                const label = document.createElement("label");
+                label.style.display = "flex";
+                label.style.alignItems = "center";
+                label.style.gap = "8px";
+                label.style.fontSize = "13px";
+                label.style.fontWeight = "normal";
+                label.style.cursor = "pointer";
 
-            const input = document.createElement("input");
-            input.type = "checkbox";
-            input.name = "permissions_check";
-            input.value = mod.value;
+                const input = document.createElement("input");
+                input.type = "checkbox";
+                input.name = "permissions_check";
+                input.value = mod.value;
 
-            label.appendChild(input);
-            label.appendChild(document.createTextNode(" " + mod.label));
-            container.appendChild(label);
-        });
-    }
-
-    // Cargar la lista de roles en el selector
-    function cargarRoles() {
-        const tenantId = localStorage.getItem('tenantId');
-        apiFetch('/api/roles_personalizados')
-            .then(roles => {
-                const selector = document.getElementById("rolSelector");
-                selector.innerHTML = '<option value="">-- Seleccione un Rol --</option>';
-                roles.forEach(r => {
-                    const matchesTenant = !tenantId || (r.id_tenants && (r.id_tenants.id_tenants == tenantId || r.id_tenants == tenantId));
-                    if ((r.estado === 1 || r.estado === true) && matchesTenant) {
-                        const opt = document.createElement("option");
-                        opt.value = r.id_roles_personalizados;
-                        opt.textContent = r.nombre_rol_personalizado;
-                        selector.appendChild(opt);
-                    }
-                });
-            })
-            .catch(err => console.error("Error al cargar roles:", err));
-    }
-
-    // Cargar permisos del rol seleccionado
-    function cargarPermisosDelRol() {
-        const rolId = document.getElementById("rolSelector").value;
-        const panel = document.getElementById("permissionsPanel");
-        const prompt = document.getElementById("selectPrompt");
-
-        if (!rolId) {
-            panel.style.display = "none";
-            prompt.style.display = "block";
-            return;
+                label.appendChild(input);
+                label.appendChild(document.createTextNode(" " + mod.label));
+                container.appendChild(label);
+            });
         }
 
-        // Limpiar checkboxes
-        document.querySelectorAll('input[name="permissions_check"]').forEach(cb => cb.checked = false);
+        // Cargar la lista de roles en el selector
+        function cargarRoles() {
+            const tenantId = localStorage.getItem('tenantId');
+            apiFetch('/api/roles_personalizados')
+                .then(roles => {
+                    const selector = document.getElementById("rolSelector");
+                    selector.innerHTML = '<option value="">-- Seleccione un Rol --</option>';
+                    roles.forEach(r => {
+                        const matchesTenant = !tenantId || (r.id_tenants && (r.id_tenants.id_tenants == tenantId || r.id_tenants == tenantId));
+                        if ((r.estado === 1 || r.estado === true) && matchesTenant) {
+                            const opt = document.createElement("option");
+                            opt.value = r.id_roles_personalizados;
+                            opt.textContent = r.nombre_rol_personalizado;
+                            selector.appendChild(opt);
+                        }
+                    });
+                })
+                .catch(err => console.error("Error al cargar roles:", err));
+        }
 
-        // Obtener permisos actuales
-        apiFetch('/api/permisos_rol')
-            .then(perms => {
-                const rolePerms = perms.filter(p => p.id_roles_personalizados 
-                    && p.id_roles_personalizados.id_roles_personalizados === Number(rolId)
-                    && p.estado === 1);
-                
-                rolePerms.forEach(p => {
-                    const cb = document.querySelector(`input[name="permissions_check"][value="${p.modulo}"]`);
-                    if (cb) cb.checked = true;
+        // Cargar permisos del rol seleccionado
+        function cargarPermisosDelRol() {
+            const rolId = document.getElementById("rolSelector").value;
+            const panel = document.getElementById("permissionsPanel");
+            const prompt = document.getElementById("selectPrompt");
+
+            if (!rolId) {
+                panel.style.display = "none";
+                prompt.style.display = "block";
+                return;
+            }
+
+            // Limpiar checkboxes
+            document.querySelectorAll('input[name="permissions_check"]').forEach(cb => cb.checked = false);
+
+            // Obtener permisos actuales
+            apiFetch('/api/permisos_rol')
+                .then(perms => {
+                    const rolePerms = perms.filter(p => p.id_roles_personalizados 
+                        && p.id_roles_personalizados.id_roles_personalizados === Number(rolId)
+                        && p.estado === 1);
+                    
+                    rolePerms.forEach(p => {
+                        const cb = document.querySelector(`input[name="permissions_check"][value="${p.modulo}"]`);
+                        if (cb) cb.checked = true;
+                    });
+
+                    panel.style.display = "block";
+                    prompt.style.display = "none";
+                })
+                .catch(err => {
+                    console.error("Error al cargar permisos:", err);
+                    alert("No se pudieron cargar los permisos del rol.");
                 });
+        }
 
-                panel.style.display = "block";
-                prompt.style.display = "none";
-            })
-            .catch(err => {
-                console.error("Error al cargar permisos:", err);
-                alert("No se pudieron cargar los permisos del rol.");
-            });
-    }
+        // Guardar permisos seleccionados para el rol
+        function guardarPermisos() {
+            const rolId = document.getElementById("rolSelector").value;
+            if (!rolId) return;
 
-    // Guardar permisos seleccionados para el rol
-    function guardarPermisos() {
-        const rolId = document.getElementById("rolSelector").value;
-        if (!rolId) return;
+            const checkedModules = Array.from(document.querySelectorAll('input[name="permissions_check"]:checked'))
+                .map(cb => cb.value);
 
-        const checkedModules = Array.from(document.querySelectorAll('input[name="permissions_check"]:checked'))
-            .map(cb => cb.value);
+            const saveBtn = document.querySelector('#permissionsPanel button');
+            const originalText = saveBtn.textContent;
+            saveBtn.disabled = true;
+            saveBtn.textContent = "Guardando...";
 
-        const saveBtn = document.querySelector('#permissionsPanel button');
-        const originalText = saveBtn.textContent;
-        saveBtn.disabled = true;
-        saveBtn.textContent = "Guardando...";
+            apiFetch('/api/permisos_rol')
+                .then(async (currentPerms) => {
+                    const rolePermsToDelete = currentPerms.filter(p => p.id_roles_personalizados 
+                        && p.id_roles_personalizados.id_roles_personalizados === Number(rolId));
 
-        apiFetch('/api/permisos_rol')
-            .then(async (currentPerms) => {
-                const rolePermsToDelete = currentPerms.filter(p => p.id_roles_personalizados 
-                    && p.id_roles_personalizados.id_roles_personalizados === Number(rolId));
+                    // Eliminar antiguos
+                    for (const p of rolePermsToDelete) {
+                        await apiFetch('/api/permisos_rol/' + p.id_permisos_rol, { method: 'DELETE' });
+                    }
 
-                // Eliminar antiguos
-                for (const p of rolePermsToDelete) {
-                    await apiFetch('/api/permisos_rol/' + p.id_permisos_rol, { method: 'DELETE' });
-                }
+                    // Crear nuevos
+                    for (const mod of checkedModules) {
+                        const permPayload = {
+                            id_roles_personalizados: { id_roles_personalizados: Number(rolId) },
+                            modulo: mod,
+                            accion: 'visualizar',
+                            recurso: 'modulo',
+                            estado: 1
+                        };
+                        await apiFetch('/api/permisos_rol', { method: 'POST', body: JSON.stringify(permPayload) });
+                    }
 
-                // Crear nuevos
-                for (const mod of checkedModules) {
-                    const permPayload = {
-                        id_roles_personalizados: { id_roles_personalizados: Number(rolId) },
-                        modulo: mod,
-                        accion: 'visualizar',
-                        recurso: 'modulo',
-                        estado: 1
-                    };
-                    await apiFetch('/api/permisos_rol', { method: 'POST', body: JSON.stringify(permPayload) });
-                }
+                    alert("Permisos actualizados con éxito.");
+                })
+                .catch(err => {
+                    console.error("Error al guardar permisos:", err);
+                    alert("Ocurrió un error al guardar los permisos: " + err.message);
+                })
+                .finally(() => {
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = originalText;
+                });
+        }
 
-                alert("Permisos actualizados con éxito.");
-            })
-            .catch(err => {
-                console.error("Error al guardar permisos:", err);
-                alert("Ocurrió un error al guardar los permisos: " + err.message);
-            })
-            .finally(() => {
-                saveBtn.disabled = false;
-                saveBtn.textContent = originalText;
-            });
+        // Registrar funciones en el scope global de window para los disparadores HTML
+        window.cargarPermisosDelRol = cargarPermisosDelRol;
+        window.guardarPermisos = guardarPermisos;
     }
     </script>
 </div>
