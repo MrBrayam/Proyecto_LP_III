@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesion - Bellarista Tienda</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600&display=swap"
+        rel="stylesheet">
+    <link href="/css/tienda_auth.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="login-card">
+        <a href="#" id="logoLink" class="logo">Bella<span>rista</span></a>
+        <p class="subtitle">Acceso de Clientes para Compras Online</p>
+
+        <div id="errorMsg" class="alert-error" style="display: none;"></div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label for="correo">Correo Electrónico</label>
+                <input type="email" id="correo" name="correo" required placeholder="ejemplo@correo.com">
+            </div>
+            <div class="form-group">
+                <label for="documento">DNI o RUC de Registro</label>
+                <input type="text" id="documento" name="documento" required
+                    placeholder="Ingrese su número de documento">
+            </div>
+            <button type="submit" class="btn-submit">Ingresar a la Tienda</button>
+        </form>
+
+        <div class="card-footer">
+            ¿Aún no tienes cuenta? <a href="#" id="registerLink">Regístrate aquí</a>
+        </div>
+
+        <a href="#" id="backLink" class="back-link">
+            &larr; Volver al catálogo
+        </a>
+    </div>
+
+    <script>
+        const API = 'http://15.204.230.215:2451';
+        const urlParams = new URLSearchParams(window.location.search);
+        const tenantId = urlParams.get('tenantId') || '1';
+
+        // Update URLs dynamically
+        document.getElementById('logoLink').href = `/tienda.html?tenantId=${tenantId}`;
+        document.getElementById('registerLink').href = `/tienda_registro.html?tenantId=${tenantId}`;
+        document.getElementById('backLink').href = `/tienda.html?tenantId=${tenantId}`;
+
+        // Fetch tenant details to customize branding (optional but beautiful)
+        fetch(API + '/api/tenants/' + tenantId)
+            .then(r => r.json())
+            .then(tenant => {
+                if (tenant) {
+                    document.getElementById('logoLink').innerHTML = tenant.nombre_comercial;
+                    document.title = 'Iniciar Sesion - ' + tenant.nombre_comercial;
+                }
+            })
+            .catch(err => console.error(err));
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const errorMsg = document.getElementById('errorMsg');
+            errorMsg.style.display = 'none';
+
+            const body = {
+                correo: document.getElementById('correo').value,
+                documento: document.getElementById('documento').value,
+                tenantId: tenantId
+            };
+
+            fetch(API + '/tienda/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.cliente) {
+                    localStorage.setItem('cliente', JSON.stringify(data.cliente));
+                    window.location.href = `/tienda.html?tenantId=${tenantId}`;
+                } else {
+                    errorMsg.textContent = data.error || 'Credenciales incorrectas (Verifique Correo y DNI/RUC)';
+                    errorMsg.style.display = 'block';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                errorMsg.textContent = 'Error de conexión con el servidor.';
+                errorMsg.style.display = 'block';
+            });
+        }
+    </script>
+</body>
+
+</html>

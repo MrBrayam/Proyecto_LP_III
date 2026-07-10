@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html>
 
 <head>
     <meta charset="UTF-8">
@@ -22,24 +22,38 @@
                 <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
         </div>
-        <h1>¡Compra Realizada!</h1>
-        <p>Tu orden ha sido registrada exitosamente en nuestro sistema de Bellarista Salon &amp; Boutique. Recibirás un
-            correo electrónico de confirmación con el detalle de la entrega.</p>
+        <h1 id="successTitle">¡Compra Realizada!</h1>
+        <p id="successDesc">Tu orden ha sido registrada exitosamente. Recibirás un correo electrónico de confirmación con el detalle de la entrega o cita.</p>
 
         <div style="margin-bottom: 24px;">
             <button id="btnDownload" class="btn-home"
                 style="background: var(--primary); margin-right: 12px; display: none;" onclick="generarBoletaPDF()">
                 📄 Ver Boleta PDF
             </button>
-            <a href="/tienda" class="btn-home">Seguir comprando</a>
+            <a href="#" id="btnHome" class="btn-home">Seguir comprando</a>
         </div>
     </div>
 
     <!-- Shared storefront JS (cart utils + PDF generator) -->
     <script src="/js/tienda.js"></script>
     <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const tId = urlParams.get('tenantId') || '1';
+        document.getElementById('btnHome').href = `/tienda.html?tenantId=${tId}`;
+
+        // Fetch tenant details to customize success message (optional but beautiful)
+        fetch(API + '/api/tenants/' + tId)
+            .then(r => r.json())
+            .then(tenant => {
+                if (tenant) {
+                    document.title = '¡Compra Completada! - ' + tenant.nombre_comercial;
+                    document.getElementById('successDesc').textContent = 'Tu orden ha sido registrada exitosamente en ' + tenant.nombre_comercial + '. Recibirás un correo electrónico de confirmación con el detalle.';
+                }
+            })
+            .catch(err => console.error(err));
+
         // Parse ventaId from URL query param as integer
-        var ventaId = parseInt(new URLSearchParams(window.location.search).get('ventaId'), 10);
+        var ventaId = parseInt(urlParams.get('ventaId'), 10);
         if (ventaId && !isNaN(ventaId)) {
             document.getElementById('btnDownload').style.display = 'inline-flex';
         }

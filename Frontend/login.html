@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesion - Bellarista</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="login-page">
+        <div class="login-card">
+            <h2>Bellarista</h2>
+            <p class="subtitle">Sistema de Gestion</p>
+
+            <div id="errorMsg" class="alert alert-error" style="display: none;"></div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="correo">Correo</label>
+                    <input type="email" id="correo" name="correo" required placeholder="Ingrese su correo">
+                </div>
+                <div class="form-group">
+                    <label for="contrasenia">Contraseña</label>
+                    <input type="password" id="contrasenia" name="contrasenia" required placeholder="Ingrese su contraseña">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px;">
+                    Iniciar Sesión
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API = 'http://15.204.230.215:2451';
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const errorMsg = document.getElementById('errorMsg');
+            errorMsg.style.display = 'none';
+
+            const body = {
+                correo: document.getElementById('correo').value,
+                contrasenia: document.getElementById('contrasenia').value
+            };
+
+            fetch(API + '/api/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.usuario) {
+                    localStorage.setItem('usuario', JSON.stringify(data.usuario));
+                    localStorage.setItem('tenantId', data.tenantId || '1');
+                    localStorage.setItem('planName', data.planName || 'Básico');
+                    localStorage.setItem('allowedModules', JSON.stringify(data.allowedModules || []));
+                    window.location.href = '/dashboard.html';
+                } else {
+                    errorMsg.textContent = data.error || 'Credenciales incorrectas.';
+                    errorMsg.style.display = 'block';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                errorMsg.textContent = 'Error de conexión con el servidor.';
+                errorMsg.style.display = 'block';
+            });
+        }
+    </script>
+</body>
+</html>

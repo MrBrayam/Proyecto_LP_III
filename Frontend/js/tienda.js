@@ -1,7 +1,6 @@
-/* ===========================================
-   tienda.js — Storefront client-side logic
-   Bellarista Salon & Boutique
-   =========================================== */
+const API = 'http://15.204.230.215:2451';
+const urlParams = new URLSearchParams(window.location.search);
+const tenantId = urlParams.get('tenantId') || '1';
 
 let allProducts = [];
 let filteredProducts = [];
@@ -14,14 +13,35 @@ let allCombos = [];
 // Load Catalog on page ready
 document.addEventListener('DOMContentLoaded', () => {
     loadCart();
-    fetch('/tienda/api/categorias')
+    updateAuthUI();
+
+    // Fetch tenant info
+    fetch(API + '/api/tenants/' + tenantId)
+        .then(r => r.json())
+        .then(tenant => {
+            if (tenant) {
+                const logoText = document.getElementById('logoText');
+                if (logoText) {
+                    logoText.textContent = tenant.nombre_comercial;
+                    logoText.href = `/tienda.html?tenantId=${tenantId}`;
+                }
+                document.title = tenant.nombre_comercial + ' - Tienda Virtual';
+                const heroSubtitle = document.getElementById('heroSubtitle');
+                if (heroSubtitle) {
+                    heroSubtitle.textContent = tenant.nombre_comercial;
+                }
+            }
+        })
+        .catch(err => console.error('Error al cargar datos del Tenant:', err));
+
+    fetch(API + '/tienda/api/categorias?tenantIdParam=' + tenantId)
         .then(r => r.json())
         .then(cats => {
             categories = cats;
             renderCategoryFilters();
         });
 
-    fetch('/tienda/api/productos')
+    fetch(API + '/tienda/api/productos?tenantIdParam=' + tenantId)
         .then(r => r.json())
         .then(prods => {
             allProducts = prods;
@@ -29,20 +49,53 @@ document.addEventListener('DOMContentLoaded', () => {
             renderProducts();
         });
 
-    fetch('/tienda/api/servicios')
+    fetch(API + '/tienda/api/servicios?tenantIdParam=' + tenantId)
         .then(r => r.json())
         .then(servs => {
             allServices = servs;
         })
         .catch(err => console.error('Error al cargar servicios:', err));
 
-    fetch('/tienda/api/combos')
+    fetch(API + '/tienda/api/combos?tenantIdParam=' + tenantId)
         .then(r => r.json())
         .then(combos => {
             renderCombos(combos);
         })
         .catch(err => console.error('Error al cargar combos:', err));
 });
+
+function updateAuthUI() {
+    const cliente = JSON.parse(localStorage.getItem('cliente') || 'null');
+    const authLoggedIn = document.getElementById('auth-logged-in');
+    const authLoggedOut = document.getElementById('auth-logged-out');
+    const menuHistory = document.getElementById('menu-history');
+    const loggedClientName = document.getElementById('logged-client-name');
+    
+    const loginLink = document.getElementById('loginBtnLink');
+    const registerLink = document.getElementById('registerBtnLink');
+    if (loginLink) loginLink.href = `/tienda_login.html?tenantId=${tenantId}`;
+    if (registerLink) registerLink.href = `/tienda_registro.html?tenantId=${tenantId}`;
+    
+    const adminLink = document.getElementById('portalAdminLink');
+    if (adminLink) adminLink.href = '/login.html';
+
+    if (cliente) {
+        if (authLoggedIn) authLoggedIn.style.display = 'flex';
+        if (authLoggedOut) authLoggedOut.style.display = 'none';
+        if (menuHistory) menuHistory.style.display = 'block';
+        if (loggedClientName) loggedClientName.textContent = cliente.nombre_cliente;
+    } else {
+        if (authLoggedIn) authLoggedIn.style.display = 'none';
+        if (authLoggedOut) authLoggedOut.style.display = 'flex';
+        if (menuHistory) menuHistory.style.display = 'none';
+    }
+}
+
+function logoutCliente() {
+    localStorage.removeItem('cliente');
+    window.location.reload();
+}
+window.logoutCliente = logoutCliente;
 
 function renderCategoryFilters() {
     const container = document.getElementById('categoryFilters');
@@ -89,7 +142,8 @@ function renderProducts() {
         const card = document.createElement('article');
         card.className = 'product-card';
 
-        const imgUrl = p.img_url || '';
+        const imgUrlRaw = p.img_url || '';
+        const imgUrl = (imgUrlRaw.startsWith('/') && !imgUrlRaw.startsWith('http')) ? (API + imgUrlRaw) : imgUrlRaw;
         const fallbackChar = p.nombre_producto.charAt(0).toUpperCase();
         const imageHtml = imgUrl
             ? '<img src="' + imgUrl + '" class="product-img" alt="' + p.nombre_producto + '">'
@@ -193,7 +247,7 @@ function renderCombos(combos) {
             + '</div>';
         grid.appendChild(card);
 
-        fetch('/tienda/api/combos/' + c.id_combos_promocionales + '/productos')
+        fetch(API + '/tienda/api/combos/' + c.id_combos_promocionales + '/productos')
             .then(r => r.json())
             .then(ccList => {
                 const detailsDiv = document.getElementById('combo-details-' + c.id_combos_promocionales);
@@ -368,7 +422,8 @@ function updateCartUI() {
         const div = document.createElement('div');
         div.className = 'cart-item';
 
-        const imgUrl = item.img_url || '';
+        const imgUrlRaw = item.img_url || '';
+        const imgUrl = (imgUrlRaw.startsWith('/') && !imgUrlRaw.startsWith('http')) ? (API + imgUrlRaw) : imgUrlRaw;
         const fallbackChar = item.nombre_producto.charAt(0).toUpperCase();
         const imageHtml = imgUrl
             ? '<img src="' + imgUrl + '" class="cart-item-img" alt="' + item.nombre_producto + '">'
@@ -402,7 +457,7 @@ function goToCheckout() {
         alert('Su carrito está vacío.');
         return;
     }
-    window.location.href = '/tienda/checkout';
+    window.location.href = `/tienda_checkout.html?tenantId=${tenantId}`;
 }
 
 // Tab Switching
@@ -500,7 +555,9 @@ function renderHistory() {
     ventasList.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;font-size:13px;">Cargando compras...</div>';
     citasList.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:20px;font-size:13px;">Cargando citas...</div>';
 
-    fetch('/tienda/api/historial')
+    const cliente = JSON.parse(localStorage.getItem('cliente') || 'null');
+    const clienteId = cliente ? cliente.id_clientes : '';
+    fetch(API + '/tienda/api/historial?tenantIdParam=' + tenantId + '&clienteId=' + clienteId)
         .then(r => r.json())
         .then(data => {
             if (!data.success) {
@@ -737,8 +794,8 @@ function generarBoletaDesdeHistorial(ventaId) {
 // Shared PDF generation logic
 function generarBoletaPDFComun(ventaId) {
     Promise.all([
-        fetch('/tienda/api/venta/' + ventaId).then(r => r.json()),
-        fetch('/tienda/api/detalles-venta/' + ventaId).then(r => r.json())
+        fetch(API + '/tienda/api/venta/' + ventaId).then(r => r.json()),
+        fetch(API + '/tienda/api/detalles-venta/' + ventaId).then(r => r.json())
     ])
     .then(([res, detalles]) => {
         if (!res || !res.success || !res.venta) {
@@ -866,7 +923,7 @@ function submitContactForm(e) {
         mensaje: message
     };
 
-    fetch('/tienda/api/contacto', {
+    fetch(API + '/tienda/api/contacto', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)

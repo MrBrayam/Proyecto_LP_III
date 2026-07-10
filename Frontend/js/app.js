@@ -1,7 +1,7 @@
-const API = '';
+const API = 'http://15.204.230.215:2451';
 
 const API_TOKEN_KEY = 'api_token';
-const DEFAULT_API_TOKEN = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI5NmQ3OTc3YWIwNjJlNjRhMjE3ZTMxYmU0MjYwNjk2MzE3ZDk1ZTZmODlkYWY3YmQxODhjOTkxOGNhZmY2MTQ3IiwiaWF0IjoxNzgwNDMzNDc5LCJleHAiOjQ5MzQwMzM0Nzl9.H9GWlmciY3eRU1KOz3XzqQNH1Ph_b9p1DoWSGh5WOgaOgj0Zl0VNFZRxEcJCYERp_K0ghv0bJGvKb8EdTLU9cg';
+const DEFAULT_API_TOKEN = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJkZDdiODVjNGY0YmVhNzU4ODJkNTg4Y2IxZmQxMzNiM2I4OWRmYWEyMDAxM2EyMmJmOWQyMjNjYmYxY2JhOWJkIiwiaWF0IjoxNzgwMzcwMTQzLCJleHAiOjQ5MzM5NzAxNDN9.ep3uRPCM9RIkKvXVroDyOE06rexYlqSl9vMnzVPUQL-OMr4DN3aseJZvBbFBAMkaFLCFAp-6FjckTpIjPcPtcg';
 
 window.__crudDebug = window.__crudDebug || [];
 
@@ -362,13 +362,26 @@ const crud = {
     },
 
     load() {
+        const tenantId = localStorage.getItem('tenantId');
         document.querySelector('.loading').style.display = 'block';
         document.querySelector('.empty-state').style.display = 'none';
         apiFetch(this.apiUrl).then(data => {
+            let filtered = data;
+            if (data && Array.isArray(data) && tenantId) {
+                filtered = data.filter(item => {
+                    if (this.apiUrl === '/api/tenants') {
+                        return item.id_tenants == tenantId;
+                    }
+                    if (item.id_tenants) {
+                        return item.id_tenants.id_tenants == tenantId || item.id_tenants == tenantId;
+                    }
+                    return true;
+                });
+            }
             if (this.options.view === 'cards') {
-                renderCards(data, this.columns, this.options);
+                renderCards(filtered, this.columns, this.options);
             } else {
-                renderTable(data, this.columns);
+                renderTable(filtered, this.columns);
             }
         }).catch(() => {});
     },
@@ -484,6 +497,11 @@ const crud = {
                 }
             }
 
+            const tenantId = localStorage.getItem('tenantId');
+            if (tenantId && this.apiUrl !== '/api/tenants') {
+                data.id_tenants = { id_tenants: Number(tenantId) };
+            }
+
             const method = this.editId ? 'PUT' : 'POST';
             const url = this.editId ? this.apiUrl + '/' + this.editId : this.apiUrl;
 
@@ -521,13 +539,28 @@ const crud = {
     },
 
     loadFkOptions(cb) {
+        const tenantId = localStorage.getItem('tenantId');
         const promises = this.fkLoads.map(fk =>
             apiFetch(fk.api).then(data => {
                 const sel = document.querySelector(`select[name="${fk.field}"]`);
                 if (!sel) return;
                 const current = sel.value;
                 sel.innerHTML = '<option value="">Seleccionar...</option>';
-                data.forEach(item => {
+                
+                let filtered = data;
+                if (data && Array.isArray(data) && tenantId) {
+                    filtered = data.filter(item => {
+                        if (fk.api === '/api/tenants') {
+                            return item.id_tenants == tenantId;
+                        }
+                        if (item.id_tenants) {
+                            return item.id_tenants.id_tenants == tenantId || item.id_tenants == tenantId;
+                        }
+                        return true;
+                    });
+                }
+                
+                filtered.forEach(item => {
                     const id = item[fk.field];
                     const label = fk.label ? val(item, fk.label) : id;
                     sel.innerHTML += `<option value="${id}">${label}</option>`;

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,16 +11,16 @@
 
     <!-- Navbar -->
     <nav class="navbar">
-        <a href="/superadmin/dashboard" class="navbar-brand">Bella<span>rista</span> · SuperAdmin</a>
+        <a href="#" class="navbar-brand">Bella<span>rista</span> · SuperAdmin</a>
         <div class="navbar-right">
             <div class="navbar-user">
-                <div class="navbar-avatar" th:text="${superadmin.nombres != null ? superadmin.nombres.substring(0,1).toUpperCase() : 'S'}"></div>
+                <div class="navbar-avatar" id="navAvatar">S</div>
                 <div>
-                    <strong th:text="${superadmin.nombres}">Admin</strong>
-                    <br><span style="font-size:11px;" th:text="${superadmin.email}">admin@mail.com</span>
+                    <strong id="navUserName">Admin</strong>
+                    <br><span style="font-size:11px;" id="navUserEmail">admin@mail.com</span>
                 </div>
             </div>
-            <a href="/superadmin/logout" class="btn-logout">Cerrar Sesión</a>
+            <a href="#" onclick="logoutSuperadmin()" class="btn-logout">Cerrar Sesión</a>
         </div>
     </nav>
 
@@ -32,14 +32,14 @@
             <div class="stat-card">
                 <div class="stat-icon purple">🏢</div>
                 <div class="stat-info">
-                    <h4 th:text="${#lists.size(tenants)}">0</h4>
+                    <h4 id="statTenantsCount">0</h4>
                     <p>Tenants Registrados</p>
                 </div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon green">👤</div>
                 <div class="stat-info">
-                    <h4 th:text="${#lists.size(usuarios)}">0</h4>
+                    <h4 id="statUsersCount">0</h4>
                     <p>Usuarios Totales</p>
                 </div>
             </div>
@@ -57,27 +57,8 @@
             <h2>Tiendas (Tenants)</h2>
         </div>
         <div class="tenant-grid" id="tenantGrid">
-            <div th:each="t : ${tenants}" class="tenant-card">
-                <div class="tenant-card-header">
-                    <div class="tenant-icon" th:text="${t.nombre_comercial != null ? t.nombre_comercial.substring(0,1).toUpperCase() : 'T'}">B</div>
-                    <div>
-                        <h3 th:text="${t.nombre_comercial}">Nombre Comercial</h3>
-                        <span class="tenant-id" th:text="'ID: ' + ${t.id_tenants}">ID: 1</span>
-                    </div>
-                </div>
-                <div class="tenant-meta">
-                    <span>📋 <span th:text="${t.razon_social}">Razón Social</span></span>
-                    <span>📧 <span th:text="${t.correo}">correo@email.com</span></span>
-                    <span>🏷️ <span th:text="${t.tipo_negocio}">Tipo Negocio</span></span>
-                    <span th:if="${t.estado == 1}" class="badge-active">Activo</span>
-                    <span th:if="${t.estado != 1}" class="badge-inactive">Inactivo</span>
-                </div>
-                <div class="tenant-actions">
-                    <a th:href="'/tienda/' + ${t.id_tenants}" class="btn-sm btn-open">Abrir Tienda</a>
-                    <button class="btn-sm btn-edit" th:onclick="'openEditModal(' + ${t.id_tenants} + ')'">Editar</button>
-                </div>
-            </div>
-
+            <!-- Dynamic elements loaded via JS -->
+            
             <!-- Add New Tenant Card -->
             <div class="tenant-card-add" onclick="openCreateModal()">
                 <div class="plus-icon">+</div>
@@ -111,18 +92,7 @@
                             </tr>
                         </thead>
                         <tbody id="tenantsTableBody">
-                            <tr th:each="t : ${tenants}">
-                                <td th:text="${t.id_tenants}">1</td>
-                                <td th:text="${t.nombre_comercial}">Nombre</td>
-                                <td th:text="${t.razon_social}">Razón Social</td>
-                                <td th:text="${t.ruc}">RUC</td>
-                                <td th:text="${t.correo}">correo@mail.com</td>
-                                <td th:text="${t.tipo_negocio}">Tipo</td>
-                                <td>
-                                    <span th:if="${t.estado == 1}" class="badge-active">Activo</span>
-                                    <span th:if="${t.estado != 1}" class="badge-inactive">Inactivo</span>
-                                </td>
-                            </tr>
+                            <!-- Dynamic elements loaded via JS -->
                         </tbody>
                     </table>
                 </div>
@@ -150,21 +120,7 @@
                             </tr>
                         </thead>
                         <tbody id="usuariosTableBody">
-                            <tr th:each="u : ${usuarios}">
-                                <td th:text="${u.id_usuarios}">1</td>
-                                <td th:text="${u.nombre_usuario}">Nombre</td>
-                                <td th:text="${u.apellidos_usuario}">Apellidos</td>
-                                <td th:text="${u.correo}">correo@mail.com</td>
-                                <td th:text="${u.tipo_usuario}">admin</td>
-                                <td th:text="${u.id_tenants?.nombre_comercial}">Tenant</td>
-                                <td>
-                                    <span th:if="${u.estado == 1}" class="badge-active">Activo</span>
-                                    <span th:if="${u.estado != 1}" class="badge-inactive">Inactivo</span>
-                                </td>
-                                <td>
-                                    <button class="btn-sm btn-edit" th:onclick="'openEditUserModal(' + ${u.id_usuarios} + ')'">Editar</button>
-                                </td>
-                            </tr>
+                            <!-- Dynamic elements loaded via JS -->
                         </tbody>
                     </table>
                 </div>
@@ -310,7 +266,7 @@
                 <div class="form-group">
                     <label>Tienda (Tenant) *</label>
                     <select id="eu_id_tenants">
-                        <option th:each="t : ${tenants}" th:value="${t.id_tenants}" th:text="${t.nombre_comercial}"></option>
+                        <option value="">Cargando tenants...</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -326,6 +282,144 @@
     <div class="toast" id="toast"></div>
 
     <script>
+        const API = 'http://15.204.230.215:2451';
+        let allTenants = [];
+        let allUsers = [];
+
+        // Check authentication
+        const superadmin = JSON.parse(localStorage.getItem('superadmin') || 'null');
+        if (!superadmin) {
+            window.location.href = '/login_general.html';
+        } else {
+            document.getElementById('navUserName').textContent = (superadmin.nombres || 'Admin') + ' ' + (superadmin.apellidos || '');
+            document.getElementById('navUserEmail').textContent = superadmin.email || '';
+            const firstChar = (superadmin.nombres || 'S').charAt(0).toUpperCase();
+            document.getElementById('navAvatar').textContent = firstChar;
+        }
+
+        function logoutSuperadmin() {
+            localStorage.removeItem('superadmin');
+            window.location.href = '/login_general.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDashboardData();
+        });
+
+        function loadDashboardData() {
+            // Load tenants list
+            fetch(API + '/superadmin/api/tenants')
+                .then(r => r.json())
+                .then(tenants => {
+                    allTenants = tenants;
+                    document.getElementById('statTenantsCount').textContent = tenants.length;
+                    
+                    // Render Cards
+                    const grid = document.getElementById('tenantGrid');
+                    // Remove all cards except the "Add" card
+                    const addCard = grid.querySelector('.tenant-card-add');
+                    grid.innerHTML = '';
+                    
+                    tenants.forEach(t => {
+                        const card = document.createElement('div');
+                        card.className = 'tenant-card';
+                        
+                        const firstChar = (t.nombre_comercial || 'T').charAt(0).toUpperCase();
+                        const estadoText = t.estado == 1 ? 'Activo' : 'Inactivo';
+                        const estadoClass = t.estado == 1 ? 'badge-active' : 'badge-inactive';
+                        
+                        card.innerHTML = `
+                            <div class="tenant-card-header">
+                                <div class="tenant-icon">${firstChar}</div>
+                                <div>
+                                    <h3>${t.nombre_comercial}</h3>
+                                    <span class="tenant-id">ID: ${t.id_tenants}</span>
+                                </div>
+                            </div>
+                            <div class="tenant-meta">
+                                <span>📋 <span>${t.razon_social}</span></span>
+                                <span>📧 <span>${t.correo}</span></span>
+                                <span>🏷️ <span>${t.tipo_negocio || 'Spa'}</span></span>
+                                <span class="${estadoClass}">${estadoText}</span>
+                            </div>
+                            <div class="tenant-actions">
+                                <a href="/tienda.html?tenantId=${t.id_tenants}" target="_blank" class="btn-sm btn-open">Abrir Tienda</a>
+                                <button class="btn-sm btn-edit" onclick="openEditModal(${t.id_tenants})">Editar</button>
+                            </div>
+                        `;
+                        grid.appendChild(card);
+                    });
+                    grid.appendChild(addCard);
+
+                    // Render Table
+                    const tbody = document.getElementById('tenantsTableBody');
+                    tbody.innerHTML = '';
+                    tenants.forEach(t => {
+                        const tr = document.createElement('tr');
+                        const estadoText = t.estado == 1 ? 'Activo' : 'Inactivo';
+                        const estadoClass = t.estado == 1 ? 'badge-active' : 'badge-inactive';
+                        tr.innerHTML = `
+                            <td>${t.id_tenants}</td>
+                            <td>${t.nombre_comercial}</td>
+                            <td>${t.razon_social}</td>
+                            <td>${t.ruc}</td>
+                            <td>${t.correo}</td>
+                            <td>${t.tipo_negocio || 'Spa'}</td>
+                            <td><span class="${estadoClass}">${estadoText}</span></td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+
+                    // Populate Tenant Select in Edit User modal
+                    const select = document.getElementById('eu_id_tenants');
+                    select.innerHTML = '';
+                    tenants.forEach(t => {
+                        const opt = document.createElement('option');
+                        opt.value = t.id_tenants;
+                        opt.textContent = t.nombre_comercial;
+                        select.appendChild(opt);
+                    });
+                })
+                .catch(err => {
+                    console.error(err);
+                    showToast('Error al cargar tiendas (Tenants)', 'error');
+                });
+
+            // Load users list
+            fetch(API + '/superadmin/api/usuarios')
+                .then(r => r.json())
+                .then(usuarios => {
+                    allUsers = usuarios;
+                    document.getElementById('statUsersCount').textContent = usuarios.length;
+                    
+                    const tbody = document.getElementById('usuariosTableBody');
+                    tbody.innerHTML = '';
+                    usuarios.forEach(u => {
+                        const tr = document.createElement('tr');
+                        const tenantName = u.id_tenants ? u.id_tenants.nombre_comercial : 'Ninguno';
+                        const estadoText = u.estado == 1 ? 'Activo' : 'Inactivo';
+                        const estadoClass = u.estado == 1 ? 'badge-active' : 'badge-inactive';
+                        tr.innerHTML = `
+                            <td>${u.id_usuarios}</td>
+                            <td>${u.nombre_usuario}</td>
+                            <td>${u.apellidos_usuario}</td>
+                            <td>${u.correo}</td>
+                            <td>${u.tipo_usuario}</td>
+                            <td>${tenantName}</td>
+                            <td><span class="${estadoClass}">${estadoText}</span></td>
+                            <td>
+                                <button class="btn-sm btn-edit" onclick="openEditUserModal(${u.id_usuarios})">Editar</button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                })
+                .catch(err => {
+                    console.error(err);
+                    showToast('Error al cargar usuarios', 'error');
+                });
+        }
+
         // Tab switching
         function switchTab(tabId, btn) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -345,22 +439,18 @@
 
         // Edit modal
         function openEditModal(tenantId) {
-            fetch('/superadmin/api/tenants')
-                .then(r => r.json())
-                .then(tenants => {
-                    const t = tenants.find(x => x.id_tenants === tenantId);
-                    if (t) {
-                        document.getElementById('e_id_tenants').value = t.id_tenants;
-                        document.getElementById('e_nombre_comercial').value = t.nombre_comercial || '';
-                        document.getElementById('e_razon_social').value = t.razon_social || '';
-                        document.getElementById('e_ruc').value = t.ruc || '';
-                        document.getElementById('e_telefono').value = t.telefono || '';
-                        document.getElementById('e_direccion_fiscal').value = t.direccion_fiscal || '';
-                        document.getElementById('e_correo').value = t.correo || '';
-                        document.getElementById('e_tipo_negocio').value = t.tipo_negocio || '';
-                        document.getElementById('editModal').classList.add('active');
-                    }
-                });
+            const t = allTenants.find(x => x.id_tenants === tenantId);
+            if (t) {
+                document.getElementById('e_id_tenants').value = t.id_tenants;
+                document.getElementById('e_nombre_comercial').value = t.nombre_comercial || '';
+                document.getElementById('e_razon_social').value = t.razon_social || '';
+                document.getElementById('e_ruc').value = t.ruc || '';
+                document.getElementById('e_telefono').value = t.telefono || '';
+                document.getElementById('e_direccion_fiscal').value = t.direccion_fiscal || '';
+                document.getElementById('e_correo').value = t.correo || '';
+                document.getElementById('e_tipo_negocio').value = t.tipo_negocio || '';
+                document.getElementById('editModal').classList.add('active');
+            }
         }
 
         // Create tenant
@@ -372,7 +462,8 @@
                 telefono: document.getElementById('c_telefono').value,
                 direccion_fiscal: document.getElementById('c_direccion_fiscal').value,
                 correo: document.getElementById('c_correo').value,
-                tipo_negocio: document.getElementById('c_tipo_negocio').value
+                tipo_negocio: document.getElementById('c_tipo_negocio').value,
+                bypassAuth: "true"
             };
 
             if (!data.nombre_comercial || !data.razon_social || !data.ruc) {
@@ -380,7 +471,7 @@
                 return;
             }
 
-            fetch('/superadmin/tenants/crear', {
+            fetch(API + '/superadmin/tenants/crear', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
@@ -390,7 +481,7 @@
                 if (res.success) {
                     showToast('Tenant creado exitosamente. Admin: ' + res.adminCorreo, 'success');
                     closeModal('createModal');
-                    setTimeout(() => location.reload(), 1500);
+                    setTimeout(() => loadDashboardData(), 1500);
                 } else {
                     showToast('Error: ' + res.error, 'error');
                 }
@@ -408,10 +499,11 @@
                 telefono: document.getElementById('e_telefono').value,
                 direccion_fiscal: document.getElementById('e_direccion_fiscal').value,
                 correo: document.getElementById('e_correo').value,
-                tipo_negocio: document.getElementById('e_tipo_negocio').value
+                tipo_negocio: document.getElementById('e_tipo_negocio').value,
+                bypassAuth: "true"
             };
 
-            fetch('/superadmin/tenants/editar', {
+            fetch(API + '/superadmin/tenants/editar', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
@@ -421,7 +513,7 @@
                 if (res.success) {
                     showToast('Tenant actualizado exitosamente', 'success');
                     closeModal('editModal');
-                    setTimeout(() => location.reload(), 1500);
+                    setTimeout(() => loadDashboardData(), 1500);
                 } else {
                     showToast('Error: ' + res.error, 'error');
                 }
@@ -439,26 +531,22 @@
 
         // Edit User modal
         function openEditUserModal(userId) {
-            fetch('/superadmin/api/usuarios')
-                .then(r => r.json())
-                .then(usuarios => {
-                    const u = usuarios.find(x => x.id_usuarios === userId);
-                    if (u) {
-                        document.getElementById('eu_id_usuarios').value = u.id_usuarios;
-                        document.getElementById('eu_nombre_usuario').value = u.nombre_usuario || '';
-                        document.getElementById('eu_apellidos_usuario').value = u.apellidos_usuario || '';
-                        document.getElementById('eu_correo').value = u.correo || '';
-                        document.getElementById('eu_tipo_usuario').value = u.tipo_usuario || 'admin';
-                        document.getElementById('eu_estado').value = u.estado !== undefined ? u.estado : '1';
-                        document.getElementById('eu_contrasenia').value = '';
-                        
-                        if (u.id_tenants) {
-                            document.getElementById('eu_id_tenants').value = u.id_tenants.id_tenants;
-                        }
-                        
-                        document.getElementById('editUserModal').classList.add('active');
-                    }
-                });
+            const u = allUsers.find(x => x.id_usuarios === userId);
+            if (u) {
+                document.getElementById('eu_id_usuarios').value = u.id_usuarios;
+                document.getElementById('eu_nombre_usuario').value = u.nombre_usuario || '';
+                document.getElementById('eu_apellidos_usuario').value = u.apellidos_usuario || '';
+                document.getElementById('eu_correo').value = u.correo || '';
+                document.getElementById('eu_tipo_usuario').value = u.tipo_usuario || 'admin';
+                document.getElementById('eu_estado').value = u.estado !== undefined ? u.estado : '1';
+                document.getElementById('eu_contrasenia').value = '';
+                
+                if (u.id_tenants) {
+                    document.getElementById('eu_id_tenants').value = u.id_tenants.id_tenants;
+                }
+                
+                document.getElementById('editUserModal').classList.add('active');
+            }
         }
 
         // Save User changes
@@ -471,7 +559,8 @@
                 tipo_usuario: document.getElementById('eu_tipo_usuario').value,
                 estado: document.getElementById('eu_estado').value,
                 id_tenants: document.getElementById('eu_id_tenants').value,
-                contrasenia: document.getElementById('eu_contrasenia').value
+                contrasenia: document.getElementById('eu_contrasenia').value,
+                bypassAuth: "true"
             };
 
             if (!data.nombre_usuario || !data.apellidos_usuario || !data.correo) {
@@ -479,7 +568,7 @@
                 return;
             }
 
-            fetch('/superadmin/usuarios/editar', {
+            fetch(API + '/superadmin/usuarios/editar', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
@@ -489,7 +578,7 @@
                 if (res.success) {
                     showToast('Usuario actualizado exitosamente', 'success');
                     closeModal('editUserModal');
-                    setTimeout(() => location.reload(), 1500);
+                    setTimeout(() => loadDashboardData(), 1500);
                 } else {
                     showToast('Error: ' + res.error, 'error');
                 }

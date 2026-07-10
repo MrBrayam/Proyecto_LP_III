@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,8 +11,8 @@
 
     <div class="container">
         <header>
-            <a href="/" class="logo">Bella<span>rista</span></a>
-            <a href="/" class="back-btn">&larr; Seguir comprando</a>
+            <a href="#" id="logoLink" class="logo">Bella<span>rista</span></a>
+            <a href="#" id="backLink" class="back-btn">&larr; Seguir comprando</a>
         </header>
 
         <div class="checkout-grid">
@@ -25,52 +25,45 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Nombre</label>
-                                <input type="text" id="nombre" name="nombre" required 
-                                       th:value="${cliente != null ? cliente.nombre_cliente : ''}">
+                                <input type="text" id="nombre" name="nombre" required value="">
                             </div>
                             <div class="form-group">
                                 <label>Apellidos</label>
-                                <input type="text" id="apellidos" name="apellidos" required
-                                       th:value="${cliente != null ? cliente.apellidos_clientes : ''}">
+                                <input type="text" id="apellidos" name="apellidos" required value="">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Correo Electrónico</label>
-                                <input type="email" id="correo" name="correo" required
-                                       th:value="${cliente != null ? cliente.correo : ''}">
+                                <input type="email" id="correo" name="correo" required value="">
                             </div>
                             <div class="form-group">
                                 <label>Teléfono</label>
-                                <input type="text" id="telefono" name="telefono" required
-                                       th:value="${cliente != null ? cliente.telefono : ''}">
+                                <input type="text" id="telefono" name="telefono" required value="">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Tipo Documento</label>
                                 <select id="tipoDocumento" name="tipoDocumento">
-                                    <option value="DNI" th:selected="${cliente != null && cliente.tipo_documento == 'DNI'}">DNI</option>
-                                    <option value="RUC" th:selected="${cliente != null && cliente.tipo_documento == 'RUC'}">RUC</option>
-                                    <option value="C.E." th:selected="${cliente != null && cliente.tipo_documento == 'C.E.'}">C.E.</option>
+                                    <option value="DNI">DNI</option>
+                                    <option value="RUC">RUC</option>
+                                    <option value="C.E.">C.E.</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label>Número Documento</label>
-                                <input type="text" id="numeroDocumento" name="numeroDocumento" required
-                                       th:value="${cliente != null ? cliente.numero_documento : ''}">
+                                <input type="text" id="numeroDocumento" name="numeroDocumento" required value="">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Dirección de Envío</label>
-                                <input type="text" id="direccion" name="direccion" required
-                                       th:value="${cliente != null ? cliente.direccion : ''}">
+                                <input type="text" id="direccion" name="direccion" required value="">
                             </div>
                             <div class="form-group">
                                 <label>Distrito</label>
-                                <input type="text" id="distrito" name="distrito" required
-                                       th:value="${cliente != null ? cliente.distrito : ''}">
+                                <input type="text" id="distrito" name="distrito" required value="">
                             </div>
                         </div>
                     </div>
@@ -85,7 +78,7 @@
                             <div class="form-group">
                                 <label>Sede de Atención</label>
                                 <select id="sedeId" name="sedeId" onchange="loadAvailableSlots()">
-                                    <option th:each="s : ${sedes}" th:value="${s.id_sedes}" th:text="${s.nombre_sede}"></option>
+                                    <option value="">Cargando sedes...</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -186,10 +179,29 @@
 
     <!-- Client-side logic for checkout -->
     <script>
+        const API = 'http://15.204.230.215:2451';
+        const urlParams = new URLSearchParams(window.location.search);
+        const tenantId = urlParams.get('tenantId') || '1';
+
         let cart = [];
         let selectedMethod = 'card';
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Update links
+            document.getElementById('logoLink').href = `/tienda.html?tenantId=${tenantId}`;
+            document.getElementById('backLink').href = `/tienda.html?tenantId=${tenantId}`;
+
+            // Fetch tenant details to customize header branding
+            fetch(API + '/api/tenants/' + tenantId)
+                .then(r => r.json())
+                .then(tenant => {
+                    if (tenant) {
+                        document.getElementById('logoLink').innerHTML = tenant.nombre_comercial;
+                        document.title = 'Checkout - ' + tenant.nombre_comercial;
+                    }
+                })
+                .catch(err => console.error(err));
+
             try {
                 cart = JSON.parse(localStorage.getItem('bellarista_cart') || '[]');
             } catch(e) {
@@ -198,9 +210,50 @@
 
             if (cart.length === 0) {
                 alert('No hay productos en el carrito. Redirigiendo a la tienda.');
-                window.location.href = '/';
+                window.location.href = '/tienda.html?tenantId=' + tenantId;
                 return;
             }
+
+            // Pre-populate customer details from localStorage
+            const cliente = JSON.parse(localStorage.getItem('cliente') || 'null');
+            if (cliente) {
+                document.getElementById('nombre').value = cliente.nombre_cliente || '';
+                document.getElementById('apellidos').value = cliente.apellidos_clientes || '';
+                document.getElementById('correo').value = cliente.correo || '';
+                document.getElementById('telefono').value = cliente.telefono || '';
+                document.getElementById('tipoDocumento').value = cliente.tipo_documento || 'DNI';
+                document.getElementById('numeroDocumento').value = cliente.numero_documento || '';
+                document.getElementById('direccion').value = cliente.direccion || '';
+                document.getElementById('distrito').value = cliente.distrito || '';
+            }
+
+            // Fetch sedes dynamically
+            fetch(API + '/api/sedes')
+                .then(r => r.json())
+                .then(sedes => {
+                    const filtered = sedes.filter(s => s.id_tenants && s.id_tenants.id_tenants == tenantId);
+                    const dropdown = document.getElementById('sedeId');
+                    dropdown.innerHTML = '';
+                    if (filtered.length === 0) {
+                        dropdown.innerHTML = '<option value="">No hay sedes disponibles</option>';
+                    } else {
+                        filtered.forEach(s => {
+                            const opt = document.createElement('option');
+                            opt.value = s.id_sedes;
+                            opt.textContent = s.nombre_sede;
+                            dropdown.appendChild(opt);
+                        });
+                        // trigger slot loading if we have services
+                        const hasServices = cart.some(item => item.tipo === 'servicio');
+                        if (hasServices) {
+                            loadAvailableSlots();
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.error('Error al cargar sedes:', err);
+                    document.getElementById('sedeId').innerHTML = '<option value="">Error al cargar sedes</option>';
+                });
 
             // Set minimum date to today
             const dateInput = document.getElementById('fechaCita');
@@ -213,7 +266,6 @@
             if (hasServices) {
                 const bCard = document.getElementById('bookingCard');
                 if (bCard) bCard.style.display = 'block';
-                loadAvailableSlots();
             }
 
             renderSummary();
@@ -258,7 +310,7 @@
 
             horaSelect.innerHTML = '<option value="">Cargando horarios...</option>';
 
-            fetch(`/tienda/api/citas/disponibles?SedeId=${sedeId}&fecha=${fecha}&duracion=${duracion}`)
+            fetch(`${API}/tienda/api/citas/disponibles?SedeId=${sedeId}&fecha=${fecha}&duracion=${duracion}`)
                 .then(res => res.json())
                 .then(slots => {
                     horaSelect.innerHTML = '';
@@ -345,6 +397,7 @@
                 fechaCita: fechaVal,
                 horaCita: horaVal,
                 observacionesCita: obsVal,
+                tenantId: parseInt(tenantId),
                 items: cart.map(item => ({
                     id_productos: item.id_productos || null,
                     id_servicios_belleza: item.id_servicios_belleza || null,
@@ -355,7 +408,7 @@
                 }))
             };
 
-            fetch('/tienda/api/checkout', {
+            fetch(API + '/tienda/api/checkout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
@@ -364,7 +417,7 @@
             .then(data => {
                 if (data.success) {
                     localStorage.removeItem('bellarista_cart');
-                    window.location.href = '/tienda/success?ventaId=' + data.ventaId;
+                    window.location.href = `/tienda_success.html?tenantId=${tenantId}&ventaId=${data.ventaId}`;
                 } else {
                     console.error('Error detallado del servidor:', data.error);
                     alert('Error al registrar compra: ' + (data.error || 'Intente nuevamente'));
