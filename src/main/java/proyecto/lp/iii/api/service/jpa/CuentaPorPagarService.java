@@ -24,8 +24,8 @@ public class CuentaPorPagarService implements ICuentaPorPagarService {
         return repoCuentaPorPagar.findAll();
     }
 
-    public void guardar(CuentaPorPagar cuentaporpagar) {
-        repoCuentaPorPagar.save(cuentaporpagar);
+    public CuentaPorPagar guardar(CuentaPorPagar cuentaporpagar) {
+        return repoCuentaPorPagar.save(cuentaporpagar);
     }
 
     @Transactional

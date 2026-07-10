@@ -23,8 +23,8 @@ public class LoteInventarioService implements ILoteInventarioService {
     public List<LoteInventario> buscarTodos() { 
         return repoLoteInventario.findAll(); 
     }
-    public void guardar(LoteInventario loteinventario) { 
-        repoLoteInventario.save(loteinventario); 
+    public LoteInventario guardar(LoteInventario loteinventario) { 
+        return repoLoteInventario.save(loteinventario); 
     }
     @Transactional
     public void modificar(LoteInventario loteinventario) { 

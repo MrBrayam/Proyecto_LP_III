@@ -7,7 +7,7 @@ import proyecto.lp.iii.api.entity.PagoProveedor;
 public interface IPagoProveedorService {
     List<PagoProveedor> buscarTodos();
 
-    void guardar(PagoProveedor pagoproveedor);
+    PagoProveedor guardar(PagoProveedor pagoproveedor);
 
     void modificar(PagoProveedor pagoproveedor);
 

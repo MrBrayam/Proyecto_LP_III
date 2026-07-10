@@ -7,7 +7,7 @@ import proyecto.lp.iii.api.entity.LoteInventario;
 public interface ILoteInventarioService {
     List<LoteInventario> buscarTodos();
 
-    void guardar(LoteInventario loteinventario);
+    LoteInventario guardar(LoteInventario loteinventario);
 
     void modificar(LoteInventario loteinventario);
 

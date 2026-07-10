@@ -23,8 +23,8 @@ public class PagoProveedorService implements IPagoProveedorService {
     public List<PagoProveedor> buscarTodos() { 
         return repoPagoProveedor.findAll(); 
     }
-    public void guardar(PagoProveedor pagoproveedor) { 
-        repoPagoProveedor.save(pagoproveedor); 
+    public PagoProveedor guardar(PagoProveedor pagoproveedor) { 
+        return repoPagoProveedor.save(pagoproveedor); 
     }
     @Transactional
     public void modificar(PagoProveedor pagoproveedor) { 
