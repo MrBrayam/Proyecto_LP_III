@@ -567,9 +567,6 @@ public class PageController {
             admin.setEstado(1);
             serviceUsuarios.guardar(admin);
 
-            // Force immediate flush inside the try-catch block to catch SQL constraint exceptions
-            entityManager.flush();
-
             res.put("success", true);
             res.put("tenantId", tenant.getId_tenants());
             res.put("adminCorreo", admin.getCorreo());
