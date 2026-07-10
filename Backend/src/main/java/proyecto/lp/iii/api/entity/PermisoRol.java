@@ -25,8 +25,9 @@ public class PermisoRol {
     private Integer id_permisos_rol;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_roles_personalizados", nullable = false)
+    @JoinColumn(name = "id_roles_personalizados", nullable = true)
     @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+    @org.hibernate.annotations.NotFound(action = org.hibernate.annotations.NotFoundAction.IGNORE)
     private RolPersonalizado id_roles_personalizados;
 
     private String modulo;
