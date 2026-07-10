@@ -510,7 +510,6 @@ public class PageController {
 
     @PostMapping("/superadmin/tenants/crear")
     @ResponseBody
-    @Transactional
     public Map<String, Object> crearTenant(@RequestBody Map<String, String> datos, HttpSession session) {
         Map<String, Object> res = new HashMap<>();
         if (session.getAttribute("superadmin") == null && datos.get("bypassAuth") == null) {
@@ -539,9 +538,15 @@ public class PageController {
             tenant.setEstado(1);
             serviceTenants.guardar(tenant);
 
+            // Fetch the persisted tenant from database to ensure it has its ID populated
+            Tenants savedTenant = serviceTenants.buscarTodos().stream()
+                    .filter(t -> t.getRuc() != null && t.getRuc().equals(ruc))
+                    .findFirst()
+                    .orElse(tenant);
+
             // Crear usuario admin por defecto
             Usuarios admin = new Usuarios();
-            admin.setId_tenants(tenant);
+            admin.setId_tenants(savedTenant);
             String nombreLimpio = datos.get("nombre_comercial").replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
             String emailAdmin = "admin@" + nombreLimpio + ".com";
             
